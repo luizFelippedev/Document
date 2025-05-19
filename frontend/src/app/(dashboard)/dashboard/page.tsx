@@ -1,0 +1,1 @@
+import { MainLayout } from "@/components/layout/MainLayout"; import { StatCard } from "@/components/dashboard/StatCard"; import { RecentProjects } from "@/components/dashboard/RecentProjects"; export default function DashboardPage() { return <MainLayout><div className="dashboard-container"><StatCard /><RecentProjects /></div></MainLayout> }

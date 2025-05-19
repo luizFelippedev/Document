@@ -1,0 +1,1 @@
+export const Dropdown = ({ trigger, items, isOpen, setIsOpen }) => { return <div className="dropdown"><div onClick={() => setIsOpen(!isOpen)}>{trigger}</div>{isOpen && <div className="dropdown-menu">{items.map((item, i) => <div key={i} className="dropdown-item" onClick={item.onClick}>{item.label}</div>)}</div>}</div> }

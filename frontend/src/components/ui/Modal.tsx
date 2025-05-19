@@ -1,0 +1,1 @@
+export const Modal = ({ isOpen, onClose, children, title }) => { if (!isOpen) return null; return <div className="modal-backdrop"><div className="modal"><div className="modal-header">{title}<button onClick={onClose}>×</button></div><div className="modal-body">{children}</div></div></div> }

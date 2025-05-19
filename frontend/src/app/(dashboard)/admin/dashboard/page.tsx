@@ -1,0 +1,1 @@
+import { AdminLayout } from "@/components/layout/AdminLayout"; import { AdminStats } from "@/components/admin/AdminStats"; export default function AdminDashboardPage() { return <AdminLayout><AdminStats /></AdminLayout> }

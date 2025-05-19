@@ -1,0 +1,1 @@
+export interface Project { id: string; title: string; description: string; thumbnail?: string; skills: string[]; demoUrl?: string; repoUrl?: string; userId: string; createdAt: string; updatedAt: string; } export interface ProjectFormData { title: string; description: string; thumbnail?: File; skills: string[]; demoUrl?: string; repoUrl?: string; }

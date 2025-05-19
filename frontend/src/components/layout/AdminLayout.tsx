@@ -1,0 +1,1 @@
+import { Navbar } from "./Navbar"; import { Footer } from "./Footer"; import { Sidebar } from "./Sidebar"; export const AdminLayout = ({ children }) => { return <div className="admin-layout"><Navbar /><div className="content-wrapper"><Sidebar isAdmin={true} /><main>{children}</main></div><Footer /></div> }

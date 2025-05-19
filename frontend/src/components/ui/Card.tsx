@@ -1,0 +1,1 @@
+interface CardProps { children: React.ReactNode; title?: string; } export const Card = ({ children, title }: CardProps) => { return <div className="card"><div className="card-header">{title}</div><div className="card-body">{children}</div></div> }

@@ -1,0 +1,1 @@
+import { Card } from "../ui/Card"; export const StatCard = ({ title, value, icon }) => { return <Card><div className="stat-card"><div className="stat-icon">{icon}</div><div className="stat-content"><div className="stat-title">{title}</div><div className="stat-value">{value}</div></div></div></Card> }

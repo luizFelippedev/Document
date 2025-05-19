@@ -1,0 +1,1 @@
+import { useEffect, useRef } from "react"; export const ActivityChart = ({ data }) => { const chartRef = useRef(null); useEffect(() => { if (chartRef.current) { // Implementation would use Chart.js or similar library } }, [data]); return <div className="activity-chart"><h3>Activity Over Time</h3><canvas ref={chartRef}></canvas></div> }

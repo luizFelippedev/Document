@@ -1,0 +1,1 @@
+interface InputProps { value: string; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; type?: string; placeholder?: string; } export const Input = ({ value, onChange, type = "text", placeholder }: InputProps) => { return <input type={type} value={value} onChange={onChange} placeholder={placeholder} className="input" /> }

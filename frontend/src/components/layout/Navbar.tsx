@@ -1,0 +1,1 @@
+import { useAuth } from "@/hooks/useAuth"; export const Navbar = () => { const { user, logout } = useAuth(); return <nav className="navbar"><div className="logo">Logo</div><div className="nav-links">...</div>{user && <button onClick={logout}>Logout</button>}</nav> }
