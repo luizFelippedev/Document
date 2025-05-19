@@ -1,1 +1,0 @@
-export interface User { id: string; name: string; email: string; role: "user" | "admin"; avatar?: string; bio?: string; location?: string; website?: string; skills: string[]; createdAt: string; updatedAt: string; }

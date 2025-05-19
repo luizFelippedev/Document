@@ -1,1 +1,0 @@
-export const formatNumber = (num) => { return new Intl.NumberFormat().format(num); }; export const formatCurrency = (amount, currency = "USD") => { return new Intl.NumberFormat("en-US", { style: "currency", currency }).format(amount); }; export const formatPercentage = (value) => { return `${(value * 100).toFixed(2)}%`; }

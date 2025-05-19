@@ -1,1 +1,0 @@
-import { PasswordForm } from "@/components/profile/PasswordForm"; import { TwoFactorSettings } from "@/components/profile/TwoFactorSettings"; export default function ProfileSettingsPage() { return <div><PasswordForm /><TwoFactorSettings /></div> }
