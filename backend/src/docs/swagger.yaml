@@ -1,0 +1,973 @@
+openapi: 3.0.0
+info:
+  title: Project Management API
+  description: API documentation for the Project Management platform
+  version: 1.0.0
+  contact:
+    name: Support Team
+    email: support@example.com
+servers:
+  - url: http://localhost:5000/api
+    description: Development server
+  - url: https://api.example.com/api
+    description: Production server
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          description: User ID
+        firstName:
+          type: string
+          description: User's first name
+        lastName:
+          type: string
+          description: User's last name
+        email:
+          type: string
+          format: email
+          description: User's email address
+        role:
+          type: string
+          enum: [admin, user, manager]
+          description: User's role
+        bio:
+          type: string
+          description: User's bio
+        company:
+          type: string
+          description: User's company
+        position:
+          type: string
+          description: User's position
+        avatar:
+          type: string
+          description: URL to user's avatar
+        verified:
+          type: boolean
+          description: Email verification status
+        skills:
+          type: array
+          items:
+            type: string
+          description: User's skills
+        createdAt:
+          type: string
+          format: date-time
+          description: Account creation date
+        updatedAt:
+          type: string
+          format: date-time
+          description: Account last update date
+    
+    Project:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Project ID
+        name:
+          type: string
+          description: Project name
+        description:
+          type: string
+          description: Project description
+        owner:
+          type: object
+          properties:
+            id:
+              type: string
+            firstName:
+              type: string
+            lastName:
+              type: string
+            email:
+              type: string
+            avatar:
+              type: string
+        collaborators:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              firstName:
+                type: string
+              lastName:
+                type: string
+              email:
+                type: string
+              avatar:
+                type: string
+        status:
+          type: string
+          enum: [draft, in-progress, review, completed, archived]
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+        tags:
+          type: array
+          items:
+            type: string
+        category:
+          type: string
+        visibility:
+          type: string
+          enum: [public, private, team]
+        files:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              path:
+                type: string
+              size:
+                type: number
+              type:
+                type: string
+              uploadedAt:
+                type: string
+                format: date-time
+        thumbnail:
+          type: string
+        aiGenerated:
+          type: boolean
+        aiPrompt:
+          type: string
+        metrics:
+          type: object
+          properties:
+            views:
+              type: number
+            likes:
+              type: number
+            downloads:
+              type: number
+            shares:
+              type: number
+        lastUpdatedBy:
+          type: object
+          properties:
+            id:
+              type: string
+            firstName:
+              type: string
+            lastName:
+              type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    
+    Certificate:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        recipient:
+          type: object
+          properties:
+            id:
+              type: string
+            firstName:
+              type: string
+            lastName:
+              type: string
+            email:
+              type: string
+            avatar:
+              type: string
+        issuer:
+          type: object
+          properties:
+            id:
+              type: string
+            firstName:
+              type: string
+            lastName:
+              type: string
+            email:
+              type: string
+        issueDate:
+          type: string
+          format: date-time
+        expiryDate:
+          type: string
+          format: date-time
+        certificateNumber:
+          type: string
+        status:
+          type: string
+          enum: [draft, issued, revoked, expired]
+        skillsValidated:
+          type: array
+          items:
+            type: string
+        imageUrl:
+          type: string
+        fileUrl:
+          type: string
+        verificationCode:
+          type: string
+        verificationUrl:
+          type: string
+        project:
+          type: object
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    
+    Notification:
+      type: object
+      properties:
+        id:
+          type: string
+        recipient:
+          type: string
+        sender:
+          type: string
+        type:
+          type: string
+          enum: [info, success, warning, error, system]
+        title:
+          type: string
+        message:
+          type: string
+        link:
+          type: string
+        read:
+          type: boolean
+        readAt:
+          type: string
+          format: date-time
+        entity:
+          type: object
+          properties:
+            type:
+              type: string
+            id:
+              type: string
+        createdAt:
+          type: string
+          format: date-time
+    
+    Error:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [fail, error]
+        message:
+          type: string
+        errors:
+          type: object
+          additionalProperties:
+            type: string
+
+    Success:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [success]
+        message:
+          type: string
+        data:
+          type: object
+        meta:
+          type: object
+          properties:
+            page:
+              type: number
+            limit:
+              type: number
+            total:
+              type: number
+            totalPages:
+              type: number
+            hasNextPage:
+              type: boolean
+            hasPrevPage:
+              type: boolean
+        links:
+          type: object
+          properties:
+            self:
+              type: string
+            next:
+              type: string
+            prev:
+              type: string
+            first:
+              type: string
+            last:
+              type: string
+
+security:
+  - BearerAuth: []
+
+tags:
+  - name: Auth
+    description: Authentication related endpoints
+  - name: Users
+    description: User profile management
+  - name: Projects
+    description: Project management
+  - name: Certificates
+    description: Certificate management
+  - name: AI
+    description: AI-powered features
+  - name: Admin
+    description: Admin panel endpoints
+
+paths:
+  /auth/register:
+    post:
+      tags:
+        - Auth
+      summary: Register a new user
+      description: Create a new user account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - firstName
+                - lastName
+                - email
+                - password
+                - confirmPassword
+                - termsAccepted
+              properties:
+                firstName:
+                  type: string
+                  minLength: 2
+                lastName:
+                  type: string
+                  minLength: 2
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 8
+                confirmPassword:
+                  type: string
+                company:
+                  type: string
+                position:
+                  type: string
+                bio:
+                  type: string
+                skills:
+                  type: array
+                  items:
+                    type: string
+                termsAccepted:
+                  type: boolean
+                  enum: [true]
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Email already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      summary: Login user
+      description: Authenticate user and get JWT token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                remember:
+                  type: boolean
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          user:
+                            $ref: '#/components/schemas/User'
+                          token:
+                            type: string
+                          requireTwoFactor:
+                            type: boolean
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /auth/logout:
+    post:
+      tags:
+        - Auth
+      summary: Logout user
+      description: Invalidate JWT token
+      security:
+        - BearerAuth: []
+      responses:
+        '204':
+          description: Logout successful
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /auth/verify-email:
+    post:
+      tags:
+        - Auth
+      summary: Verify email address
+      description: Verify user email with token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - token
+              properties:
+                token:
+                  type: string
+      responses:
+        '200':
+          description: Email verified successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+        '400':
+          description: Invalid or expired token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /auth/me:
+    get:
+      tags:
+        - Auth
+      summary: Get current user
+      description: Get authenticated user profile
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: User retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          user:
+                            $ref: '#/components/schemas/User'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /users/profile:
+    get:
+      tags:
+        - Users
+      summary: Get user profile
+      description: Get detailed user profile with stats
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          user:
+                            $ref: '#/components/schemas/User'
+                          stats:
+                            type: object
+                            properties:
+                              projects:
+                                type: number
+                              certificates:
+                                type: number
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    
+    put:
+      tags:
+        - Users
+      summary: Update user profile
+      description: Update user profile information
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstName:
+                  type: string
+                  minLength: 2
+                lastName:
+                  type: string
+                  minLength: 2
+                bio:
+                  type: string
+                company:
+                  type: string
+                position:
+                  type: string
+                skills:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Profile updated successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          user:
+                            $ref: '#/components/schemas/User'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /projects:
+    post:
+      tags:
+        - Projects
+      summary: Create a new project
+      description: Create a new project
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - name
+                - description
+                - category
+              properties:
+                name:
+                  type: string
+                  minLength: 3
+                description:
+                  type: string
+                  minLength: 10
+                category:
+                  type: string
+                tags:
+                  type: array
+                  items:
+                    type: string
+                visibility:
+                  type: string
+                  enum: [public, private, team]
+                  default: private
+                collaborators:
+                  type: array
+                  items:
+                    type: string
+                startDate:
+                  type: string
+                  format: date
+                endDate:
+                  type: string
+                  format: date
+                aiGenerated:
+                  type: boolean
+                  default: false
+                aiPrompt:
+                  type: string
+                project:
+                  type: string
+                  format: binary
+                  description: Project file
+      responses:
+        '201':
+          description: Project created successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          project:
+                            $ref: '#/components/schemas/Project'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    
+    get:
+      tags:
+        - Projects
+      summary: Get projects
+      description: Get projects with pagination and filtering
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+          description: Page number
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+          description: Items per page
+        - name: sortBy
+          in: query
+          schema:
+            type: string
+            default: createdAt
+            enum: [createdAt, updatedAt, name, status]
+          description: Sort field
+        - name: sortOrder
+          in: query
+          schema:
+            type: string
+            default: desc
+            enum: [asc, desc]
+          description: Sort order
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [draft, in-progress, review, completed, archived]
+          description: Filter by status
+        - name: category
+          in: query
+          schema:
+            type: string
+          description: Filter by category
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Search term
+        - name: tags
+          in: query
+          schema:
+            type: string
+          description: Filter by tags (comma-separated)
+      responses:
+        '200':
+          description: Projects retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          projects:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/Project'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /ai/generate/description:
+    post:
+      tags:
+        - AI
+      summary: Generate project description
+      description: Generate a project description using AI
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - prompt
+              properties:
+                prompt:
+                  type: string
+                  minLength: 10
+      responses:
+        '200':
+          description: Description generated successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          description:
+                            type: string
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /certificates/verify/{code}:
+    get:
+      tags:
+        - Certificates
+      summary: Verify certificate
+      description: Verify certificate by verification code
+      parameters:
+        - name: code
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Certificate verification code
+      responses:
+        '200':
+          description: Certificate verification completed
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          certificate:
+                            $ref: '#/components/schemas/Certificate'
+                          isValid:
+                            type: boolean
+                          verificationDate:
+                            type: string
+                            format: date-time
+        '404':
+          description: Certificate not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /admin/stats:
+    get:
+      tags:
+        - Admin
+      summary: Get system statistics
+      description: Get system statistics for admin dashboard
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Statistics retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          users:
+                            type: object
+                            properties:
+                              total:
+                                type: number
+                              active:
+                                type: number
+                              newToday:
+                                type: number
+                              connected:
+                                type: number
+                          projects:
+                            type: object
+                            properties:
+                              total:
+                                type: number
+                              public:
+                                type: number
+                              newToday:
+                                type: number
+                          certificates:
+                            type: object
+                            properties:
+                              total:
+                                type: number
+                              newToday:
+                                type: number
+                          notifications:
+                            type: object
+                            properties:
+                              active:
+                                type: number
+                          storage:
+                            type: object
+                            properties:
+                              used:
+                                type: number
+                              usedFormatted:
+                                type: string
+                          system:
+                            type: object
+                            properties:
+                              timestamp:
+                                type: string
+                                format: date-time
+                              uptime:
+                                type: number
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'

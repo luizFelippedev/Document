@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificate Issued</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 1px solid #eeeeee;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4a6cf7;
+        }
+        .content {
+            padding: 30px 20px;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 12px;
+            color: #666;
+            border-top: 1px solid #eeeeee;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #4a6cf7;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        .button:hover {
+            background-color: #3a5ce5;
+        }
+        .certificate {
+            background-color: #e8f4f8;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #b4d9e7;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .certificate-title {
+            font-size: 22px;
+            font-weight: bold;
+            color: #2c6b8e;
+            margin-bottom: 10px;
+        }
+        .certificate-issuer {
+            font-style: italic;
+            color: #555;
+        }
+        .verify {
+            background-color: #f0f8ed;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+            border-left: 4px solid #5cb85c;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">{{appName}}</div>
+        </div>
+        <div class="content">
+            <h2>Congratulations, {{firstName}}!</h2>
+            <p>You have been awarded a new certificate:</p>
+            
+            <div class="certificate">
+                <div class="certificate-title">{{certificateTitle}}</div>
+                <div class="certificate-issuer">Issued by: {{issuerName}}</div>
+            </div>
+            
+            <p>This certificate recognizes your skills, achievements, and dedication to excellence. You can view and download your certificate by clicking the button below:</p>
+            
+            <div style="text-align: center;">
+                <a href="{{viewUrl}}" class="button">View My Certificate</a>
+            </div>
+            
+            <div class="verify">
+                <p><strong>Certificate Verification:</strong></p>
+                <p>Your certificate can be verified by anyone using this link:</p>
+                <p style="word-break: break-all;"><a href="{{verificationUrl}}">{{verificationUrl}}</a></p>
+                <p>Feel free to share this verification link with employers or others who may want to verify the authenticity of your certificate.</p>
+            </div>
+            
+            <p>Best regards,<br>The {{appName}} Team</p>
+        </div>
+        <div class="footer">
+            <p>&copy; {{currentYear}} {{appName}}. All rights reserved.</p>
+            <p>If you have any questions, please <a href="mailto:support@example.com">contact our support team</a>.</p>
+        </div>
+    </div>
+</body>
+</html>
