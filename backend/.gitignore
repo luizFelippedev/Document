@@ -43,3 +43,5 @@ Thumbs.db
 # Cobertura de testes
 /coverage
 .nyc_output
+
+node_modules/
