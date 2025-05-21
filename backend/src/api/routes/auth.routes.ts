@@ -16,6 +16,11 @@ import {
   refreshToken,
   requireVerifiedEmail,
 } from '../middleware/auth';
+import { 
+  authRateLimiter, 
+  passwordResetRateLimiter, 
+  registrationRateLimiter 
+} from '../middleware/rateLimiter';
 
 const router = Router();
 
@@ -24,14 +29,14 @@ const router = Router();
  * @desc    Register a new user
  * @access  Public
  */
-router.post('/register', validate(registerSchema), authController.register);
+router.post('/register', registrationRateLimiter, validate(registerSchema), authController.register);
 
 /**
  * @route   POST /api/auth/login
  * @desc    Login user
  * @access  Public
  */
-router.post('/login', validate(loginSchema), authController.login);
+router.post('/login', authRateLimiter, validate(loginSchema), authController.login);
 
 /**
  * @route   POST /api/auth/logout
@@ -59,7 +64,7 @@ router.post('/resend-verification', authenticate, authController.resendVerificat
  * @desc    Request password reset
  * @access  Public
  */
-router.post('/forgot-password', validate(forgotPasswordSchema), authController.forgotPassword);
+router.post('/forgot-password', passwordResetRateLimiter, validate(forgotPasswordSchema), authController.forgotPassword);
 
 /**
  * @route   POST /api/auth/reset-password

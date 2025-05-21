@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 import mongoose, { Types } from 'mongoose';
 import Certificate, { ICertificate } from '../models/certificate.model';
 import User from '../models/user.model';
@@ -23,154 +23,174 @@ import QRCode from 'qrcode';
 export const createCertificate = asyncHandler(async (
   req: AuthRequest,
   res: Response): Promise<void> => {
-  if (!req.user) {
-    throw new UnauthorizedError('User not authenticated');
-  }
+  // Start a session for transaction
+  const session = await mongoose.startSession();
+  session.startTransaction();
   
-  const {
-    title,
-    description,
-    recipientId,
-    projectId,
-    expiryDate,
-    skillsValidated,
-    templateId,
-    metadata,
-  } = req.body;
-  
-  // Check if user has permission to issue certificates
-  if (req.user.role !== 'admin' && req.user.role !== 'manager') {
-    throw new ForbiddenError('You do not have permission to issue certificates');
-  }
-  
-  // Validate recipient
-  if (!mongoose.Types.ObjectId.isValid(recipientId)) {
-    throw new BadRequestError('Invalid recipient ID');
-  }
-  
-  const recipient = await User.findById(recipientId);
-  if (!recipient) {
-    throw new NotFoundError('Recipient not found');
-  }
-  
-  // Validate project if provided
-  let project;
-  if (projectId) {
-    if (!mongoose.Types.ObjectId.isValid(projectId)) {
-      throw new BadRequestError('Invalid project ID');
+  try {
+    if (!req.user) {
+      throw new UnauthorizedError('User not authenticated');
     }
     
-    project = await Project.findById(projectId);
-    if (!project) {
-      throw new NotFoundError('Project not found');
+    const {
+      title,
+      description,
+      recipientId,
+      projectId,
+      expiryDate,
+      skillsValidated,
+      templateId,
+      metadata,
+    } = req.body;
+    
+    // Check if user has permission to issue certificates
+    if (req.user.role !== 'admin' && req.user.role !== 'manager') {
+      throw new ForbiddenError('You do not have permission to issue certificates');
     }
     
-    // Check if user is associated with the project
-    if (project.owner.toString() !== req.user._id.toString() && 
-        !project.collaborators.some(id => id.toString() === req.user?._id.toString()) &&
-        req.user.role !== 'admin') {
-      throw new ForbiddenError('You do not have permission to issue certificates for this project');
+    // Validate recipient
+    if (!mongoose.Types.ObjectId.isValid(recipientId)) {
+      throw new BadRequestError('Invalid recipient ID');
     }
     
-    // Check if recipient is associated with the project
-    if (project.owner.toString() !== recipientId && 
-        !project.collaborators.some(id => id.toString() === recipientId)) {
-      throw new BadRequestError('Recipient is not associated with this project');
+    const recipient = await User.findById(recipientId).session(session);
+    if (!recipient) {
+      throw new NotFoundError('Recipient not found');
     }
-  }
-  
-  // Create certificate
-  const certificate = new Certificate({
-    title,
-    description,
-    recipient: recipientId,
-    issuer: req.user._id,
-    project: projectId,
-    expiryDate: expiryDate || undefined,
-    skillsValidated: skillsValidated || [],
-    templateId: templateId || undefined,
-    metadata: metadata || {},
-    status: 'draft',
-  });
-  
-  // Generate verification code and URL
-  certificate.generateVerificationCode();
-  
-  // Set certificate number if not already set
-  if (!certificate.certificateNumber) {
-    const timestamp = Date.now().toString().substring(4);
-    const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-    certificate.certificateNumber = `CERT-${timestamp}-${random}`;
-  }
-  
-  // Generate QR code for verification
-  const qrCodeDir = path.join(process.cwd(), 'uploads', 'certificates', 'images');
-  if (!fs.existsSync(qrCodeDir)) {
-    fs.mkdirSync(qrCodeDir, { recursive: true });
-  }
-  
-  const qrCodePath = path.join(qrCodeDir, `${certificate.verificationCode}.png`);
-  
-  await QRCode.toFile(qrCodePath, certificate.verificationUrl, {
-    errorCorrectionLevel: 'H',
-    width: 500,
-    margin: 1,
-  });
-  
-  // Save QR code path to certificate
-  certificate.imageUrl = `uploads/certificates/images/${certificate.verificationCode}.png`;
-  
-  // Handle file upload if there's a file
-  if (req.file) {
-    certificate.fileUrl = req.file.path.replace(/\\/g, '/');
-  }
-  
-  // Save certificate
-  await certificate.save();
-  
-  // Notify recipient
-  await createNotification({
-    recipient: new Types.ObjectId(recipient._id.toString()),
-    sender: req.user._id,
-    type: 'success',
-    title: 'New Certificate',
-    message: `You've received a certificate: ${certificate.title}`,
-    link: `/certificates/${certificate._id}`,
-    entity: {
-      type: 'certificate',
-      id: certificate._id,
-    },
-  });
-  
-  // Send email notification
-  await sendEmail({
-    to: recipient.email,
-    subject: 'You have received a new certificate',
-    template: 'certificate-issued',
-    data: {
-      firstName: recipient.firstName,
-      certificateTitle: certificate.title,
-      issuerName: `${req.user.firstName} ${req.user.lastName}`,
-      viewUrl: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/certificates/${certificate._id}`,
-      verificationUrl: certificate.verificationUrl,
-    },
-  });
-  
-  // If status is not 'draft', update recipient's skills
-  if (certificate.status === 'issued' && skillsValidated && skillsValidated.length > 0) {
-    // Add validated skills to recipient's skills if they don't already have them
-    const existingSkills = new Set(recipient.skills);
-    const newSkills = skillsValidated.filter((skill: string) => !existingSkills.has(skill));
     
-    if (newSkills.length > 0) {
-      await User.updateOne(
-        { _id: recipientId },
-        { $addToSet: { skills: { $each: newSkills } } }
-      );
+    // Validate project if provided
+    let project;
+    if (projectId) {
+      if (!mongoose.Types.ObjectId.isValid(projectId)) {
+        throw new BadRequestError('Invalid project ID');
+      }
+      
+      project = await Project.findById(projectId).session(session);
+      if (!project) {
+        throw new NotFoundError('Project not found');
+      }
+      
+      // Check if user is associated with the project
+      if (project.owner.toString() !== req.user._id.toString() && 
+          !project.collaborators.some(id => id.toString() === req.user?._id.toString()) &&
+          req.user.role !== 'admin') {
+        throw new ForbiddenError('You do not have permission to issue certificates for this project');
+      }
+      
+      // Check if recipient is associated with the project
+      if (project.owner.toString() !== recipientId && 
+          !project.collaborators.some(id => id.toString() === recipientId)) {
+        throw new BadRequestError('Recipient is not associated with this project');
+      }
     }
+    
+    // Create certificate
+    const certificate = new Certificate({
+      title,
+      description,
+      recipient: recipientId,
+      issuer: req.user._id,
+      project: projectId,
+      expiryDate: expiryDate || undefined,
+      skillsValidated: skillsValidated || [],
+      templateId: templateId || undefined,
+      metadata: metadata || {},
+      status: 'draft',
+    });
+    
+    // Generate verification code and URL
+    certificate.generateVerificationCode();
+    
+    // Set certificate number if not already set
+    if (!certificate.certificateNumber) {
+      const timestamp = Date.now().toString().substring(4);
+      const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+      certificate.certificateNumber = `CERT-${timestamp}-${random}`;
+    }
+    
+    // Generate QR code for verification
+    const qrCodeDir = path.join(process.cwd(), 'uploads', 'certificates', 'images');
+    if (!fs.existsSync(qrCodeDir)) {
+      fs.mkdirSync(qrCodeDir, { recursive: true });
+    }
+    
+    const qrCodePath = path.join(qrCodeDir, `${certificate.verificationCode}.png`);
+    
+    await QRCode.toFile(qrCodePath, certificate.verificationUrl, {
+      errorCorrectionLevel: 'H',
+      width: 500,
+      margin: 1,
+    });
+    
+    // Save QR code path to certificate
+    certificate.imageUrl = `uploads/certificates/images/${certificate.verificationCode}.png`;
+    
+    // Handle file upload if there's a file
+    if (req.file) {
+      certificate.fileUrl = req.file.path.replace(/\\/g, '/');
+    }
+    
+    // Save certificate
+    await certificate.save({ session });
+    
+    // Notify recipient
+    await createNotification({
+      recipient: new Types.ObjectId(recipient._id.toString()),
+      sender: req.user._id,
+      type: 'success',
+      title: 'New Certificate',
+      message: `You've received a certificate: ${certificate.title}`,
+      link: `/certificates/${certificate._id}`,
+      entity: {
+        type: 'certificate',
+        id: certificate._id,
+      },
+    }, session);
+    
+    // If status is not 'draft', update recipient's skills
+    if (certificate.status === 'issued' && skillsValidated && skillsValidated.length > 0) {
+      // Add validated skills to recipient's skills if they don't already have them
+      const existingSkills = new Set(recipient.skills);
+      const newSkills = skillsValidated.filter((skill: string) => !existingSkills.has(skill));
+      
+      if (newSkills.length > 0) {
+        await User.updateOne(
+          { _id: recipientId },
+          { $addToSet: { skills: { $each: newSkills } } },
+          { session }
+        );
+      }
+    }
+    
+    // Queue email notification
+    const emailJob = {
+      to: recipient.email,
+      subject: 'You have received a new certificate',
+      template: 'certificate-issued',
+      data: {
+        firstName: recipient.firstName,
+        certificateTitle: certificate.title,
+        issuerName: `${req.user.firstName} ${req.user.lastName}`,
+        viewUrl: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/certificates/${certificate._id}`,
+        verificationUrl: certificate.verificationUrl,
+      },
+    };
+    
+    // Commit the transaction
+    await session.commitTransaction();
+    
+    // Send email after transaction is committed
+    await sendEmail(emailJob);
+    
+    sendCreated(res, { certificate }, 'Certificate created successfully');
+  } catch (error) {
+    // Abort transaction on error
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    // End session
+    session.endSession();
   }
-  
-  sendCreated(res, { certificate }, 'Certificate created successfully');
 });
 
 /**
@@ -347,82 +367,133 @@ export const updateCertificate = asyncHandler(async (
   req: AuthRequest,
   res: Response
 ): Promise<void> => {
-  if (!req.user) {
-    throw new UnauthorizedError('User not authenticated');
-  }
+  // Start a session for transaction
+  const session = await mongoose.startSession();
+  session.startTransaction();
   
-  const { id } = req.params;
-  
-  // Validate certificate ID
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    throw new BadRequestError('Invalid certificate ID');
-  }
-  
-  // Find certificate
-  const certificate = await Certificate.findById(id);
-  
-  if (!certificate) {
-    throw new NotFoundError('Certificate not found');
-  }
-  
-  // Check if user is issuer or admin
-  if (certificate.issuer.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
-    throw new ForbiddenError('You do not have permission to update this certificate');
-  }
-  
-  // Check if certificate can be updated
-  if (certificate.status === 'revoked') {
-    throw new BadRequestError('Revoked certificates cannot be updated');
-  }
-  
-  const {
-    title,
-    description,
-    expiryDate,
-    skillsValidated,
-    status,
-    metadata,
-  } = req.body;
-  
-  // Update certificate fields
-  if (title) certificate.title = title;
-  if (description) certificate.description = description;
-  if (expiryDate !== undefined) certificate.expiryDate = expiryDate ? new Date(expiryDate) : undefined;
-  if (skillsValidated) certificate.skillsValidated = skillsValidated;
-  if (metadata) certificate.metadata = { ...certificate.metadata, ...metadata };
-  
-  // Handle status change
-  if (status && status !== certificate.status) {
-    if (status === 'issued' && certificate.status === 'draft') {
-      certificate.status = 'issued';
-      certificate.issueDate = new Date();
-      
-      // Notify recipient
-      await createNotification({
-        recipient: new Types.ObjectId(certificate.recipient.toString()),
-        sender: req.user._id,
-        type: 'success',
-        title: 'Certificate Issued',
-        message: `Your certificate "${certificate.title}" has been issued`,
-        link: `/certificates/${certificate._id}`,
-        entity: {
-          type: 'certificate',
-          id: certificate._id,
-        },
-      });
-      
-      // Update recipient's skills
-      if (certificate.skillsValidated && certificate.skillsValidated.length > 0) {
-        await User.updateOne(
-          { _id: certificate.recipient },
-          { $addToSet: { skills: { $each: certificate.skillsValidated } } }
-        );
+  try {
+    if (!req.user) {
+      throw new UnauthorizedError('User not authenticated');
+    }
+    
+    const { id } = req.params;
+    
+    // Validate certificate ID
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new BadRequestError('Invalid certificate ID');
+    }
+    
+    // Find certificate
+    const certificate = await Certificate.findById(id).session(session);
+    
+    if (!certificate) {
+      throw new NotFoundError('Certificate not found');
+    }
+    
+    // Check if user is issuer or admin
+    if (certificate.issuer.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+      throw new ForbiddenError('You do not have permission to update this certificate');
+    }
+    
+    // Check if certificate can be updated
+    if (certificate.status === 'revoked') {
+      throw new BadRequestError('Revoked certificates cannot be updated');
+    }
+    
+    const {
+      title,
+      description,
+      expiryDate,
+      skillsValidated,
+      status,
+      metadata,
+    } = req.body;
+    
+    // Update certificate fields
+    if (title) certificate.title = title;
+    if (description) certificate.description = description;
+    if (expiryDate !== undefined) certificate.expiryDate = expiryDate ? new Date(expiryDate) : undefined;
+    if (skillsValidated) certificate.skillsValidated = skillsValidated;
+    if (metadata) certificate.metadata = { ...certificate.metadata, ...metadata };
+    
+    // Handle status change
+    if (status && status !== certificate.status) {
+      if (status === 'issued' && certificate.status === 'draft') {
+        certificate.status = 'issued';
+        certificate.issueDate = new Date();
+        
+        // Notify recipient
+        await createNotification({
+          recipient: new Types.ObjectId(certificate.recipient.toString()),
+          sender: req.user._id,
+          type: 'success',
+          title: 'Certificate Issued',
+          message: `Your certificate "${certificate.title}" has been issued`,
+          link: `/certificates/${certificate._id}`,
+          entity: {
+            type: 'certificate',
+            id: certificate._id,
+          },
+        }, session);
+        
+        // Get recipient
+        const recipient = await User.findById(certificate.recipient).session(session);
+        
+        if (recipient && certificate.skillsValidated && certificate.skillsValidated.length > 0) {
+          // Add validated skills to recipient's skills if they don't already have them
+          const existingSkills = new Set(recipient.skills);
+          const newSkills = certificate.skillsValidated.filter(skill => !existingSkills.has(skill));
+          
+          if (newSkills.length > 0) {
+            await User.updateOne(
+              { _id: certificate.recipient },
+              { $addToSet: { skills: { $each: newSkills } } },
+              { session }
+            );
+          }
+        }
+      } else if (status === 'revoked') {
+        await certificate.revoke();
+        
+        // Notify recipient
+        await createNotification({
+          recipient: new Types.ObjectId(certificate.recipient.toString()),
+          sender: req.user._id,
+          type: 'warning',
+          title: 'Certificate Revoked',
+          message: `Your certificate "${certificate.title}" has been revoked`,
+          link: `/certificates/${certificate._id}`,
+          entity: {
+            type: 'certificate',
+            id: certificate._id,
+          },
+        }, session);
+      } else {
+        certificate.status = status;
+      }
+    }
+    
+    // Handle file upload if there's a file
+    if (req.file) {
+      // Delete old file if exists
+      if (certificate.fileUrl) {
+        await deleteFile(certificate.fileUrl);
       }
       
-      // Send email notification
+      certificate.fileUrl = req.file.path.replace(/\\/g, '/');
+    }
+    
+    // Save certificate
+    await certificate.save({ session });
+    
+    // Prepare email notification for status changes
+    let emailJob = null;
+    
+    if (status === 'issued' && certificate.status === 'issued') {
       const recipient = await User.findById(certificate.recipient);
+      
       if (recipient) {
-        await sendEmail({
+        emailJob = {
           to: recipient.email,
           subject: 'Your Certificate Has Been Issued',
           template: 'certificate-issued',
@@ -433,47 +504,31 @@ export const updateCertificate = asyncHandler(async (
             viewUrl: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/certificates/${certificate._id}`,
             verificationUrl: certificate.verificationUrl,
           },
-        });
+        };
       }
-    } else if (status === 'revoked') {
-      await certificate.revoke();
-      
-      // Notify recipient
-      await createNotification({
-        recipient: new Types.ObjectId(certificate.recipient.toString()),
-        sender: req.user._id,
-        type: 'warning',
-        title: 'Certificate Revoked',
-        message: `Your certificate "${certificate.title}" has been revoked`,
-        link: `/certificates/${certificate._id}`,
-        entity: {
-          type: 'certificate',
-          id: certificate._id,
-        },
-      });
-    } else {
-      certificate.status = status;
-    }
-  }
-  
-  // Handle file upload if there's a file
-  if (req.file) {
-    // Delete old file if exists
-    if (certificate.fileUrl) {
-      await deleteFile(certificate.fileUrl);
     }
     
-    certificate.fileUrl = req.file.path.replace(/\\/g, '/');
+    // Commit the transaction
+    await session.commitTransaction();
+    
+    // Clear certificate cache
+    await cacheDelete(`certificate:${id}`);
+    await cacheDelete(`certificates:${req.user._id}:*`);
+    
+    // Send email notification after transaction is committed
+    if (emailJob) {
+      await sendEmail(emailJob);
+    }
+    
+    sendSuccess(res, { certificate }, 'Certificate updated successfully');
+  } catch (error) {
+    // Abort transaction on error
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    // End session
+    session.endSession();
   }
-  
-  // Save certificate
-  await certificate.save();
-  
-  // Clear certificate cache
-  await cacheDelete(`certificate:${id}`);
-  await cacheDelete(`certificates:${req.user._id}:*`);
-  
-  sendSuccess(res, { certificate }, 'Certificate updated successfully');
 });
 
 /**
@@ -485,59 +540,75 @@ export const deleteCertificate = asyncHandler(async (
   req: AuthRequest,
   res: Response
 ): Promise<void> => {
-  if (!req.user) {
-    throw new UnauthorizedError('User not authenticated');
+  // Start a session for transaction
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  
+  try {
+    if (!req.user) {
+      throw new UnauthorizedError('User not authenticated');
+    }
+    
+    const { id } = req.params;
+    
+    // Validate certificate ID
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new BadRequestError('Invalid certificate ID');
+    }
+    
+    // Find certificate
+    const certificate = await Certificate.findById(id);
+    
+    if (!certificate) {
+      throw new NotFoundError('Certificate not found');
+    }
+    
+    // Check if user is issuer or admin
+    if (certificate.issuer.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+      throw new ForbiddenError('You do not have permission to delete this certificate');
+    }
+    
+    // Delete associated files
+    if (certificate.imageUrl) {
+      await deleteFile(certificate.imageUrl);
+    }
+    
+    if (certificate.fileUrl) {
+      await deleteFile(certificate.fileUrl);
+    }
+    
+    // Delete certificate
+    await Certificate.deleteOne({ _id: id }, { session });
+    
+    // Create notification
+    await createNotification({
+      recipient: new Types.ObjectId(certificate.recipient.toString()),
+      sender: req.user._id,
+      type: 'info',
+      title: 'Certificate Deleted',
+      message: `A certificate "${certificate.title}" has been deleted`,
+      entity: {
+        type: 'certificate',
+        id: certificate._id,
+      },
+    }, session);
+    
+    // Commit the transaction
+    await session.commitTransaction();
+    
+    // Clear certificate cache
+    await cacheDelete(`certificate:${id}`);
+    await cacheDelete(`certificates:${req.user._id}:*`);
+    
+    sendNoContent(res);
+  } catch (error) {
+    // Abort transaction on error
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    // End session
+    session.endSession();
   }
-  
-  const { id } = req.params;
-  
-  // Validate certificate ID
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    throw new BadRequestError('Invalid certificate ID');
-  }
-  
-  // Find certificate
-  const certificate = await Certificate.findById(id);
-  
-  if (!certificate) {
-    throw new NotFoundError('Certificate not found');
-  }
-  
-  // Check if user is issuer or admin
-  if (certificate.issuer.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
-    throw new ForbiddenError('You do not have permission to delete this certificate');
-  }
-  
-  // Delete associated files
-  if (certificate.imageUrl) {
-    await deleteFile(certificate.imageUrl);
-  }
-  
-  if (certificate.fileUrl) {
-    await deleteFile(certificate.fileUrl);
-  }
-  
-  // Delete certificate
-  await Certificate.deleteOne({ _id: id });
-  
-  // Clear certificate cache
-  await cacheDelete(`certificate:${id}`);
-  await cacheDelete(`certificates:${req.user._id}:*`);
-  
-  // Notify recipient
-  await createNotification({
-    recipient: new Types.ObjectId(certificate.recipient.toString()),
-    sender: req.user._id,
-    type: 'info',
-    title: 'Certificate Deleted',
-    message: `A certificate "${certificate.title}" has been deleted`,
-    entity: {
-      type: 'certificate',
-      id: certificate._id,
-    },
-  });
-  
-  sendNoContent(res);
 });
 
 /**
@@ -659,165 +730,192 @@ export const bulkIssueCertificates = asyncHandler(async (
   req: AuthRequest,
   res: Response
 ): Promise<void> => {
-  if (!req.user) {
-    throw new UnauthorizedError('User not authenticated');
-  }
+  // Start a session for transaction
+  const session = await mongoose.startSession();
+  session.startTransaction();
   
-  // Check if user has permission to issue certificates
-  if (req.user.role !== 'admin' && req.user.role !== 'manager') {
-    throw new ForbiddenError('You do not have permission to issue certificates');
-  }
-  
-  const { 
-    title, 
-    description, 
-    recipients, 
-    projectId, 
-    expiryDate, 
-    skillsValidated,
-    templateId 
-  } = req.body;
-  
-  // Validate recipients
-  if (!recipients || !Array.isArray(recipients) || recipients.length === 0) {
-    throw new BadRequestError('Recipients list is required and must be an array');
-  }
-  
-  // Validate project if provided
-  let project;
-  if (projectId) {
-    if (!mongoose.Types.ObjectId.isValid(projectId)) {
-      throw new BadRequestError('Invalid project ID');
+  try {
+    if (!req.user) {
+      throw new UnauthorizedError('User not authenticated');
     }
     
-    project = await Project.findById(projectId);
-    if (!project) {
-      throw new NotFoundError('Project not found');
+    // Check if user has permission to issue certificates
+    if (req.user.role !== 'admin' && req.user.role !== 'manager') {
+      throw new ForbiddenError('You do not have permission to issue certificates');
     }
     
-    // Check if user is associated with the project
-    if (project.owner.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
-      throw new ForbiddenError('You do not have permission to issue certificates for this project');
+    const { 
+      title, 
+      description, 
+      recipients, 
+      projectId, 
+      expiryDate, 
+      skillsValidated,
+      templateId 
+    } = req.body;
+    
+    // Validate recipients
+    if (!recipients || !Array.isArray(recipients) || recipients.length === 0) {
+      throw new BadRequestError('Recipients list is required and must be an array');
     }
-  }
-  
-  // Find all valid recipients
-  const validRecipients = await User.find({
-    _id: { $in: recipients },
-    active: true,
-  }).select('_id firstName lastName email');
-  
-  if (validRecipients.length === 0) {
-    throw new BadRequestError('No valid recipients found');
-  }
-  
-  // Create certificates for each recipient
-  const certificates = [];
-  const failed = [];
-  
-  for (const recipient of validRecipients) {
-    try {
-      // Create certificate
-      const certificate = new Certificate({
-        title,
-        description,
-        recipient: recipient._id,
-        issuer: req.user._id,
-        project: projectId,
-        expiryDate: expiryDate || undefined,
-        skillsValidated: skillsValidated || [],
-        templateId: templateId || undefined,
-        status: 'issued',
-        issueDate: new Date(),
-      });
-      
-      // Generate verification code and URL
-      certificate.generateVerificationCode();
-      
-      // Set certificate number
-      const timestamp = Date.now().toString().substring(4);
-      const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-      certificate.certificateNumber = `CERT-${timestamp}-${random}`;
-      
-      // Generate QR code for verification
-      const qrCodeDir = path.join(process.cwd(), 'uploads', 'certificates', 'images');
-      if (!fs.existsSync(qrCodeDir)) {
-        fs.mkdirSync(qrCodeDir, { recursive: true });
+    
+    // Validate project if provided
+    let project;
+    if (projectId) {
+      if (!mongoose.Types.ObjectId.isValid(projectId)) {
+        throw new BadRequestError('Invalid project ID');
       }
       
-      const qrCodePath = path.join(qrCodeDir, `${certificate.verificationCode}.png`);
-      
-      await QRCode.toFile(qrCodePath, certificate.verificationUrl, {
-        errorCorrectionLevel: 'H',
-        width: 500,
-        margin: 1,
-      });
-      
-      // Save QR code path to certificate
-      certificate.imageUrl = `uploads/certificates/images/${certificate.verificationCode}.png`;
-      
-      // Save certificate
-      await certificate.save();
-      certificates.push(certificate);
-      
-      // Notify recipient
-      await createNotification({
-        recipient: new Types.ObjectId(recipient._id.toString()),
-        sender: req.user._id,
-        type: 'success',
-        title: 'New Certificate',
-        message: `You've received a certificate: ${certificate.title}`,
-        link: `/certificates/${certificate._id}`,
-        entity: {
-          type: 'certificate',
-          id: certificate._id,
-        },
-      });
-      
-      // Send email notification
-      await sendEmail({
-        to: recipient.email,
-        subject: 'You have received a new certificate',
-        template: 'certificate-issued',
-        data: {
-          firstName: recipient.firstName,
-          certificateTitle: certificate.title,
-          issuerName: `${req.user.firstName} ${req.user.lastName}`,
-          viewUrl: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/certificates/${certificate._id}`,
-          verificationUrl: certificate.verificationUrl,
-        },
-      });
-      
-      // Update recipient's skills
-      if (skillsValidated && skillsValidated.length > 0) {
-        await User.updateOne(
-          { _id: recipient._id },
-          { $addToSet: { skills: { $each: skillsValidated } } }
-        );
+      project = await Project.findById(projectId).session(session);
+      if (!project) {
+        throw new NotFoundError('Project not found');
       }
-    } catch (error) {
-      logger.error(`Error creating certificate for recipient ${recipient._id}: ${error}`);
-      failed.push({
-        id: recipient._id,
-        name: `${recipient.firstName} ${recipient.lastName}`,
-        error: (error as Error).message,
-      });
+      
+      // Check if user is associated with the project
+      if (project.owner.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+        throw new ForbiddenError('You do not have permission to issue certificates for this project');
+      }
     }
+    
+    // Find all valid recipients
+    const validRecipients = await User.find({
+      _id: { $in: recipients },
+      active: true,
+    }).select('_id firstName lastName email').session(session);
+    
+    if (validRecipients.length === 0) {
+      throw new BadRequestError('No valid recipients found');
+    }
+    
+    // Create certificates for each recipient
+    const certificates = [];
+    const failed = [];
+    const emailJobs = [];
+    
+    for (const recipient of validRecipients) {
+      try {
+        // Create certificate
+        const certificate = new Certificate({
+          title,
+          description,
+          recipient: recipient._id,
+          issuer: req.user._id,
+          project: projectId,
+          expiryDate: expiryDate || undefined,
+          skillsValidated: skillsValidated || [],
+          templateId: templateId || undefined,
+          status: 'issued',
+          issueDate: new Date(),
+        });
+        
+        // Generate verification code and URL
+        certificate.generateVerificationCode();
+        
+        // Set certificate number
+        const timestamp = Date.now().toString().substring(4);
+        const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+        certificate.certificateNumber = `CERT-${timestamp}-${random}`;
+        
+        // Generate QR code for verification
+        const qrCodeDir = path.join(process.cwd(), 'uploads', 'certificates', 'images');
+        if (!fs.existsSync(qrCodeDir)) {
+          fs.mkdirSync(qrCodeDir, { recursive: true });
+        }
+        
+        const qrCodePath = path.join(qrCodeDir, `${certificate.verificationCode}.png`);
+        
+        await QRCode.toFile(qrCodePath, certificate.verificationUrl, {
+          errorCorrectionLevel: 'H',
+          width: 500,
+          margin: 1,
+        });
+        
+        // Save QR code path to certificate
+        certificate.imageUrl = `uploads/certificates/images/${certificate.verificationCode}.png`;
+        
+        // Save certificate
+        await certificate.save({ session });
+        certificates.push(certificate);
+        
+        // Notify recipient
+        await createNotification({
+          recipient: new Types.ObjectId(recipient._id.toString()),
+          sender: req.user._id,
+          type: 'success',
+          title: 'New Certificate',
+          message: `You've received a certificate: ${certificate.title}`,
+          link: `/certificates/${certificate._id}`,
+          entity: {
+            type: 'certificate',
+            id: certificate._id,
+          },
+        }, session);
+        
+        // Queue email notification
+        emailJobs.push({
+          to: recipient.email,
+          subject: 'You have received a new certificate',
+          template: 'certificate-issued',
+          data: {
+            firstName: recipient.firstName,
+            certificateTitle: certificate.title,
+            issuerName: `${req.user.firstName} ${req.user.lastName}`,
+            viewUrl: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/certificates/${certificate._id}`,
+            verificationUrl: certificate.verificationUrl,
+          },
+        });
+        
+        // Update recipient's skills
+        if (skillsValidated && skillsValidated.length > 0) {
+          await User.updateOne(
+            { _id: recipient._id },
+            { $addToSet: { skills: { $each: skillsValidated } } },
+            { session }
+          );
+        }
+      } catch (error) {
+        logger.error(`Error creating certificate for recipient ${recipient._id}: ${error}`);
+        failed.push({
+          id: recipient._id,
+          name: `${recipient.firstName} ${recipient.lastName}`,
+          error: (error as Error).message,
+        });
+      }
+    }
+    
+    // Commit the transaction
+    await session.commitTransaction();
+    
+    // Clear certificates cache
+    await cacheDelete(`certificates:${req.user._id}:*`);
+    
+    // Send email notifications after transaction is committed
+    for (const emailJob of emailJobs) {
+      try {
+        await sendEmail(emailJob);
+      } catch (error) {
+        logger.error(`Error sending certificate email: ${error}`);
+      }
+    }
+    
+    sendSuccess(res, {
+      success: certificates.length,
+      failed: failed.length,
+      failedDetails: failed.length > 0 ? failed : undefined,
+      certificates: certificates.map(cert => ({
+        id: cert._id,
+        recipient: cert.recipient,
+        certificateNumber: cert.certificateNumber,
+      })),
+    }, `Successfully issued ${certificates.length} certificates`);
+  } catch (error) {
+    // Abort transaction on error
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    // End session
+    session.endSession();
   }
-  
-  // Clear certificates cache
-  await cacheDelete(`certificates:${req.user._id}:*`);
-  
-  sendSuccess(res, {
-    success: certificates.length,
-    failed: failed.length,
-    failedDetails: failed.length > 0 ? failed : undefined,
-    certificates: certificates.map(cert => ({
-      id: cert._id,
-      recipient: cert.recipient,
-      certificateNumber: cert.certificateNumber,
-    })),
-  }, `Successfully issued ${certificates.length} certificates`);
 });
 
 export default {

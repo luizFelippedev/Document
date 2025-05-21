@@ -44,28 +44,37 @@ export const errorHandler = (
   err: Error | AppError,
   req: Request,
   res: Response): void => {
-  // Default error response
+  // Default error response with minimal information in production
   const errorResponse: {
     status: string;
     message: string;
     errors?: Record<string, any>;
     stack?: string;
+    code?: string;
+    details?: string;
   } = {
     status: 'error',
-    message: 'Something went wrong'
+    message: process.env.NODE_ENV === 'production' 
+      ? 'An error occurred while processing your request.' 
+      : 'Something went wrong'
   };
   
   let statusCode = 500;
+  let logDetails = '';
   
   // Handle AppError instances
   if (err instanceof AppError) {
     statusCode = err.statusCode;
     errorResponse.status = err.status;
+    // Use the actual error message even in production for AppError
+    // Since these are controlled application errors
     errorResponse.message = err.message;
     
     if (err instanceof ValidationError && Object.keys(err.errors).length) {
       errorResponse.errors = err.errors;
     }
+    
+    logDetails = err.message;
   } 
   // Handle specific error types
   else {
@@ -77,36 +86,50 @@ export const errorHandler = (
         statusCode = 422;
         errorResponse.status = 'fail';
         errorResponse.message = 'Validation error';
+        // Still expose validation errors in production for client-side handling
         errorResponse.errors = errorObj.errors;
+        logDetails = JSON.stringify(errorObj.errors);
         break;
         
       case name === 'CastError':
         statusCode = 400;
         errorResponse.status = 'fail';
-        errorResponse.message = `Invalid ${errorObj.path}: ${errorObj.value}`;
+        errorResponse.message = 'Invalid data format';
+        // Don't expose exact details in production
+        if (process.env.NODE_ENV !== 'production') {
+          errorResponse.details = `Invalid ${errorObj.path}: ${errorObj.value}`;
+        }
+        logDetails = `Invalid ${errorObj.path}: ${errorObj.value}`;
         break;
         
       case name === 'JsonWebTokenError':
         statusCode = 401;
         errorResponse.status = 'fail';
-        errorResponse.message = 'Invalid token. Please log in again.';
+        errorResponse.message = 'Authentication failed. Please log in again.';
+        logDetails = 'JWT error: ' + err.message;
         break;
         
       case name === 'TokenExpiredError':
         statusCode = 401;
         errorResponse.status = 'fail';
-        errorResponse.message = 'Token expired. Please log in again.';
+        errorResponse.message = 'Your session has expired. Please log in again.';
+        logDetails = 'Token expired';
         break;
         
       case errorObj.code === 11000:
         statusCode = 409;
         errorResponse.status = 'fail';
-        errorResponse.message = 'Duplicate field value entered';
+        errorResponse.message = 'This item already exists.';
+        // Add error code
+        errorResponse.code = 'DUPLICATE_KEY';
         
-        const field = Object.keys(errorObj.keyValue)[0];
-        errorResponse.errors = { 
-          [field]: `Value '${errorObj.keyValue[field]}' already exists` 
-        };
+        // Only in development, show the duplicate field
+        if (process.env.NODE_ENV !== 'production') {
+          const field = Object.keys(errorObj.keyValue)[0];
+          errorResponse.details = `${field} already exists`;
+        }
+        
+        logDetails = `Duplicate key: ${JSON.stringify(errorObj.keyValue)}`;
         break;
     }
   }
@@ -116,8 +139,8 @@ export const errorHandler = (
     errorResponse.stack = err.stack;
   }
   
-  // Log the error
-  const logMessage = `${statusCode} - ${errorResponse.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`;
+  // Log the error with appropriate level based on status code
+  const logMessage = `${statusCode} - ${logDetails || errorResponse.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`;
   if (statusCode >= 500) {
     logger.error(logMessage);
     logger.error(err.stack);

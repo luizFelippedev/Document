@@ -4,8 +4,9 @@ import { sendWebSocketMessage } from './index';
 import logger from '../config/logger';
 import User from '../api/models/user.model';
 import { moderateContent } from '../lib/openai';
+import { cacheGet, cacheSet } from '../config/redis';
 
-// In-memory message store (for simplicity, in production use Redis or DB)
+// Chat message interface
 interface ChatMessage {
   id: string;
   sender: {
@@ -22,21 +23,50 @@ interface ChatMessage {
   read: boolean;
 }
 
-// Chat rooms (user-to-user or project rooms)
-const chatMessages: Record<string, ChatMessage[]> = {};
-
-// Max messages to keep in memory per chat
+// Max messages to keep per chat
 const MAX_MESSAGES_PER_CHAT = 100;
+
+// Redis key expiration (30 days)
+const REDIS_EXPIRY = 60 * 60 * 24 * 30;
 
 // Generate a chat room ID
 const getChatRoomId = (userId1: string, userId2: string): string => {
   // Sort IDs to ensure consistent room ID regardless of order
-  return [userId1, userId2].sort().join('-');
+  return `chat:${[userId1, userId2].sort().join('-')}`;
 };
 
 // Generate a project chat room ID
 const getProjectChatRoomId = (projectId: string): string => {
-  return `project-${projectId}`;
+  return `chat:project-${projectId}`;
+};
+
+// Store message in Redis
+const storeMessage = async (roomId: string, message: ChatMessage): Promise<void> => {
+  try {
+    // Get existing messages
+    const existingMessages = await getChatMessages(roomId);
+    
+    // Add new message
+    const messages = [...existingMessages, message];
+    
+    // Limit to most recent MAX_MESSAGES_PER_CHAT messages
+    const limitedMessages = messages.slice(-MAX_MESSAGES_PER_CHAT);
+    
+    // Store in Redis with 30-day expiration
+    await cacheSet(roomId, limitedMessages, REDIS_EXPIRY);
+  } catch (error) {
+    logger.error(`Error storing message in Redis: ${error}`);
+  }
+};
+
+// Get messages from Redis
+const getChatMessages = async (roomId: string): Promise<ChatMessage[]> => {
+  try {
+    return await cacheGet<ChatMessage[]>(roomId) || [];
+  } catch (error) {
+    logger.error(`Error retrieving messages from Redis: ${error}`);
+    return [];
+  }
 };
 
 /**
@@ -105,17 +135,8 @@ export const setupChatHandlers = (socket: Socket): void => {
       // Get chat room ID
       const roomId = getChatRoomId(userId, receiverId);
       
-      // Store message
-      if (!chatMessages[roomId]) {
-        chatMessages[roomId] = [];
-      }
-      
-      chatMessages[roomId].push(chatMessage);
-      
-      // Limit stored messages
-      if (chatMessages[roomId].length > MAX_MESSAGES_PER_CHAT) {
-        chatMessages[roomId] = chatMessages[roomId].slice(-MAX_MESSAGES_PER_CHAT);
-      }
+      // Store message in Redis
+      await storeMessage(roomId, chatMessage);
       
       // Send to sender
       socket.emit('chat:message', chatMessage);
@@ -195,17 +216,8 @@ export const setupChatHandlers = (socket: Socket): void => {
       // Get project chat room ID
       const roomId = getProjectChatRoomId(projectId);
       
-      // Store message
-      if (!chatMessages[roomId]) {
-        chatMessages[roomId] = [];
-      }
-      
-      chatMessages[roomId].push(chatMessage);
-      
-      // Limit stored messages
-      if (chatMessages[roomId].length > MAX_MESSAGES_PER_CHAT) {
-        chatMessages[roomId] = chatMessages[roomId].slice(-MAX_MESSAGES_PER_CHAT);
-      }
+      // Store message in Redis
+      await storeMessage(roomId, chatMessage);
       
       // Join project room if not already joined
       socket.join(roomId);
@@ -255,8 +267,8 @@ export const setupChatHandlers = (socket: Socket): void => {
       // Join room
       socket.join(roomId);
       
-      // Get recent messages
-      const recentMessages = chatMessages[roomId] || [];
+      // Get recent messages from Redis
+      const recentMessages = await getChatMessages(roomId);
       
       // Send recent messages
       socket.emit('chat:history', {
@@ -295,18 +307,18 @@ export const setupChatHandlers = (socket: Socket): void => {
       const { userId: receiverId, projectId } = data;
       
       if (receiverId) {
-        // Get direct chat history
+        // Get direct chat history from Redis
         const roomId = getChatRoomId(userId, receiverId);
-        const messages = chatMessages[roomId] || [];
+        const messages = await getChatMessages(roomId);
         
         socket.emit('chat:history', {
           userId: receiverId,
           messages,
         });
       } else if (projectId) {
-        // Get project chat history
+        // Get project chat history from Redis
         const roomId = getProjectChatRoomId(projectId);
-        const messages = chatMessages[roomId] || [];
+        const messages = await getChatMessages(roomId);
         
         socket.emit('chat:history', {
           projectId,
@@ -322,7 +334,7 @@ export const setupChatHandlers = (socket: Socket): void => {
   });
   
   // Handle mark messages as read
-  socket.on('chat:mark-read', (data: { 
+  socket.on('chat:mark-read', async (data: { 
     messageIds: string[];
     userId?: string;
     projectId?: string;
@@ -335,7 +347,7 @@ export const setupChatHandlers = (socket: Socket): void => {
         return;
       }
       
-      let roomId;
+      let roomId: string;
       
       if (receiverId) {
         // Direct chat
@@ -348,19 +360,23 @@ export const setupChatHandlers = (socket: Socket): void => {
         return;
       }
       
-      // Get messages
-      const messages = chatMessages[roomId] || [];
+      // Get messages from Redis
+      const messages = await getChatMessages(roomId);
       
       // Mark messages as read
-      messageIds.forEach(messageId => {
-        const message = messages.find(msg => msg.id === messageId);
-        if (message) {
-          message.read = true;
+      let updated = false;
+      const updatedMessages = messages.map(message => {
+        if (messageIds.includes(message.id) && !message.read) {
+          updated = true;
+          return { ...message, read: true };
         }
+        return message;
       });
       
-      // Update messages
-      chatMessages[roomId] = messages;
+      // Update messages in Redis if any were changed
+      if (updated) {
+        await cacheSet(roomId, updatedMessages, REDIS_EXPIRY);
+      }
       
       socket.emit('chat:messages-read', { messageIds });
     } catch (error) {
@@ -375,26 +391,31 @@ export const setupChatHandlers = (socket: Socket): void => {
  * @param userId User ID
  * @returns Unread message count
  */
-export const getUnreadMessageCount = (userId: string): number => {
-  let count = 0;
-  
-  // Check all chat rooms
-  Object.keys(chatMessages).forEach(roomId => {
-    // Direct chat
-    if (roomId.includes(userId)) {
-      count += chatMessages[roomId].filter(
-        msg => !msg.read && msg.receiver?.id === userId
-      ).length;
+export const getUnreadMessageCount = async (userId: string): Promise<number> => {
+  try {
+    let count = 0;
+    
+    // Get all direct chat room keys from Redis that involve this user
+    const io = require('./index').getIo();
+    const socket = io.sockets.sockets.get(userId);
+    
+    if (!socket) return 0;
+    
+    // Get all rooms for this user
+    const rooms = Array.from(socket.rooms.values())
+      .filter(room => room.startsWith('chat:') && room.includes(userId));
+    
+    // For each room, count unread messages
+    for (const room of rooms) {
+      const messages = await getChatMessages(room);
+      count += messages.filter(msg => !msg.read && msg.receiver?.id === userId).length;
     }
     
-    // Project chat
-    if (roomId.startsWith('project-')) {
-      // Would need to check if user is in this project
-      // For simplicity, not implemented here
-    }
-  });
-  
-  return count;
+    return count;
+  } catch (error) {
+    logger.error(`Error getting unread message count: ${error}`);
+    return 0;
+  }
 };
 
 /**
@@ -402,7 +423,7 @@ export const getUnreadMessageCount = (userId: string): number => {
  * @param projectId Project ID
  * @param message System message
  */
-export const sendSystemMessageToProject = (projectId: string, message: string): void => {
+export const sendSystemMessageToProject = async (projectId: string, message: string): Promise<void> => {
   try {
     // Generate a system user
     const systemUser = {
@@ -423,17 +444,8 @@ export const sendSystemMessageToProject = (projectId: string, message: string): 
     // Get project chat room ID
     const roomId = getProjectChatRoomId(projectId);
     
-    // Store message
-    if (!chatMessages[roomId]) {
-      chatMessages[roomId] = [];
-    }
-    
-    chatMessages[roomId].push(chatMessage);
-    
-    // Limit stored messages
-    if (chatMessages[roomId].length > MAX_MESSAGES_PER_CHAT) {
-      chatMessages[roomId] = chatMessages[roomId].slice(-MAX_MESSAGES_PER_CHAT);
-    }
+    // Store message in Redis
+    await storeMessage(roomId, chatMessage);
     
     // Send to all users in the project room via WebSocket
     const io = require('./index').getIo();

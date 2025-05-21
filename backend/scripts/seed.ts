@@ -38,7 +38,12 @@ const createDirectories = () => {
 // Connect to MongoDB
 const connectDB = async (): Promise<void> => {
   try {
-    const mongoURI = process.env.MONGODB_URI || 'mongodb+srv://luizinhofelipekaua:%40Felippe16y@cluster0.tkz1ckm.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
+    const mongoURI = process.env.MONGODB_URI;
+    
+    if (!mongoURI) {
+      console.error('MONGODB_URI environment variable is not defined');
+      process.exit(1);
+    }
 
     await mongoose.connect(mongoURI);
     console.log('MongoDB connected');
@@ -227,7 +232,7 @@ const seedUsers = async (): Promise<mongoose.Types.ObjectId[]> => {
     
     console.log(`Seeded ${userIds.length} users`);
     return userIds;
-  } catch (error) {
+  } catch (error: any) {
     console.error(`Error seeding users: ${error}`);
     process.exit(1);
   }
@@ -320,7 +325,7 @@ const seedProjects = async (userIds: mongoose.Types.ObjectId[]): Promise<mongoos
     
     console.log(`Seeded ${projectIds.length} projects`);
     return projectIds;
-  } catch (error) {
+  } catch (error: any) {
     console.error(`Error seeding projects: ${error}`);
     process.exit(1);
   }
@@ -417,7 +422,7 @@ const seedCertificates = async (
     
     console.log(`Seeded ${certificateIds.length} certificates`);
     return certificateIds;
-  } catch (error) {
+  } catch (error: any) {
     console.error(`Error seeding certificates: ${error}`);
     process.exit(1);
   }
@@ -511,7 +516,7 @@ const seedNotifications = async (
     }
     
     console.log(`Seeded ${notifications.length} notifications`);
-  } catch (error) {
+  } catch (error: any) {
     console.error(`Error seeding notifications: ${error}`);
     process.exit(1);
   }

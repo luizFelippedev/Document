@@ -1,96 +1,177 @@
 import { Request, Response, NextFunction } from 'express';
-import { AppError } from '../../core/error';
-import logger from '../../config/logger';
+import logger from '../config/logger';
 
-/**
- * Global error handler middleware
- * Processes all errors and returns appropriate responses
- */
-export const errorHandler = (
-  err: Error,
-  req: Request,
-  res: Response,
-  _next: NextFunction // Express requires this parameter for error handling middleware
-) => {
-  // Log the error
-  logger.error(`${req.method} ${req.url} - ${err.message}`);
+// Custom error class with status code
+export class AppError extends Error {
+  readonly status: string;
   
-  // Check if it's an operational error (known application error)
+  constructor(
+    readonly message: string, 
+    readonly statusCode: number, 
+    readonly isOperational: boolean = true
+  ) {
+    super(message);
+    this.status = statusCode >= 400 && statusCode < 500 ? 'fail' : 'error';
+    Error.captureStackTrace(this, this.constructor);
+  }
+}
+
+// Error factory for common error types
+const createErrorClass = (defaultCode: number, defaultMessage: string) => 
+  class extends AppError {
+    constructor(message: string = defaultMessage) {
+      super(message, defaultCode);
+    }
+  };
+
+export const BadRequestError = createErrorClass(400, 'Bad request');
+export const UnauthorizedError = createErrorClass(401, 'Unauthorized');
+export const ForbiddenError = createErrorClass(403, 'Forbidden');
+export const NotFoundError = createErrorClass(404, 'Resource not found');
+export const ConflictError = createErrorClass(409, 'Resource already exists');
+export const RateLimitError = createErrorClass(429, 'Too many requests');
+export const ServerError = createErrorClass(500, 'Internal server error');
+
+// Validation error needs special handling for errors object
+export class ValidationError extends AppError {
+  constructor(message: string = 'Validation error', readonly errors: Record<string, any> = {}) {
+    super(message, 422);
+  }
+}
+
+// Central error handler middleware
+export const errorHandler = (
+  err: Error | AppError,
+  req: Request,
+  res: Response): void => {
+  // Default error response with minimal information in production
+  const errorResponse: {
+    status: string;
+    message: string;
+    errors?: Record<string, any>;
+    stack?: string;
+    code?: string;
+    details?: string;
+  } = {
+    status: 'error',
+    message: process.env.NODE_ENV === 'production' 
+      ? 'An error occurred while processing your request.' 
+      : 'Something went wrong'
+  };
+  
+  let statusCode = 500;
+  let logDetails = '';
+  
+  // Handle AppError instances
   if (err instanceof AppError) {
-    // Return structured response for known errors
-    return res.status(err.statusCode).json({
-      success: false,
-      message: err.message,
-      errors: (err as any).errors,
-      stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
-    });
-  }
-
-  // Handle Mongoose validation errors
-  if (err.name === 'ValidationError') {
-    const message = 'Erro de validação';
-    const errors = Object.values((err as any).errors).map((val: any) => val.message);
+    statusCode = err.statusCode;
+    errorResponse.status = err.status;
+    // Use the actual error message even in production for AppError
+    // Since these are controlled application errors
+    errorResponse.message = err.message;
     
-    return res.status(400).json({
-      success: false,
-      message,
-      errors,
-      stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
-    });
+    if (err instanceof ValidationError && Object.keys(err.errors).length) {
+      errorResponse.errors = err.errors;
+    }
+    
+    logDetails = err.message;
+  } 
+  // Handle specific error types
+  else {
+    const { name } = err;
+    const errorObj = err as any;
+    
+    switch(true) {
+      case name === 'ValidationError' && 'errors' in errorObj:
+        statusCode = 422;
+        errorResponse.status = 'fail';
+        errorResponse.message = 'Validation error';
+        // Still expose validation errors in production for client-side handling
+        errorResponse.errors = errorObj.errors;
+        logDetails = JSON.stringify(errorObj.errors);
+        break;
+        
+      case name === 'CastError':
+        statusCode = 400;
+        errorResponse.status = 'fail';
+        errorResponse.message = 'Invalid data format';
+        // Don't expose exact details in production
+        if (process.env.NODE_ENV !== 'production') {
+          errorResponse.details = `Invalid ${errorObj.path}: ${errorObj.value}`;
+        }
+        logDetails = `Invalid ${errorObj.path}: ${errorObj.value}`;
+        break;
+        
+      case name === 'JsonWebTokenError':
+        statusCode = 401;
+        errorResponse.status = 'fail';
+        errorResponse.message = 'Authentication failed. Please log in again.';
+        logDetails = 'JWT error: ' + err.message;
+        break;
+        
+      case name === 'TokenExpiredError':
+        statusCode = 401;
+        errorResponse.status = 'fail';
+        errorResponse.message = 'Your session has expired. Please log in again.';
+        logDetails = 'Token expired';
+        break;
+        
+      case errorObj.code === 11000:
+        statusCode = 409;
+        errorResponse.status = 'fail';
+        errorResponse.message = 'This item already exists.';
+        // Add error code
+        errorResponse.code = 'DUPLICATE_KEY';
+        
+        // Only in development, show the duplicate field
+        if (process.env.NODE_ENV !== 'production') {
+          const field = Object.keys(errorObj.keyValue)[0];
+          errorResponse.details = `${field} already exists`;
+        }
+        
+        logDetails = `Duplicate key: ${JSON.stringify(errorObj.keyValue)}`;
+        break;
+    }
   }
-
-  // Handle JWT errors
-  if (err.name === 'JsonWebTokenError') {
-    return res.status(401).json({
-      success: false,
-      message: 'Token inválido. Por favor, faça login novamente.',
-    });
+  
+  // Add stack trace in non-production
+  if (process.env.NODE_ENV !== 'production') {
+    errorResponse.stack = err.stack;
   }
-
-  if (err.name === 'TokenExpiredError') {
-    return res.status(401).json({
-      success: false,
-      message: 'Token expirado. Por favor, faça login novamente.',
-    });
+  
+  // Log the error with appropriate level based on status code
+  const logMessage = `${statusCode} - ${logDetails || errorResponse.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`;
+  if (statusCode >= 500) {
+    logger.error(logMessage);
+    logger.error(err.stack);
+  } else {
+    logger.warn(logMessage);
   }
-
-  // MongoDB duplicate key error
-  if (err.name === 'MongoServerError' && (err as any).code === 11000) {
-    const field = Object.keys((err as any).keyValue)[0];
-    return res.status(409).json({
-      success: false,
-      message: `O valor do campo ${field} já está em uso.`,
-      stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
-    });
-  }
-
-  // Cast error (e.g., invalid ObjectId)
-  if (err.name === 'CastError') {
-    return res.status(400).json({
-      success: false,
-      message: `Valor inválido para o campo ${(err as any).path}: ${(err as any).value}`,
-      stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
-    });
-  }
-
-  // Default: Internal server error
-  return res.status(500).json({
-    success: false,
-    message: 'Erro interno do servidor',
-    stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
-  });
+  
+  // Send response
+  res.status(statusCode).json(errorResponse);
 };
 
-/**
- * Middleware for handling 404 errors
- * This should be placed after all other routes
- */
-export const notFound = (req: Request, _res: Response, next: NextFunction) => {
-  const error = new AppError(`Rota não encontrada - ${req.originalUrl}`, 404);
-  next(error);
-};
+// Async handler to avoid try/catch repetition
+export const asyncHandler = (fn: Function) => 
+  (req: Request, res: Response, next: NextFunction) => 
+    Promise.resolve(fn(req, res, next)).catch(next);
+
+// Not found handler
+export const notFoundHandler = (req: Request, _res: Response, next: NextFunction): void => 
+  next(new NotFoundError(`Cannot ${req.method} ${req.originalUrl}`));
 
 export default {
+  AppError,
+  BadRequestError,
+  UnauthorizedError,
+  ForbiddenError,
+  NotFoundError,
+  ConflictError,
+  ValidationError,
+  RateLimitError,
+  ServerError,
   errorHandler,
-  notFound
+  asyncHandler,
+  notFoundHandler,
 };

@@ -2,6 +2,7 @@ import { Types } from 'mongoose';
 import Notification, { INotification } from '../models/notification.model';
 import logger from '../../config/logger';
 import sendWebSocketMessage from '../../websockets/notifications';
+import mongoose from 'mongoose';
 
 /**
  * Notification creation parameters
@@ -25,13 +26,15 @@ interface CreateNotificationParams {
 /**
  * Create a new notification
  * @param params Notification parameters
+ * @param session Mongoose session for transactions
  * @returns The created notification
  */
 export const createNotification = async (
-  params: CreateNotificationParams
+  params: CreateNotificationParams,
+  session?: mongoose.ClientSession
 ): Promise<INotification> => {
   try {
-    const notification = await Notification.create({
+    const notification = new Notification({
       recipient: params.recipient,
       sender: params.sender,
       type: params.type,
@@ -44,18 +47,28 @@ export const createNotification = async (
       priority: params.priority || 'medium',
       read: false,
     });
+    
+    // Save with or without session
+    if (session) {
+      await notification.save({ session });
+    } else {
+      await notification.save();
+    }
 
-    // Send real-time notification via WebSocket
-    await sendWebSocketMessage.sendNotification({
-      recipient: params.recipient.toString(),
-      notification: {
-        id: notification._id,
-        type: notification.type,
-        title: notification.title,
-        message: notification.message,
-        createdAt: notification.createdAt,
-      },
-    });
+    // Send real-time notification via WebSocket if not in a transaction
+    // In transaction case, this will be handled after the transaction commits
+    if (!session) {
+      await sendWebSocketMessage.sendNotification({
+        recipient: params.recipient.toString(),
+        notification: {
+          id: notification._id,
+          type: notification.type,
+          title: notification.title,
+          message: notification.message,
+          createdAt: notification.createdAt,
+        },
+      });
+    }
 
     return notification;
   } catch (error) {
@@ -241,11 +254,13 @@ export const deleteAllReadNotifications = async (
  * Create a system notification for all users or specific roles
  * @param params Notification parameters (without recipient)
  * @param roles Optional roles to filter recipients
+ * @param session Optional session for transactions
  * @returns Number of notifications created
  */
 export const createSystemNotification = async (
   params: Omit<CreateNotificationParams, 'recipient'>,
-  roles?: ('admin' | 'user' | 'manager')[]
+  roles?: ('admin' | 'user' | 'manager')[],
+  session?: mongoose.ClientSession
 ): Promise<number> => {
   try {
     // Build query to find users
@@ -279,21 +294,26 @@ export const createSystemNotification = async (
       read: false,
     }));
 
-    const result = await Notification.insertMany(notifications);
-
-    // Send real-time notifications via WebSockets
-    result.forEach((notification) => {
-      sendWebSocketMessage.sendNotification({
-        recipient: notification.recipient.toString(),
-        notification: {
-          id: notification._id,
-          type: notification.type,
-          title: notification.title,
-          message: notification.message,
-          createdAt: notification.createdAt,
-        },
-      });
-    });
+    let result;
+    if (session) {
+      result = await Notification.insertMany(notifications, { session });
+    } else {
+      result = await Notification.insertMany(notifications);
+      
+      // Send real-time notifications via WebSockets (only if not in transaction)
+      for (const notification of result) {
+        await sendWebSocketMessage.sendNotification({
+          recipient: notification.recipient.toString(),
+          notification: {
+            id: notification._id,
+            type: notification.type,
+            title: notification.title,
+            message: notification.message,
+            createdAt: notification.createdAt,
+          },
+        });
+      }
+    }
 
     return result.length;
   } catch (error) {
