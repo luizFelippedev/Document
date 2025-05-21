@@ -1,30 +1,30 @@
 // frontend/src/components/ui/Spinner.tsx
-"use client";
+'use client';
 
-import React from "react";
-import { cva, type VariantProps } from "class-variance-authority";
-import { cn } from "@/utils/cn";
+import React from 'react';
+import { cva, type VariantProps } from 'class-variance-authority';
+import { cn } from '@/utils/cn';
 
 const spinnerVariants = cva(
-  "animate-spin rounded-full border-solid border-t-transparent",
+  'animate-spin rounded-full border-solid border-t-transparent',
   {
     variants: {
       size: {
-        small: "h-4 w-4 border-2",
-        medium: "h-6 w-6 border-2",
-        large: "h-10 w-10 border-3",
-        xl: "h-16 w-16 border-4",
+        small: 'h-4 w-4 border-2',
+        medium: 'h-6 w-6 border-2',
+        large: 'h-10 w-10 border-3',
+        xl: 'h-16 w-16 border-4',
       },
       variant: {
-        primary: "border-blue-600 dark:border-blue-500",
-        secondary: "border-green-600 dark:border-green-500",
-        white: "border-white",
-        gray: "border-gray-600 dark:border-gray-400",
+        primary: 'border-blue-600 dark:border-blue-500',
+        secondary: 'border-green-600 dark:border-green-500',
+        white: 'border-white',
+        gray: 'border-gray-600 dark:border-gray-400',
       },
     },
     defaultVariants: {
-      size: "medium",
-      variant: "primary",
+      size: 'medium',
+      variant: 'primary',
     },
   },
 );

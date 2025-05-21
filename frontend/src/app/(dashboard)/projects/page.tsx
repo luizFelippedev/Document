@@ -1,18 +1,18 @@
 // frontend/src/app/(dashboard)/projects/page.tsx
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import Link from "next/link";
-import { MainLayout } from "@/components/layout/MainLayout";
-import { Card } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
-import { Spinner } from "@/components/ui/Spinner";
-import { Badge } from "@/components/ui/Badge";
-import { Dropdown } from "@/components/ui/Dropdown";
-import { Table } from "@/components/ui/Table";
-import { ROUTES } from "@/config/routes";
-import { motion } from "framer-motion";
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { MainLayout } from '@/components/layout/MainLayout';
+import { Card } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { Spinner } from '@/components/ui/Spinner';
+import { Badge } from '@/components/ui/Badge';
+import { Dropdown } from '@/components/ui/Dropdown';
+import { Table } from '@/components/ui/Table';
+import { ROUTES } from '@/config/routes';
+import { motion } from 'framer-motion';
 import {
   Plus,
   Search,
@@ -25,87 +25,87 @@ import {
   MoreHorizontal,
   Tag,
   Calendar,
-} from "lucide-react";
+} from 'lucide-react';
 
 // Mock data - would be replaced with API calls
 const mockProjects = [
   {
-    id: "1",
-    title: "E-commerce Dashboard",
-    description: "A modern dashboard for e-commerce analytics and management",
-    status: "completed",
-    category: "Web Development",
-    technologies: ["React", "Node.js", "MongoDB"],
-    startDate: "2025-01-15",
-    endDate: "2025-04-20",
-    thumbnailUrl: "/projects/ecommerce-thumb.jpg",
-    demoUrl: "https://example.com/demo",
-    repoUrl: "https://github.com/username/ecommerce-dashboard",
+    id: '1',
+    title: 'E-commerce Dashboard',
+    description: 'A modern dashboard for e-commerce analytics and management',
+    status: 'completed',
+    category: 'Web Development',
+    technologies: ['React', 'Node.js', 'MongoDB'],
+    startDate: '2025-01-15',
+    endDate: '2025-04-20',
+    thumbnailUrl: '/projects/ecommerce-thumb.jpg',
+    demoUrl: 'https://example.com/demo',
+    repoUrl: 'https://github.com/username/ecommerce-dashboard',
     featured: true,
   },
   {
-    id: "2",
-    title: "Mobile Fitness App",
-    description: "An iOS/Android app for tracking workouts and nutrition",
-    status: "in-progress",
-    category: "Mobile Development",
-    technologies: ["React Native", "Firebase"],
-    startDate: "2025-03-01",
+    id: '2',
+    title: 'Mobile Fitness App',
+    description: 'An iOS/Android app for tracking workouts and nutrition',
+    status: 'in-progress',
+    category: 'Mobile Development',
+    technologies: ['React Native', 'Firebase'],
+    startDate: '2025-03-01',
     endDate: null,
-    thumbnailUrl: "/projects/fitness-thumb.jpg",
+    thumbnailUrl: '/projects/fitness-thumb.jpg',
     demoUrl: null,
-    repoUrl: "https://github.com/username/fitness-app",
+    repoUrl: 'https://github.com/username/fitness-app',
     featured: false,
   },
   {
-    id: "3",
-    title: "AI Image Generator",
-    description: "A machine learning project for generating realistic images",
-    status: "planning",
-    category: "AI/ML",
-    technologies: ["Python", "TensorFlow", "Flask"],
-    startDate: "2025-05-10",
+    id: '3',
+    title: 'AI Image Generator',
+    description: 'A machine learning project for generating realistic images',
+    status: 'planning',
+    category: 'AI/ML',
+    technologies: ['Python', 'TensorFlow', 'Flask'],
+    startDate: '2025-05-10',
     endDate: null,
     thumbnailUrl: null,
     demoUrl: null,
-    repoUrl: "https://github.com/username/ai-image-generator",
+    repoUrl: 'https://github.com/username/ai-image-generator',
     featured: false,
   },
   {
-    id: "4",
-    title: "Portfolio Website",
-    description: "Personal portfolio to showcase projects and experience",
-    status: "completed",
-    category: "Web Development",
-    technologies: ["Next.js", "TailwindCSS"],
-    startDate: "2025-02-05",
-    endDate: "2025-03-15",
-    thumbnailUrl: "/projects/portfolio-thumb.jpg",
-    demoUrl: "https://myportfolio.dev",
-    repoUrl: "https://github.com/username/portfolio",
+    id: '4',
+    title: 'Portfolio Website',
+    description: 'Personal portfolio to showcase projects and experience',
+    status: 'completed',
+    category: 'Web Development',
+    technologies: ['Next.js', 'TailwindCSS'],
+    startDate: '2025-02-05',
+    endDate: '2025-03-15',
+    thumbnailUrl: '/projects/portfolio-thumb.jpg',
+    demoUrl: 'https://myportfolio.dev',
+    repoUrl: 'https://github.com/username/portfolio',
     featured: true,
   },
   {
-    id: "5",
-    title: "Blockchain Wallet",
-    description: "A secure cryptocurrency wallet with multi-chain support",
-    status: "in-progress",
-    category: "Blockchain",
-    technologies: ["Solidity", "Web3.js", "React"],
-    startDate: "2025-04-01",
+    id: '5',
+    title: 'Blockchain Wallet',
+    description: 'A secure cryptocurrency wallet with multi-chain support',
+    status: 'in-progress',
+    category: 'Blockchain',
+    technologies: ['Solidity', 'Web3.js', 'React'],
+    startDate: '2025-04-01',
     endDate: null,
-    thumbnailUrl: "/projects/blockchain-thumb.jpg",
-    demoUrl: "https://wallet-demo.example.com",
-    repoUrl: "https://github.com/username/blockchain-wallet",
+    thumbnailUrl: '/projects/blockchain-thumb.jpg',
+    demoUrl: 'https://wallet-demo.example.com',
+    repoUrl: 'https://github.com/username/blockchain-wallet',
     featured: false,
   },
 ];
 
 export default function ProjectsPage() {
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
   const [filteredProjects, setFilteredProjects] = useState(mockProjects);
-  const [currentView, setCurrentView] = useState<"grid" | "table">("grid");
+  const [currentView, setCurrentView] = useState<'grid' | 'table'>('grid');
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
 
@@ -151,9 +151,9 @@ export default function ProjectsPage() {
   // Column definitions for table view
   const columns = [
     {
-      id: "title",
-      header: "Project",
-      cell: (row: any) => (
+      id: 'title',
+      header: 'Project',
+      cell: (row: unknown) => (
         <div className="flex items-center">
           {row.thumbnailUrl ? (
             <img
@@ -178,29 +178,33 @@ export default function ProjectsPage() {
       ),
     },
     {
-      id: "status",
-      header: "Status",
-      cell: (row: any) => {
+      id: 'status',
+      header: 'Status',
+      cell: (row: unknown) => {
         const statusMap: Record<string, { color: string; label: string }> = {
-          completed: { color: "success", label: "Completed" },
-          "in-progress": { color: "warning", label: "In Progress" },
-          planning: { color: "info", label: "Planning" },
+          completed: { color: 'success', label: 'Completed' },
+          'in-progress': { color: 'warning', label: 'In Progress' },
+          planning: { color: 'info', label: 'Planning' },
         };
 
         const status = statusMap[row.status] || {
-          color: "default",
+          color: 'default',
           label: row.status,
         };
 
         return (
-          <Badge text={status.label} variant={status.color as any} size="sm" />
+          <Badge
+            text={status.label}
+            variant={status.color as unknown}
+            size="sm"
+          />
         );
       },
     },
     {
-      id: "technologies",
-      header: "Technologies",
-      cell: (row: any) => (
+      id: 'technologies',
+      header: 'Technologies',
+      cell: (row: unknown) => (
         <div className="flex flex-wrap gap-1">
           {row.technologies.slice(0, 2).map((tech: string, i: number) => (
             <Badge key={i} text={tech} variant="outline" size="sm" />
@@ -216,9 +220,9 @@ export default function ProjectsPage() {
       ),
     },
     {
-      id: "dates",
-      header: "Timeline",
-      cell: (row: any) => (
+      id: 'dates',
+      header: 'Timeline',
+      cell: (row: unknown) => (
         <div className="text-sm">
           <div className="flex items-center text-gray-500 dark:text-gray-400">
             <Calendar size={14} className="mr-1" />
@@ -233,34 +237,34 @@ export default function ProjectsPage() {
       ),
     },
     {
-      id: "actions",
-      header: "",
-      cell: (row: any) => {
+      id: 'actions',
+      header: '',
+      cell: (row: unknown) => {
         const menuItems = [
           {
-            label: "View Details",
+            label: 'View Details',
             onClick: () => {
               // Navigate to project details
-              console.log("View details", row.id);
+              console.log('View details', row.id);
             },
             icon: <Eye size={16} />,
           },
           {
-            label: "Edit Project",
+            label: 'Edit Project',
             onClick: () => {
               // Navigate to edit project
-              console.log("Edit project", row.id);
+              console.log('Edit project', row.id);
             },
             icon: <Edit size={16} />,
           },
           {
-            label: "Delete Project",
+            label: 'Delete Project',
             onClick: () => {
               // Show delete confirmation
-              console.log("Delete project", row.id);
+              console.log('Delete project', row.id);
             },
             icon: <Trash2 size={16} />,
-            className: "text-red-600 dark:text-red-400",
+            className: 'text-red-600 dark:text-red-400',
           },
         ];
 
@@ -309,19 +313,19 @@ export default function ProjectsPage() {
 
   // Status options for filtering
   const statusOptions = [
-    { label: "All Status", value: "" },
-    { label: "Completed", value: "completed" },
-    { label: "In Progress", value: "in-progress" },
-    { label: "Planning", value: "planning" },
+    { label: 'All Status', value: '' },
+    { label: 'Completed', value: 'completed' },
+    { label: 'In Progress', value: 'in-progress' },
+    { label: 'Planning', value: 'planning' },
   ];
 
   // Category options for filtering
   const categoryOptions = [
-    { label: "All Categories", value: "" },
-    { label: "Web Development", value: "Web Development" },
-    { label: "Mobile Development", value: "Mobile Development" },
-    { label: "AI/ML", value: "AI/ML" },
-    { label: "Blockchain", value: "Blockchain" },
+    { label: 'All Categories', value: '' },
+    { label: 'Web Development', value: 'Web Development' },
+    { label: 'Mobile Development', value: 'Mobile Development' },
+    { label: 'AI/ML', value: 'AI/ML' },
+    { label: 'Blockchain', value: 'Blockchain' },
   ];
 
   if (loading) {
@@ -363,13 +367,13 @@ export default function ProjectsPage() {
               onChange={(e) => setSearchQuery(e.target.value)}
               leftElement={<Search size={18} className="text-gray-400" />}
               clearable
-              onClear={() => setSearchQuery("")}
+              onClear={() => setSearchQuery('')}
             />
           </div>
 
           <div className="flex gap-2">
             <select
-              value={statusFilter || ""}
+              value={statusFilter || ''}
               onChange={(e) => setStatusFilter(e.target.value || null)}
               className="px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md text-sm"
             >
@@ -381,7 +385,7 @@ export default function ProjectsPage() {
             </select>
 
             <select
-              value={categoryFilter || ""}
+              value={categoryFilter || ''}
               onChange={(e) => setCategoryFilter(e.target.value || null)}
               className="px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md text-sm"
             >
@@ -394,8 +398,8 @@ export default function ProjectsPage() {
 
             <div className="flex border border-gray-300 dark:border-gray-600 rounded-md overflow-hidden">
               <button
-                className={`px-3 py-2 ${currentView === "grid" ? "bg-blue-600 text-white" : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300"}`}
-                onClick={() => setCurrentView("grid")}
+                className={`px-3 py-2 ${currentView === 'grid' ? 'bg-blue-600 text-white' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300'}`}
+                onClick={() => setCurrentView('grid')}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -413,8 +417,8 @@ export default function ProjectsPage() {
                 </svg>
               </button>
               <button
-                className={`px-3 py-2 ${currentView === "table" ? "bg-blue-600 text-white" : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300"}`}
-                onClick={() => setCurrentView("table")}
+                className={`px-3 py-2 ${currentView === 'table' ? 'bg-blue-600 text-white' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300'}`}
+                onClick={() => setCurrentView('table')}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -436,7 +440,7 @@ export default function ProjectsPage() {
         </div>
 
         {/* Grid View */}
-        {currentView === "grid" && (
+        {currentView === 'grid' && (
           <motion.div
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
             variants={containerVariants}
@@ -472,7 +476,7 @@ export default function ProjectsPage() {
                   <Button
                     variant="outline"
                     onClick={() => {
-                      setSearchQuery("");
+                      setSearchQuery('');
                       setStatusFilter(null);
                       setCategoryFilter(null);
                     }}
@@ -503,18 +507,18 @@ export default function ProjectsPage() {
                       <div className="absolute top-2 right-2 flex space-x-2">
                         <Badge
                           text={
-                            project.status === "completed"
-                              ? "Completed"
-                              : project.status === "in-progress"
-                                ? "In Progress"
-                                : "Planning"
+                            project.status === 'completed'
+                              ? 'Completed'
+                              : project.status === 'in-progress'
+                                ? 'In Progress'
+                                : 'Planning'
                           }
                           variant={
-                            project.status === "completed"
-                              ? "success"
-                              : project.status === "in-progress"
-                                ? "warning"
-                                : "info"
+                            project.status === 'completed'
+                              ? 'success'
+                              : project.status === 'in-progress'
+                                ? 'warning'
+                                : 'info'
                           }
                           size="sm"
                         />
@@ -575,26 +579,26 @@ export default function ProjectsPage() {
                             }
                             items={[
                               {
-                                label: "View Details",
+                                label: 'View Details',
                                 onClick: () => {
                                   // Navigate to project details
                                 },
                                 icon: <Eye size={16} />,
                               },
                               {
-                                label: "Edit Project",
+                                label: 'Edit Project',
                                 onClick: () => {
                                   // Navigate to edit project
                                 },
                                 icon: <Edit size={16} />,
                               },
                               {
-                                label: "Delete Project",
+                                label: 'Delete Project',
                                 onClick: () => {
                                   // Show delete confirmation
                                 },
                                 icon: <Trash2 size={16} />,
-                                className: "text-red-600 dark:text-red-400",
+                                className: 'text-red-600 dark:text-red-400',
                               },
                             ]}
                             align="right"
@@ -610,7 +614,7 @@ export default function ProjectsPage() {
         )}
 
         {/* Table View */}
-        {currentView === "table" && (
+        {currentView === 'table' && (
           <Table
             data={filteredProjects}
             columns={columns}
@@ -646,7 +650,7 @@ export default function ProjectsPage() {
                 <Button
                   variant="outline"
                   onClick={() => {
-                    setSearchQuery("");
+                    setSearchQuery('');
                     setStatusFilter(null);
                     setCategoryFilter(null);
                   }}

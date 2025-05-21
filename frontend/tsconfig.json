@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "ES2022", // Ou "ESNext"
+    "target": "ES2022",
     "lib": [
       "DOM",
       "DOM.Iterable",
@@ -24,9 +24,7 @@
       "@/*": [
         "./src/*"
       ]
-    }
-    // Removido "plugins": [{ "name": "next" }] pois não é para tsconfig.json
-    ,
+    },
     "plugins": [
       {
         "name": "next"
@@ -45,7 +43,5 @@
   "exclude": [
     "node_modules",
     "dist"
-    // Adicione outros diretórios que não devem ser verificados pelo TS, se houver
-    // Ex: "e2e" se seus testes Playwright estiverem lá e não forem verificados pelo TS
   ]
 }

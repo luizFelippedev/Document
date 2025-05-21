@@ -1,20 +1,19 @@
-// frontend/src/app/(auth)/forgot-password/page.tsx
-"use client";
+'use client';
 
-import { useState } from "react";
-import Link from "next/link";
-import { ForgotPasswordForm } from "@/components/auth/ForgotPasswordForm";
-import { Card } from "@/components/ui/Card";
-import { ThemeToggle } from "@/components/ui/ThemeToggle";
-import { ROUTES } from "@/config/routes";
-import { APP_NAME } from "@/config/constants";
-import { AnimatedLogo } from "@/components/ui/AnimatedLogo";
-import { motion } from "framer-motion";
-import { ArrowLeft } from "lucide-react";
+import { useState } from 'react';
+import Link from 'next/link';
+import { ForgotPasswordForm } from '@/components/auth/ForgotPasswordForm';
+import { Card } from '@/components/ui/Card';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
+import { ROUTES } from '@/config/routes';
+import { APP_NAME } from '@/config/constants';
+import { AnimatedLogo } from '@/components/ui/AnimatedLogo';
+import { motion } from 'framer-motion';
+import { ArrowLeft } from 'lucide-react';
 
 export default function ForgotPasswordPage() {
   const [emailSent, setEmailSent] = useState(false);
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState('');
 
   const handleSuccess = (submittedEmail: string) => {
     setEmail(submittedEmail);
@@ -28,7 +27,7 @@ export default function ForgotPasswordPage() {
       y: 0,
       transition: {
         duration: 0.4,
-        ease: "easeOut",
+        ease: 'easeOut',
       },
     },
   };
@@ -47,7 +46,7 @@ export default function ForgotPasswordPage() {
               {APP_NAME}
             </h1>
             <p className="text-gray-600 dark:text-gray-400">
-              {emailSent ? "Reset link sent" : "Reset your password"}
+              {emailSent ? 'Link de redefinição enviado' : 'Redefina sua senha'}
             </p>
           </div>
 
@@ -70,21 +69,19 @@ export default function ForgotPasswordPage() {
                   </svg>
                 </div>
                 <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                  Check your inbox
+                  Confira sua caixa de entrada
                 </h3>
                 <p className="text-gray-600 dark:text-gray-400 mb-6">
-                  We've sent a password recovery link to{" "}
-                  <strong>{email}</strong>. Please check your email and follow
-                  the instructions to reset your password.
+                  Não se preocupe, enviaremos um link para você redefinir sua senha.
                 </p>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
-                  Didn't receive the email? Check your spam folder or try again.
+                  Não lembra da sua senha? Sem problemas!
                 </p>
                 <button
                   onClick={() => setEmailSent(false)}
                   className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
                 >
-                  Try again
+                  Tentar novamente
                 </button>
               </div>
             ) : (
@@ -97,7 +94,7 @@ export default function ForgotPasswordPage() {
                     className="flex items-center justify-center text-sm text-blue-600 hover:text-blue-500 dark:text-blue-400"
                   >
                     <ArrowLeft size={16} className="mr-2" />
-                    Back to login
+                    Voltar para login
                   </Link>
                 </div>
               </>

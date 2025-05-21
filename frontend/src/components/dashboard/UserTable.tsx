@@ -1,17 +1,17 @@
 // frontend/src/components/dashboard/UserTable.tsx
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { userService } from "@/services/user.service";
-import { User } from "@/types/user";
-import { Table } from "@/components/ui/Table";
-import { Avatar } from "@/components/ui/Avatar";
-import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
-import { ConfirmModal } from "@/components/ui/Modal";
-import { formatDate } from "@/utils/date";
-import { useNotification } from "@/hooks/useNotification";
-import { Edit, Trash2, UserX, Shield, User as UserIcon } from "lucide-react";
+import { useState, useEffect } from 'react';
+import { userService } from '@/services/user.service';
+import { User } from '@/types/user';
+import { Table } from '@/components/ui/Table';
+import { Avatar } from '@/components/ui/Avatar';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { ConfirmModal } from '@/components/ui/Modal';
+import { formatDate } from '@/utils/date';
+import { useNotification } from '@/hooks/useNotification';
+import { Edit, Trash2, UserX, Shield, User as UserIcon } from 'lucide-react';
 
 export const UserTable = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -34,8 +34,8 @@ export const UserTable = () => {
       setUsers(result.users);
       setTotalPages(Math.ceil(result.total / result.limit));
     } catch (error) {
-      console.error("Error fetching users:", error);
-      showToast("error", "Failed to fetch users");
+      console.error('Error fetching users:', error);
+      showToast('error', 'Failed to fetch users');
     } finally {
       setLoading(false);
     }
@@ -52,10 +52,10 @@ export const UserTable = () => {
     try {
       await userService.deleteUser(userToDelete);
       setUsers(users.filter((user) => user.id !== userToDelete));
-      showToast("success", "User deleted successfully");
+      showToast('success', 'User deleted successfully');
     } catch (error) {
-      console.error("Error deleting user:", error);
-      showToast("error", "Failed to delete user");
+      console.error('Error deleting user:', error);
+      showToast('error', 'Failed to delete user');
     } finally {
       setUserToDelete(null);
       setShowDeleteModal(false);
@@ -64,8 +64,8 @@ export const UserTable = () => {
 
   const columns = [
     {
-      id: "user",
-      header: "User",
+      id: 'user',
+      header: 'User',
       cell: (row: User) => (
         <div className="flex items-center">
           <Avatar
@@ -84,44 +84,44 @@ export const UserTable = () => {
       ),
     },
     {
-      id: "role",
-      header: "Role",
+      id: 'role',
+      header: 'Role',
       cell: (row: User) => (
         <Badge
-          text={row.role === "admin" ? "Admin" : "User"}
-          variant={row.role === "admin" ? "primary" : "default"}
-          icon={row.role === "admin" ? <Shield size={12} /> : undefined}
+          text={row.role === 'admin' ? 'Admin' : 'User'}
+          variant={row.role === 'admin' ? 'primary' : 'default'}
+          icon={row.role === 'admin' ? <Shield size={12} /> : undefined}
         />
       ),
     },
     {
-      id: "status",
-      header: "Status",
+      id: 'status',
+      header: 'Status',
       cell: (row: User) => (
         <Badge
-          text={row.isVerified ? "Verified" : "Unverified"}
-          variant={row.isVerified ? "success" : "warning"}
+          text={row.isVerified ? 'Verified' : 'Unverified'}
+          variant={row.isVerified ? 'success' : 'warning'}
         />
       ),
     },
     {
-      id: "twoFactor",
-      header: "2FA",
+      id: 'twoFactor',
+      header: '2FA',
       cell: (row: User) => (
         <Badge
-          text={row.twoFactorEnabled ? "Enabled" : "Disabled"}
-          variant={row.twoFactorEnabled ? "success" : "default"}
+          text={row.twoFactorEnabled ? 'Enabled' : 'Disabled'}
+          variant={row.twoFactorEnabled ? 'success' : 'default'}
         />
       ),
     },
     {
-      id: "createdAt",
-      header: "Created At",
+      id: 'createdAt',
+      header: 'Created At',
       cell: (row: User) => formatDate(row.createdAt),
     },
     {
-      id: "actions",
-      header: "Actions",
+      id: 'actions',
+      header: 'Actions',
       cell: (row: User) => (
         <div className="flex space-x-2">
           <Button

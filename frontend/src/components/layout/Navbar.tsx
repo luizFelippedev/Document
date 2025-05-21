@@ -1,18 +1,18 @@
 // frontend/src/components/layout/Navbar.tsx
-"use client";
+'use client';
 
-import { useState, useRef, useEffect } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
-import { useAuth } from "@/hooks/useAuth";
-import { ThemeToggle } from "@/components/ui/ThemeToggle";
-import { Avatar } from "@/components/ui/Avatar";
-import { Badge } from "@/components/ui/Badge";
-import { Input } from "@/components/ui/Input";
-import { Spinner } from "@/components/ui/Spinner";
-import { ROUTES } from "@/config/routes";
-import { APP_NAME } from "@/config/constants";
+import { useState, useRef, useEffect } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '@/hooks/useAuth';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
+import { Avatar } from '@/components/ui/Avatar';
+import { Badge } from '@/components/ui/Badge';
+import { Input } from '@/components/ui/Input';
+import { Spinner } from '@/components/ui/Spinner';
+import { ROUTES } from '@/config/routes';
+import { APP_NAME } from '@/config/constants';
 import {
   Bell,
   Search,
@@ -23,7 +23,7 @@ import {
   Settings,
   LogOut,
   HelpCircle,
-} from "lucide-react";
+} from 'lucide-react';
 
 interface NavbarProps {
   toggleSidebar: () => void;
@@ -34,29 +34,29 @@ export const Navbar = ({ toggleSidebar, sidebarOpen }: NavbarProps) => {
   const [searchOpen, setSearchOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
   const [notifications, setNotifications] = useState([
     {
       id: 1,
-      title: "New project comment",
-      message: "John Doe commented on your project",
-      time: "2 minutes ago",
+      title: 'New project comment',
+      message: 'John Doe commented on your project',
+      time: '2 minutes ago',
       read: false,
     },
     {
       id: 2,
-      title: "Certificate approved",
-      message: "Your certificate has been verified",
-      time: "1 hour ago",
+      title: 'Certificate approved',
+      message: 'Your certificate has been verified',
+      time: '1 hour ago',
       read: false,
     },
     {
       id: 3,
-      title: "System update",
-      message: "The platform will be updated tonight",
-      time: "3 hours ago",
+      title: 'System update',
+      message: 'The platform will be updated tonight',
+      time: '3 hours ago',
       read: true,
     },
   ]);
@@ -91,9 +91,9 @@ export const Navbar = ({ toggleSidebar, sidebarOpen }: NavbarProps) => {
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
 
@@ -107,21 +107,21 @@ export const Navbar = ({ toggleSidebar, sidebarOpen }: NavbarProps) => {
       setSearchResults([
         {
           id: 1,
-          type: "project",
-          title: "React Dashboard",
-          url: "/projects/1",
+          type: 'project',
+          title: 'React Dashboard',
+          url: '/projects/1',
         },
         {
           id: 2,
-          type: "certificate",
-          title: "JavaScript Advanced",
-          url: "/certificates/2",
+          type: 'certificate',
+          title: 'JavaScript Advanced',
+          url: '/certificates/2',
         },
         {
           id: 3,
-          type: "project",
-          title: "React Native App",
-          url: "/projects/3",
+          type: 'project',
+          title: 'React Native App',
+          url: '/projects/3',
         },
       ]);
       setSearchLoading(false);
@@ -188,7 +188,7 @@ export const Navbar = ({ toggleSidebar, sidebarOpen }: NavbarProps) => {
                     <button
                       type="button"
                       className="absolute inset-y-0 right-0 flex items-center pr-3"
-                      onClick={() => setSearchQuery("")}
+                      onClick={() => setSearchQuery('')}
                     >
                       <X
                         size={16}
@@ -228,12 +228,12 @@ export const Navbar = ({ toggleSidebar, sidebarOpen }: NavbarProps) => {
                               <div className="flex items-center">
                                 <div
                                   className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                                    result.type === "project"
-                                      ? "bg-blue-100 text-blue-600"
-                                      : "bg-green-100 text-green-600"
+                                    result.type === 'project'
+                                      ? 'bg-blue-100 text-blue-600'
+                                      : 'bg-green-100 text-green-600'
                                   } dark:bg-gray-700`}
                                 >
-                                  {result.type === "project" ? "P" : "C"}
+                                  {result.type === 'project' ? 'P' : 'C'}
                                 </div>
                                 <div className="ml-3">
                                   <p className="text-sm font-medium text-gray-900 dark:text-white">
@@ -311,8 +311,8 @@ export const Navbar = ({ toggleSidebar, sidebarOpen }: NavbarProps) => {
                             key={notification.id}
                             className={`p-3 border-b border-gray-200 dark:border-gray-700 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-700 ${
                               !notification.read
-                                ? "bg-blue-50 dark:bg-blue-900/20"
-                                : ""
+                                ? 'bg-blue-50 dark:bg-blue-900/20'
+                                : ''
                             }`}
                           >
                             <div className="flex items-start">
@@ -365,11 +365,11 @@ export const Navbar = ({ toggleSidebar, sidebarOpen }: NavbarProps) => {
               >
                 <Avatar
                   src={user?.avatar}
-                  alt={user?.name || "User"}
+                  alt={user?.name || 'User'}
                   size="sm"
                 />
                 <span className="hidden md:block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  {user?.name?.split(" ")[0]}
+                  {user?.name?.split(' ')[0]}
                 </span>
                 <ChevronDown size={16} className="text-gray-500" />
               </button>
@@ -438,7 +438,7 @@ export const Navbar = ({ toggleSidebar, sidebarOpen }: NavbarProps) => {
         {searchOpen && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
+            animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.2 }}
             className="md:hidden border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-3"

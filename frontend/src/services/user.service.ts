@@ -1,13 +1,13 @@
 // src/services/user.service.ts
-import { api } from "@/lib/axios";
-import { User } from "@/types/user";
+import { api } from '@/lib/axios';
+import { User } from '@/types/user';
 
 export const userService = {
   /**
    * Get user profile
    */
   async getProfile() {
-    const response = await api.get("/users/profile");
+    const response = await api.get('/users/profile');
     return response.data.user;
   },
 
@@ -15,7 +15,7 @@ export const userService = {
    * Update user profile
    */
   async updateProfile(userData: Partial<User>) {
-    const response = await api.put("/users/profile", userData);
+    const response = await api.put('/users/profile', userData);
     return response.data.user;
   },
 
@@ -24,11 +24,11 @@ export const userService = {
    */
   async uploadAvatar(file: File) {
     const formData = new FormData();
-    formData.append("avatar", file);
+    formData.append('avatar', file);
 
-    const response = await api.post("/users/avatar", formData, {
+    const response = await api.post('/users/avatar', formData, {
       headers: {
-        "Content-Type": "multipart/form-data",
+        'Content-Type': 'multipart/form-data',
       },
     });
     return response.data;
@@ -38,7 +38,7 @@ export const userService = {
    * Remove profile avatar
    */
   async removeAvatar() {
-    const response = await api.delete("/users/avatar");
+    const response = await api.delete('/users/avatar');
     return response.data;
   },
 
@@ -46,15 +46,15 @@ export const userService = {
    * Get user settings
    */
   async getSettings() {
-    const response = await api.get("/users/settings");
+    const response = await api.get('/users/settings');
     return response.data.settings;
   },
 
   /**
    * Update user settings
    */
-  async updateSettings(settings: any) {
-    const response = await api.put("/users/settings", settings);
+  async updateSettings(settings: unknown) {
+    const response = await api.put('/users/settings', settings);
     return response.data.settings;
   },
 
@@ -62,7 +62,7 @@ export const userService = {
    * Get user statistics
    */
   async getStatistics() {
-    const response = await api.get("/users/statistics");
+    const response = await api.get('/users/statistics');
     return response.data.statistics;
   },
 
@@ -70,7 +70,7 @@ export const userService = {
    * Admin: Get all users
    */
   async getAllUsers(page = 1, limit = 10) {
-    const response = await api.get("/admin/users", {
+    const response = await api.get('/admin/users', {
       params: { page, limit },
     });
     return response.data;

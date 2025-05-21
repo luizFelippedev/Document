@@ -1,6 +1,6 @@
 // frontend/src/utils/cn.ts
-import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { clsx, type ClassValue } from 'clsx';
+import { twMerge } from 'tailwind-merge';
 
 /**
  * A utility function that merges multiple class values and resolves Tailwind CSS class conflicts.

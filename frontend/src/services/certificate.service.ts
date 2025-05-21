@@ -1,7 +1,7 @@
 // src/services/certificate.service.ts
-import { api } from "@/lib/axios";
-import { Certificate, CertificateFilter } from "@/types/certificate";
-import { socketEvents, socketService } from "@/lib/socket";
+import { api } from '@/lib/axios';
+import { Certificate, CertificateFilter } from '@/types/certificate';
+import { socketEvents, socketService } from '@/lib/socket';
 
 export const certificateService = {
   /**
@@ -14,12 +14,12 @@ export const certificateService = {
     userId?: string,
   ) {
     // Create params
-    const params: Record<string, any> = { page, limit }; // Padronizado para usar 'limit'
+    const params: Record<string, unknown> = { page, limit }; // Padronizado para usar 'limit'
 
     // Add filter parameters
     if (filter) {
       if (filter.search) params.search = filter.search;
-      if (filter.skills) params.skills = filter.skills.join(",");
+      if (filter.skills) params.skills = filter.skills.join(',');
       if (filter.issuer) params.issuer = filter.issuer;
       if (filter.category) params.category = filter.category;
       if (filter.expired !== undefined) params.expired = filter.expired;
@@ -29,7 +29,7 @@ export const certificateService = {
     // Add userId if provided
     if (userId) params.userId = userId;
 
-    const response = await api.get("/certificates", { params });
+    const response = await api.get('/certificates', { params });
     return response.data.certificates;
   },
 
@@ -45,9 +45,9 @@ export const certificateService = {
    * Create a new certificate
    */
   async createCertificate(certificateData: FormData) {
-    const response = await api.post("/certificates", certificateData, {
+    const response = await api.post('/certificates', certificateData, {
       headers: {
-        "Content-Type": "multipart/form-data",
+        'Content-Type': 'multipart/form-data',
       },
     });
 
@@ -66,7 +66,7 @@ export const certificateService = {
   async updateCertificate(id: string, certificateData: FormData) {
     const response = await api.put(`/certificates/${id}`, certificateData, {
       headers: {
-        "Content-Type": "multipart/form-data",
+        'Content-Type': 'multipart/form-data',
       },
     });
 
@@ -96,27 +96,27 @@ export const certificateService = {
    */
   async downloadCertificateFile(id: string, filename?: string) {
     const response = await api.get(`/certificates/${id}/file/download`, {
-      responseType: "blob",
+      responseType: 'blob',
     });
 
     // Create blob link to download
     const url = window.URL.createObjectURL(new Blob([response.data]));
-    const link = document.createElement("a");
+    const link = document.createElement('a');
     link.href = url;
 
     // Get filename from content disposition or use provided filename
-    const contentDisposition = response.headers["content-disposition"];
+    const contentDisposition = response.headers['content-disposition'];
     let downloadFilename = filename;
 
     if (!downloadFilename && contentDisposition) {
       const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
       const matches = filenameRegex.exec(contentDisposition);
       if (matches != null && matches[1]) {
-        downloadFilename = matches[1].replace(/['"]/g, "");
+        downloadFilename = matches[1].replace(/['"]/g, '');
       }
     }
 
-    link.setAttribute("download", downloadFilename || `certificate-${id}.pdf`);
+    link.setAttribute('download', downloadFilename || `certificate-${id}.pdf`);
     document.body.appendChild(link);
     link.click();
 
@@ -152,14 +152,14 @@ export const certificateService = {
    */
   async uploadCertificateImage(certificateId: string, imageFile: File) {
     const formData = new FormData();
-    formData.append("image", imageFile);
+    formData.append('image', imageFile);
 
     const response = await api.post(
       `/certificates/${certificateId}/images`,
       formData,
       {
         headers: {
-          "Content-Type": "multipart/form-data",
+          'Content-Type': 'multipart/form-data',
         },
       },
     );
@@ -180,7 +180,7 @@ export const certificateService = {
    * Search certificates
    */
   async searchCertificates(query: string) {
-    const response = await api.get("/certificates/search", {
+    const response = await api.get('/certificates/search', {
       params: { query },
     });
     return response.data.certificates;
@@ -190,8 +190,8 @@ export const certificateService = {
    * Filter certificates by skills
    */
   async filterCertificatesBySkills(skills: string[]) {
-    const response = await api.get("/certificates/filter", {
-      params: { skills: skills.join(",") },
+    const response = await api.get('/certificates/filter', {
+      params: { skills: skills.join(',') },
     });
     return response.data.certificates;
   },

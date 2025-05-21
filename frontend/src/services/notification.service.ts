@@ -1,7 +1,7 @@
 // src/services/notification.service.ts
-import { api } from "@/lib/axios";
-import { Notification } from "@/types/notification";
-import { socketEvents, socketService } from "@/lib/socket";
+import { api } from '@/lib/axios';
+import { Notification } from '@/types/notification';
+import { socketEvents, socketService } from '@/lib/socket';
 
 export const notificationService = {
   /**
@@ -13,7 +13,7 @@ export const notificationService = {
     unreadOnly = false,
     type?: string,
   ) {
-    const params: Record<string, any> = { page, limit }; // Padronizado para usar 'limit'
+    const params: Record<string, unknown> = { page, limit }; // Padronizado para usar 'limit'
 
     if (unreadOnly) {
       params.read = false;
@@ -23,7 +23,7 @@ export const notificationService = {
       params.type = type;
     }
 
-    const response = await api.get("/notifications", { params });
+    const response = await api.get('/notifications', { params });
     return response.data.notifications;
   },
 
@@ -51,7 +51,7 @@ export const notificationService = {
    * Mark all notifications as read
    */
   async markAllAsRead() {
-    const response = await api.put("/notifications/read-all", {});
+    const response = await api.put('/notifications/read-all', {});
 
     // Emit socket event for read all status
     socketService.emit(socketEvents.notifications.readAll);
@@ -71,7 +71,7 @@ export const notificationService = {
    * Delete all notifications
    */
   async deleteAllNotifications() {
-    const response = await api.delete("/notifications");
+    const response = await api.delete('/notifications');
     return response.data;
   },
 
@@ -79,7 +79,7 @@ export const notificationService = {
    * Get unread notifications count
    */
   async getUnreadCount() {
-    const response = await api.get("/notifications/unread-count");
+    const response = await api.get('/notifications/unread-count');
     return response.data.count;
   },
 
@@ -91,7 +91,7 @@ export const notificationService = {
     push: boolean;
     inApp: boolean;
   }) {
-    const response = await api.put("/notifications/settings", settings);
+    const response = await api.put('/notifications/settings', settings);
     return response.data.settings;
   },
 
@@ -99,7 +99,7 @@ export const notificationService = {
    * Get notification preferences
    */
   async getSettings() {
-    const response = await api.get("/notifications/settings");
+    const response = await api.get('/notifications/settings');
     return response.data.settings;
   },
 

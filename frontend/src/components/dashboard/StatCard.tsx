@@ -1,16 +1,16 @@
 // frontend/src/components/dashboard/StatCard.tsx
-"use client";
+'use client';
 
-import React from "react";
-import { motion } from "framer-motion";
-import { TrendingUp, TrendingDown, Activity } from "lucide-react";
-import { cn } from "@/utils/cn";
+import React from 'react';
+import { motion } from 'framer-motion';
+import { TrendingUp, TrendingDown, Activity } from 'lucide-react';
+import { cn } from '@/utils/cn';
 
 interface StatCardProps {
   title: string;
   value: string | number;
   change?: string | number;
-  trend?: "up" | "down" | "neutral";
+  trend?: 'up' | 'down' | 'neutral';
   icon?: React.ReactNode;
   bgColor?: string;
   textColor?: string;
@@ -23,20 +23,20 @@ export const StatCard = ({
   change,
   trend,
   icon,
-  bgColor = "bg-white dark:bg-gray-800",
-  textColor = "text-gray-900 dark:text-white",
+  bgColor = 'bg-white dark:bg-gray-800',
+  textColor = 'text-gray-900 dark:text-white',
   className,
 }: StatCardProps) => {
   // Trend color and icon
   const getTrendColor = () => {
-    if (trend === "up") return "text-green-600 dark:text-green-400";
-    if (trend === "down") return "text-red-600 dark:text-red-400";
-    return "text-gray-500 dark:text-gray-400";
+    if (trend === 'up') return 'text-green-600 dark:text-green-400';
+    if (trend === 'down') return 'text-red-600 dark:text-red-400';
+    return 'text-gray-500 dark:text-gray-400';
   };
 
   const getTrendIcon = () => {
-    if (trend === "up") return <TrendingUp size={14} />;
-    if (trend === "down") return <TrendingDown size={14} />;
+    if (trend === 'up') return <TrendingUp size={14} />;
+    if (trend === 'down') return <TrendingDown size={14} />;
     return null;
   };
 
@@ -46,7 +46,7 @@ export const StatCard = ({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
       className={cn(
-        "rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden",
+        'rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden',
         bgColor,
         className,
       )}
@@ -57,7 +57,7 @@ export const StatCard = ({
             <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
               {title}
             </p>
-            <h3 className={cn("mt-1 text-2xl font-semibold", textColor)}>
+            <h3 className={cn('mt-1 text-2xl font-semibold', textColor)}>
               {value}
             </h3>
           </div>
@@ -72,7 +72,7 @@ export const StatCard = ({
         {(change || trend) && (
           <div className="mt-4 flex items-center">
             {trend && (
-              <div className={cn("flex items-center text-xs", getTrendColor())}>
+              <div className={cn('flex items-center text-xs', getTrendColor())}>
                 {getTrendIcon()}
                 <span className="ml-1">{change}</span>
               </div>
@@ -102,7 +102,7 @@ export const StatCardWithTrend = ({
     previousValue > 0 ? ((value - previousValue) / previousValue) * 100 : 0;
 
   const trend =
-    percentChange > 0 ? "up" : percentChange < 0 ? "down" : "neutral";
+    percentChange > 0 ? 'up' : percentChange < 0 ? 'down' : 'neutral';
 
   return (
     <StatCard

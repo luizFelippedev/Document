@@ -1,10 +1,10 @@
 // frontend/src/hooks/useCertificates.ts
-"use client";
+'use client';
 
-import { useState, useCallback } from "react";
-import { Certificate, CertificateFilter } from "@/types/certificate";
-import { certificateService } from "@/services/certificate.service";
-import { useNotification } from "./useNotification";
+import { useState, useCallback } from 'react';
+import { Certificate, CertificateFilter } from '@/types/certificate';
+import { certificateService } from '@/services/certificate.service';
+import { useNotification } from './useNotification';
 
 export const useCertificates = () => {
   const [certificates, setCertificates] = useState<Certificate[]>([]);
@@ -22,9 +22,9 @@ export const useCertificates = () => {
       setCertificates(data);
 
       return data;
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Failed to fetch certificates");
-      showToast("error", "Failed to fetch certificates");
+    } catch (err: unknown) {
+      setError(err.response?.data?.message || 'Failed to fetch certificates');
+      showToast('error', 'Failed to fetch certificates');
       return [];
     } finally {
       setLoading(false);
@@ -40,9 +40,9 @@ export const useCertificates = () => {
 
         const data = await certificateService.getCertificate(id);
         return data;
-      } catch (err: any) {
-        setError(err.response?.data?.message || "Failed to fetch certificate");
-        showToast("error", "Failed to fetch certificate details");
+      } catch (err: unknown) {
+        setError(err.response?.data?.message || 'Failed to fetch certificate');
+        showToast('error', 'Failed to fetch certificate details');
         return null;
       } finally {
         setLoading(false);
@@ -62,11 +62,11 @@ export const useCertificates = () => {
           await certificateService.createCertificate(certificateData);
         setCertificates((prev) => [data, ...prev]);
 
-        showToast("success", "Certificate created successfully");
+        showToast('success', 'Certificate created successfully');
         return data;
-      } catch (err: any) {
-        setError(err.response?.data?.message || "Failed to create certificate");
-        showToast("error", "Failed to create certificate");
+      } catch (err: unknown) {
+        setError(err.response?.data?.message || 'Failed to create certificate');
+        showToast('error', 'Failed to create certificate');
         return null;
       } finally {
         setLoading(false);
@@ -91,11 +91,11 @@ export const useCertificates = () => {
           prev.map((cert) => (cert.id === id ? data : cert)),
         );
 
-        showToast("success", "Certificate updated successfully");
+        showToast('success', 'Certificate updated successfully');
         return data;
-      } catch (err: any) {
-        setError(err.response?.data?.message || "Failed to update certificate");
-        showToast("error", "Failed to update certificate");
+      } catch (err: unknown) {
+        setError(err.response?.data?.message || 'Failed to update certificate');
+        showToast('error', 'Failed to update certificate');
         return null;
       } finally {
         setLoading(false);
@@ -114,11 +114,11 @@ export const useCertificates = () => {
         await certificateService.deleteCertificate(id);
         setCertificates((prev) => prev.filter((cert) => cert.id !== id));
 
-        showToast("success", "Certificate deleted successfully");
+        showToast('success', 'Certificate deleted successfully');
         return true;
-      } catch (err: any) {
-        setError(err.response?.data?.message || "Failed to delete certificate");
-        showToast("error", "Failed to delete certificate");
+      } catch (err: unknown) {
+        setError(err.response?.data?.message || 'Failed to delete certificate');
+        showToast('error', 'Failed to delete certificate');
         return false;
       } finally {
         setLoading(false);
@@ -181,35 +181,35 @@ export const useCertificates = () => {
         // Sort results
         if (filters.sortBy) {
           switch (filters.sortBy) {
-            case "newest":
+            case 'newest':
               filteredCerts.sort(
                 (a, b) =>
                   new Date(b.createdAt).getTime() -
                   new Date(a.createdAt).getTime(),
               );
               break;
-            case "oldest":
+            case 'oldest':
               filteredCerts.sort(
                 (a, b) =>
                   new Date(a.createdAt).getTime() -
                   new Date(b.createdAt).getTime(),
               );
               break;
-            case "a-z":
+            case 'a-z':
               filteredCerts.sort((a, b) => a.title.localeCompare(b.title));
               break;
-            case "z-a":
+            case 'z-a':
               filteredCerts.sort((a, b) => b.title.localeCompare(a.title));
               break;
           }
         }
 
         return filteredCerts;
-      } catch (err: any) {
+      } catch (err: unknown) {
         setError(
-          err.response?.data?.message || "Failed to filter certificates",
+          err.response?.data?.message || 'Failed to filter certificates',
         );
-        showToast("error", "Failed to filter certificates");
+        showToast('error', 'Failed to filter certificates');
         return [];
       } finally {
         setLoading(false);

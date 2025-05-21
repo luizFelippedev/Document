@@ -1,11 +1,11 @@
 // frontend/src/hooks/useForm.ts
-"use client";
+'use client';
 
-import { useState, useCallback, ChangeEvent, FormEvent } from "react";
-import { validateForm } from "@/utils/validation";
-import { z } from "zod";
+import { useState, useCallback, ChangeEvent, FormEvent } from 'react';
+import { validateForm } from '@/utils/validation';
+import { z } from 'zod';
 
-type FieldValues = Record<string, any>;
+type FieldValues = Record<string, unknown>;
 type ValidationSchema<T extends FieldValues> = z.ZodType<T>;
 type ErrorRecord<T> = Partial<Record<keyof T, string>>;
 type TouchedRecord<T> = Partial<Record<keyof T, boolean>>;
@@ -21,7 +21,7 @@ interface FormHelpers<T extends FieldValues> {
   resetForm: () => void;
   setValues: (values: Partial<T>) => void;
   setErrors: (errors: ErrorRecord<T>) => void;
-  setFieldValue: (field: keyof T, value: any) => void;
+  setFieldValue: (field: keyof T, value: unknown) => void;
   setFieldError: (field: keyof T, error: string) => void;
   setFieldTouched: (field: keyof T, isTouched?: boolean) => void;
 }
@@ -40,7 +40,7 @@ interface UseFormReturn<T extends FieldValues> {
     e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
   ) => void;
   handleSubmit: (e: FormEvent<HTMLFormElement>) => void;
-  setFieldValue: (field: keyof T, value: any) => void;
+  setFieldValue: (field: keyof T, value: unknown) => void;
   setFieldError: (field: keyof T, error: string) => void;
   setFieldTouched: (field: keyof T, isTouched?: boolean) => void;
   resetForm: () => void;
@@ -50,7 +50,7 @@ interface UseFormReturn<T extends FieldValues> {
   validateForm: () => Promise<boolean>;
   getFieldProps: (field: keyof T) => {
     name: keyof T;
-    value: any;
+    value: unknown;
     onChange: (
       e: ChangeEvent<
         HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
@@ -100,7 +100,7 @@ export function useForm<T extends FieldValues>({
 
   // Set a specific field value
   const setFieldValue = useCallback(
-    (field: keyof T, value: any) => {
+    (field: keyof T, value: unknown) => {
       setValues((prev) => {
         const updated = { ...prev, [field]: value };
         setIsDirty(JSON.stringify(updated) !== JSON.stringify(initialValues));
@@ -132,7 +132,7 @@ export function useForm<T extends FieldValues>({
         // Create a schema just for this field
         const fieldSchema = z.object({
           [field]: validationSchema.shape[field],
-        } as any);
+        } as unknown);
 
         // Validate just this field
         await fieldSchema.parseAsync({ [field]: values[field] });
@@ -195,12 +195,12 @@ export function useForm<T extends FieldValues>({
       const { name, value, type } = e.target;
 
       // Handle different input types
-      let parsedValue: any = value;
+      let parsedValue: unknown = value;
 
-      if (type === "checkbox") {
+      if (type === 'checkbox') {
         parsedValue = (e.target as HTMLInputElement).checked;
-      } else if (type === "number") {
-        parsedValue = value === "" ? "" : Number(value);
+      } else if (type === 'number') {
+        parsedValue = value === '' ? '' : Number(value);
       }
 
       setFieldValue(name as keyof T, parsedValue);
@@ -251,7 +251,7 @@ export function useForm<T extends FieldValues>({
             setFieldTouched,
           });
         } catch (error) {
-          console.error("Form submission error:", error);
+          console.error('Form submission error:', error);
         } finally {
           setSubmitting(false);
         }

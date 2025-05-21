@@ -1,10 +1,10 @@
 // frontend/src/components/ui/Card.tsx
-"use client";
+'use client';
 
-import React, { forwardRef } from "react";
-import { cn } from "@/utils/cn";
-import { motion, MotionProps } from "framer-motion";
-import { Skeleton } from "./Skeleton";
+import React, { forwardRef } from 'react';
+import { cn } from '@/utils/cn';
+import { motion, MotionProps } from 'framer-motion';
+import { Skeleton } from './Skeleton';
 
 export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   /** Card title displayed in the header */
@@ -55,20 +55,20 @@ const CardComponent = forwardRef<HTMLDivElement, CardProps>(
     ref,
   ) => {
     const cardClasses = cn(
-      "rounded-lg overflow-hidden",
-      shadow && "shadow-sm",
-      bordered && "border border-gray-200 dark:border-gray-700",
-      hoverable && "transition-shadow hover:shadow-md",
-      "bg-white dark:bg-gray-800",
+      'rounded-lg overflow-hidden',
+      shadow && 'shadow-sm',
+      bordered && 'border border-gray-200 dark:border-gray-700',
+      hoverable && 'transition-shadow hover:shadow-md',
+      'bg-white dark:bg-gray-800',
       className,
     );
 
     const contentClasses = cn(
-      padded && !title && !footer && "p-6",
+      padded && !title && !footer && 'p-6',
       contentClassName,
     );
 
-    const Component = hoverEffect || clickEffect ? motion.div : "div";
+    const Component = hoverEffect || clickEffect ? motion.div : 'div';
 
     const motionSettings = {
       ...(hoverEffect && {
@@ -108,7 +108,7 @@ const CardComponent = forwardRef<HTMLDivElement, CardProps>(
         <>
           {title && (
             <div className="border-b border-gray-200 dark:border-gray-700 p-4 flex items-center justify-between">
-              {typeof title === "string" ? (
+              {typeof title === 'string' ? (
                 <h3 className="text-lg font-medium text-gray-900 dark:text-white">
                   {title}
                 </h3>
@@ -143,6 +143,6 @@ const CardComponent = forwardRef<HTMLDivElement, CardProps>(
   },
 );
 
-CardComponent.displayName = "Card";
+CardComponent.displayName = 'Card';
 
 export const Card = CardComponent;

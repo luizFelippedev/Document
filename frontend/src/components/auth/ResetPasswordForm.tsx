@@ -1,43 +1,43 @@
 // frontend/src/components/auth/ResetPasswordForm.tsx
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { authService } from "@/services/auth.service";
-import { Button } from "../ui/Button";
-import { Input } from "../ui/Input";
-import { Alert } from "../ui/Alert";
-import { motion, AnimatePresence } from "framer-motion";
-import { Eye, EyeOff, Lock, AlertCircle } from "lucide-react";
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { authService } from '@/services/auth.service';
+import { Button } from '../ui/Button';
+import { Input } from '../ui/Input';
+import { Alert } from '../ui/Alert';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Eye, EyeOff, Lock, AlertCircle } from 'lucide-react';
 
 const resetPasswordSchema = z
   .object({
     password: z
       .string()
-      .min(8, "Password must be at least 8 characters")
+      .min(8, 'Password must be at least 8 characters')
       .refine(
         (password) => /[A-Z]/.test(password),
-        "Password must contain at least one uppercase letter",
+        'Password must contain at least one uppercase letter',
       )
       .refine(
         (password) => /[a-z]/.test(password),
-        "Password must contain at least one lowercase letter",
+        'Password must contain at least one lowercase letter',
       )
       .refine(
         (password) => /[0-9]/.test(password),
-        "Password must contain at least one number",
+        'Password must contain at least one number',
       )
       .refine(
         (password) => /[^A-Za-z0-9]/.test(password),
-        "Password must contain at least one special character",
+        'Password must contain at least one special character',
       ),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",
-    path: ["confirmPassword"],
+    path: ['confirmPassword'],
   });
 
 type ResetPasswordFormValues = z.infer<typeof resetPasswordSchema>;
@@ -65,12 +65,12 @@ export const ResetPasswordForm = ({
   } = useForm<ResetPasswordFormValues>({
     resolver: zodResolver(resetPasswordSchema),
     defaultValues: {
-      password: "",
-      confirmPassword: "",
+      password: '',
+      confirmPassword: '',
     },
   });
 
-  const password = watch("password");
+  const password = watch('password');
 
   // Calculate password strength
   useState(() => {
@@ -96,16 +96,16 @@ export const ResetPasswordForm = ({
   });
 
   const getStrengthColor = () => {
-    if (passwordStrength < 30) return "bg-red-500";
-    if (passwordStrength < 60) return "bg-yellow-500";
-    return "bg-green-500";
+    if (passwordStrength < 30) return 'bg-red-500';
+    if (passwordStrength < 60) return 'bg-yellow-500';
+    return 'bg-green-500';
   };
 
   const getStrengthText = () => {
-    if (passwordStrength < 30) return "Weak";
-    if (passwordStrength < 60) return "Moderate";
-    if (passwordStrength < 80) return "Strong";
-    return "Very Strong";
+    if (passwordStrength < 30) return 'Weak';
+    if (passwordStrength < 60) return 'Moderate';
+    if (passwordStrength < 80) return 'Strong';
+    return 'Very Strong';
   };
 
   const onSubmit = async (data: ResetPasswordFormValues) => {
@@ -114,10 +114,10 @@ export const ResetPasswordForm = ({
       setError(null);
       await authService.resetPassword(token, data.password);
       onSuccess();
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(
         err.response?.data?.message ||
-          "Failed to reset password. Please try again.",
+          'Failed to reset password. Please try again.',
       );
     } finally {
       setIsSubmitting(false);
@@ -147,7 +147,7 @@ export const ResetPasswordForm = ({
         </label>
         <Input
           id="password"
-          type={showPassword ? "text" : "password"}
+          type={showPassword ? 'text' : 'password'}
           placeholder="Enter your new password"
           error={errors.password?.message}
           leftElement={<Lock size={18} />}
@@ -161,7 +161,7 @@ export const ResetPasswordForm = ({
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           }
-          {...register("password")}
+          {...register('password')}
         />
 
         {password && (
@@ -173,7 +173,7 @@ export const ResetPasswordForm = ({
               <span
                 className="text-xs font-medium"
                 style={{
-                  color: getStrengthColor().replace("bg-", "text-"),
+                  color: getStrengthColor().replace('bg-', 'text-'),
                 }}
               >
                 {getStrengthText()}
@@ -198,7 +198,7 @@ export const ResetPasswordForm = ({
         </label>
         <Input
           id="confirmPassword"
-          type={showConfirmPassword ? "text" : "password"}
+          type={showConfirmPassword ? 'text' : 'password'}
           placeholder="Confirm your new password"
           error={errors.confirmPassword?.message}
           leftElement={<Lock size={18} />}
@@ -212,7 +212,7 @@ export const ResetPasswordForm = ({
               {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           }
-          {...register("confirmPassword")}
+          {...register('confirmPassword')}
         />
       </div>
 

@@ -1,164 +1,238 @@
-// frontend/src/components/auth/LoginForm.tsx
-"use client";
+// src/components/auth/LoginForm.tsx
+'use client';
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { useAuth } from "@/hooks/useAuth";
-import { Button } from "../ui/Button";
-import { Input } from "../ui/Input";
-import { Alert } from "../ui/Alert";
-import { Spinner } from "../ui/Spinner";
-import { motion, AnimatePresence } from "framer-motion";
-import { Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { useState, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { api } from '@/lib/axios';
+import { Input } from '@/components/ui/Input';
+import { Button } from '@/components/ui/Button';
+import { Spinner } from '@/components/ui/Spinner';
+import { Alert } from '@/components/ui/Alert';
+import { saveToStorage } from '@/utils/storage';
+import { API_URL } from '@/config/constants';
 
+// Schema de validação
 const loginSchema = z.object({
-  email: z
-    .string()
-    .email("Please enter a valid email address")
-    .min(1, "Email is required"),
-  password: z.string().min(1, "Password is required"),
-  rememberMe: z.boolean().optional().default(false),
+  email: z.string().email('Email inválido').min(1, 'Email é obrigatório'),
+  password: z.string().min(1, 'Senha é obrigatória'),
+  remember: z.boolean().optional(),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
-interface LoginFormProps {
+type LoginFormProps = {
   onSuccess: (requiresTwoFactor: boolean) => void;
-}
+};
 
-export const LoginForm = ({ onSuccess }: LoginFormProps) => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
+export function LoginForm({ onSuccess }: LoginFormProps) {
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showPassword, setShowPassword] = useState(false);
-  const { login } = useAuth();
-  const router = useRouter();
+  const [loginEndpoint, setLoginEndpoint] = useState('/api/auth/login');
+
+  // Determina o endpoint correto baseado na URL da API
+  useEffect(() => {
+    // Evita duplicação de /api na URL
+    const endpoint = API_URL.endsWith('/api') 
+      ? '/auth/login' 
+      : '/api/auth/login';
+    
+    setLoginEndpoint(endpoint);
+    console.log('Endpoint de login configurado:', endpoint);
+  }, []);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
+    setValue,
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "",
-      password: "",
-      rememberMe: false,
+      email: '',
+      password: '',
+      remember: false,
     },
   });
 
+  // Função para preencher as credenciais de admin padrão
+  const fillDefaultAdmin = () => {
+    setValue('email', 'admin@example.com');
+    setValue('password', 'Admin@123');
+  };
+
   const onSubmit = async (data: LoginFormValues) => {
     try {
-      setIsSubmitting(true);
+      setIsLoading(true);
       setError(null);
 
-      // Simulate the login API call with potential 2FA requirement
-      const response = await login(data.email, data.password, data.rememberMe);
+      // Exibir dados de login enviados (remova em produção)
+      console.log('Tentando login com:', {
+        email: data.email,
+        remember: data.remember,
+      });
+      
+      // Log da URL completa para depuração
+      console.log('URL completa de login:', API_URL + loginEndpoint);
 
-      // Check if 2FA is required based on the API response
-      const requiresTwoFactor = response?.requiresTwoFactor || false;
+      // Verifica se está tentando com o admin padrão
+      const isDefaultAdmin = 
+        data.email === 'admin@example.com' && data.password === 'Admin@123';
+      
+      if (isDefaultAdmin) {
+        console.log('Tentando login com credenciais de admin padrão');
+      }
 
-      onSuccess(requiresTwoFactor);
-    } catch (err: any) {
-      setError(
-        err.response?.data?.message ||
-          "Failed to login. Please check your credentials and try again.",
-      );
+      const response = await api.post(loginEndpoint, {
+        email: data.email,
+        password: data.password,
+        remember: data.remember || false,
+      });
+
+      // Processar resposta bem-sucedida
+      const { token, user, requireTwoFactor } = response.data.data;
+
+      // Salvar token com base na opção "lembrar"
+      if (data.remember) {
+        saveToStorage('@App:token', token);
+      } else {
+        sessionStorage.setItem('@App:token', token);
+      }
+
+      // Salvar usuário
+      saveToStorage('@App:user', JSON.stringify(user));
+
+      console.log('Login bem-sucedido:', { 
+        user: { id: user.id, email: user.email, role: user.role },
+        requireTwoFactor 
+      });
+
+      // Notificar componente pai do sucesso
+      onSuccess(requireTwoFactor || false);
+    } catch (error: any) {
+      console.error('Erro de login:', error);
+
+      let errorMessage = 'Falha no login. Tente novamente.';
+
+      if (error.response) {
+        console.error('Detalhes do erro:', {
+          status: error.response.status,
+          data: error.response.data
+        });
+
+        if (error.response.status === 401) {
+          // Se for primeira vez, sugere usar o admin padrão
+          if (data.email !== 'admin@example.com') {
+            errorMessage = 'Email ou senha inválidos. Tente com admin@example.com / Admin@123';
+          } else {
+            errorMessage = 'Credenciais inválidas. Verifique se o servidor foi reiniciado após a configuração.';
+          }
+        } else if (error.response.status === 404) {
+          errorMessage = 'Endpoint de login não encontrado. Verifique a configuração da API.';
+        } else {
+          // Outras mensagens de erro do backend
+          errorMessage = error.response.data?.message || error.response.data?.error || errorMessage;
+        }
+      } else if (error.request) {
+        // Erro de conexão
+        errorMessage = 'Não foi possível conectar ao servidor. Verifique sua conexão.';
+      }
+
+      setError(errorMessage);
     } finally {
-      setIsSubmitting(false);
+      setIsLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <AnimatePresence>
-        {error && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-          >
-            <Alert message={error} type="error" />
-          </motion.div>
-        )}
-      </AnimatePresence>
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      {error && (
+        <Alert variant="destructive" className="mb-4">
+          {error}
+        </Alert>
+      )}
 
-      <div>
-        <label
-          htmlFor="email"
-          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-        >
-          Email Address
-        </label>
-        <Input
-          id="email"
-          type="email"
-          placeholder="Enter your email address"
-          error={errors.email?.message}
-          leftElement={<Mail size={18} />}
-          {...register("email")}
-        />
-      </div>
-
-      <div>
-        <div className="flex items-center justify-between mb-1">
+      <div className="space-y-4">
+        <div>
           <label
-            htmlFor="password"
+            htmlFor="email"
             className="block text-sm font-medium text-gray-700 dark:text-gray-300"
           >
-            Password
+            Email
           </label>
+          <Input
+            id="email"
+            type="email"
+            placeholder="seu@email.com"
+            autoComplete="email" // Adicionado para atender recomendações de acessibilidade
+            {...register('email')}
+            className={errors.email ? 'border-red-500' : ''}
+          />
+          {errors.email && (
+            <p className="mt-1 text-sm text-red-500">{errors.email.message}</p>
+          )}
         </div>
-        <Input
-          id="password"
-          type={showPassword ? "text" : "password"}
-          placeholder="Enter your password"
-          error={errors.password?.message}
-          leftElement={<Lock size={18} />}
-          rightElement={
+
+        <div>
+          <div className="flex items-center justify-between">
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
+              Senha
+            </label>
+          </div>
+          <Input
+            id="password"
+            type="password"
+            placeholder="••••••••"
+            autoComplete="current-password" // Adicionado para atender recomendações de acessibilidade
+            {...register('password')}
+            className={errors.password ? 'border-red-500' : ''}
+          />
+          {errors.password && (
+            <p className="mt-1 text-sm text-red-500">{errors.password.message}</p>
+          )}
+        </div>
+
+        <div className="flex items-center justify-between">
+          <div className="flex items-center">
+            <input
+              id="remember"
+              type="checkbox"
+              {...register('remember')}
+              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            />
+            <label
+              htmlFor="remember"
+              className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
+            >
+              Lembrar-me
+            </label>
+          </div>
+
+          {/* Botão para usar admin padrão (apenas para desenvolvimento) */}
+          {process.env.NODE_ENV !== 'production' && (
             <button
               type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="focus:outline-none"
-              tabIndex={-1}
+              onClick={fillDefaultAdmin}
+              className="text-xs text-blue-600 hover:text-blue-500 dark:text-blue-400"
             >
-              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              Usar admin padrão
             </button>
-          }
-          {...register("password")}
-        />
-      </div>
-
-      <div className="flex items-center justify-between">
-        <div className="flex items-center">
-          <input
-            id="rememberMe"
-            type="checkbox"
-            className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600"
-            {...register("rememberMe")}
-          />
-          <label
-            htmlFor="rememberMe"
-            className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
-          >
-            Remember me
-          </label>
+          )}
         </div>
       </div>
 
-      <div className="pt-2">
-        <Button
-          type="submit"
-          variant="primary"
-          fullWidth
-          loading={isSubmitting}
-          loadingText="Signing In..."
-        >
-          Sign In
-        </Button>
-      </div>
+      <Button
+        type="submit"
+        className="w-full"
+        disabled={isLoading}
+      >
+        {isLoading ? <Spinner className="mr-2" /> : null}
+        {isLoading ? 'Entrando...' : 'Entrar'}
+      </Button>
     </form>
   );
-};
+}

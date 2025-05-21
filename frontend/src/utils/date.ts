@@ -8,8 +8,8 @@ import {
   differenceInDays,
   differenceInMonths,
   differenceInYears,
-} from "date-fns";
-import { DATE_FORMATS } from "@/config/constants";
+} from 'date-fns';
+import { DATE_FORMATS } from '@/config/constants';
 
 /**
  * Format a date string using the default format
@@ -22,13 +22,13 @@ export const formatDate = (
     const date = parseISO(dateString);
 
     if (!isValid(date)) {
-      return "Invalid date";
+      return 'Invalid date';
     }
 
     return format(date, dateFormat);
   } catch (error) {
-    console.error("Error formatting date:", error);
-    return "Invalid date";
+    console.error('Error formatting date:', error);
+    return 'Invalid date';
   }
 };
 
@@ -40,13 +40,13 @@ export const formatRelativeTime = (dateString: string): string => {
     const date = parseISO(dateString);
 
     if (!isValid(date)) {
-      return "Invalid date";
+      return 'Invalid date';
     }
 
     return formatDistance(date, new Date(), { addSuffix: true });
   } catch (error) {
-    console.error("Error formatting relative time:", error);
-    return "Invalid date";
+    console.error('Error formatting relative time:', error);
+    return 'Invalid date';
   }
 };
 
@@ -61,13 +61,13 @@ export const formatRelativeDate = (
     const date = parseISO(dateString);
 
     if (!isValid(date)) {
-      return "Invalid date";
+      return 'Invalid date';
     }
 
     return formatRelative(date, baseDate);
   } catch (error) {
-    console.error("Error formatting relative date:", error);
-    return "Invalid date";
+    console.error('Error formatting relative date:', error);
+    return 'Invalid date';
   }
 };
 
@@ -79,23 +79,23 @@ export const getTimeUntil = (dateString: string): string => {
     const date = parseISO(dateString);
 
     if (!isValid(date)) {
-      return "Invalid date";
+      return 'Invalid date';
     }
 
     const now = new Date();
 
     if (date < now) {
-      return "Expired";
+      return 'Expired';
     }
 
     const days = differenceInDays(date, now);
 
     if (days === 0) {
-      return "Today";
+      return 'Today';
     }
 
     if (days === 1) {
-      return "Tomorrow";
+      return 'Tomorrow';
     }
 
     if (days < 30) {
@@ -105,7 +105,7 @@ export const getTimeUntil = (dateString: string): string => {
     const months = differenceInMonths(date, now);
 
     if (months === 1) {
-      return "1 month";
+      return '1 month';
     }
 
     if (months < 12) {
@@ -115,12 +115,12 @@ export const getTimeUntil = (dateString: string): string => {
     const years = differenceInYears(date, now);
 
     if (years === 1) {
-      return "1 year";
+      return '1 year';
     }
 
     return `${years} years`;
   } catch (error) {
-    console.error("Error calculating time until date:", error);
-    return "Invalid date";
+    console.error('Error calculating time until date:', error);
+    return 'Invalid date';
   }
 };

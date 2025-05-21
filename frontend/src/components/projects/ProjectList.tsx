@@ -1,23 +1,23 @@
 // frontend/src/components/projects/ProjectList.tsx
-"use client";
+'use client';
 
-import { useState, useEffect, useMemo } from "react";
-import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
-import { useProjects } from "@/hooks/useProjects";
-import { ProjectCard } from "./ProjectCard";
-import { MainLayout } from "@/components/layout/MainLayout";
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
-import { Select } from "@/components/ui/Select";
-import { Badge } from "@/components/ui/Badge";
-import { Card } from "@/components/ui/Card";
-import { Spinner } from "@/components/ui/Spinner";
-import { Pagination } from "@/components/ui/Pagination";
-import { SKILLS } from "@/config/constants";
-import { Modal } from "@/components/ui/Modal";
-import { ROUTES } from "@/config/routes";
-import { Switch } from "@/components/ui/Switch";
+import { useState, useEffect, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useProjects } from '@/hooks/useProjects';
+import { ProjectCard } from './ProjectCard';
+import { MainLayout } from '@/components/layout/MainLayout';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
+import { Badge } from '@/components/ui/Badge';
+import { Card } from '@/components/ui/Card';
+import { Spinner } from '@/components/ui/Spinner';
+import { Pagination } from '@/components/ui/Pagination';
+import { SKILLS } from '@/config/constants';
+import { Modal } from '@/components/ui/Modal';
+import { ROUTES } from '@/config/routes';
+import { Switch } from '@/components/ui/Switch';
 import {
   Plus,
   Search,
@@ -27,16 +27,16 @@ import {
   SortAsc,
   SortDesc,
   AlertCircle,
-} from "lucide-react";
-import { Project } from "@/types/project";
-import { formatDate } from "@/utils/date";
+} from 'lucide-react';
+import { Project } from '@/types/project';
+import { formatDate } from '@/utils/date';
 
 export const ProjectList = () => {
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [searchQuery, setSearchQuery] = useState('');
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
-  const [sortBy, setSortBy] = useState<"newest" | "oldest" | "a-z" | "z-a">(
-    "newest",
+  const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'a-z' | 'z-a'>(
+    'newest',
   );
   const [currentPage, setCurrentPage] = useState(1);
   const [filtersVisible, setFiltersVisible] = useState(false);
@@ -77,7 +77,7 @@ export const ProjectList = () => {
         // For now, refresh the list
         await getProjects();
       } catch (error) {
-        console.error("Error deleting project:", error);
+        console.error('Error deleting project:', error);
       } finally {
         setShowDeleteModal(false);
         setProjectToDelete(null);
@@ -101,9 +101,9 @@ export const ProjectList = () => {
   };
 
   const clearFilters = () => {
-    setSearchQuery("");
+    setSearchQuery('');
     setSelectedSkills([]);
-    setSortBy("newest");
+    setSortBy('newest');
     setCompletedOnly(false);
   };
 
@@ -134,22 +134,22 @@ export const ProjectList = () => {
 
     // Sort
     switch (sortBy) {
-      case "newest":
+      case 'newest':
         filtered.sort(
           (a, b) =>
             new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
         );
         break;
-      case "oldest":
+      case 'oldest':
         filtered.sort(
           (a, b) =>
             new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
         );
         break;
-      case "a-z":
+      case 'a-z':
         filtered.sort((a, b) => a.title.localeCompare(b.title));
         break;
-      case "z-a":
+      case 'z-a':
         filtered.sort((a, b) => b.title.localeCompare(a.title));
         break;
     }
@@ -231,21 +231,21 @@ export const ProjectList = () => {
                 </button>
                 <div className="flex items-center bg-gray-100 dark:bg-gray-700 rounded-md p-1">
                   <button
-                    onClick={() => setViewMode("grid")}
+                    onClick={() => setViewMode('grid')}
                     className={`p-1.5 rounded ${
-                      viewMode === "grid"
-                        ? "bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400"
-                        : "text-gray-500 dark:text-gray-400"
+                      viewMode === 'grid'
+                        ? 'bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400'
+                        : 'text-gray-500 dark:text-gray-400'
                     }`}
                   >
                     <GridIcon size={16} />
                   </button>
                   <button
-                    onClick={() => setViewMode("list")}
+                    onClick={() => setViewMode('list')}
                     className={`p-1.5 rounded ${
-                      viewMode === "list"
-                        ? "bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400"
-                        : "text-gray-500 dark:text-gray-400"
+                      viewMode === 'list'
+                        ? 'bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400'
+                        : 'text-gray-500 dark:text-gray-400'
                     }`}
                   >
                     <List size={16} />
@@ -276,8 +276,8 @@ export const ProjectList = () => {
                               onClick={() => toggleSkill(skill)}
                               className={`px-3 py-1.5 text-xs rounded-full transition-colors ${
                                 selectedSkills.includes(skill)
-                                  ? "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200"
-                                  : "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
+                                  ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200'
+                                  : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                               }`}
                             >
                               {skill}
@@ -307,12 +307,12 @@ export const ProjectList = () => {
                       </label>
                       <Select
                         value={sortBy}
-                        onChange={(e) => setSortBy(e.target.value as any)}
+                        onChange={(e) => setSortBy(e.target.value as unknown)}
                         options={[
-                          { value: "newest", label: "Newest First" },
-                          { value: "oldest", label: "Oldest First" },
-                          { value: "a-z", label: "A-Z" },
-                          { value: "z-a", label: "Z-A" },
+                          { value: 'newest', label: 'Newest First' },
+                          { value: 'oldest', label: 'Oldest First' },
+                          { value: 'a-z', label: 'A-Z' },
+                          { value: 'z-a', label: 'Z-A' },
                         ]}
                       />
 
@@ -350,8 +350,8 @@ export const ProjectList = () => {
                 </h3>
                 <p className="text-gray-500 dark:text-gray-400 mb-4">
                   {searchQuery || selectedSkills.length > 0 || completedOnly
-                    ? "Try adjusting your search or filters"
-                    : "Get started by creating your first project"}
+                    ? 'Try adjusting your search or filters'
+                    : 'Get started by creating your first project'}
                 </p>
                 {searchQuery || selectedSkills.length > 0 || completedOnly ? (
                   <Button variant="outline" onClick={clearFilters}>
@@ -366,7 +366,7 @@ export const ProjectList = () => {
               </div>
             ) : (
               <>
-                {viewMode === "grid" ? (
+                {viewMode === 'grid' ? (
                   <motion.div
                     variants={containerVariants}
                     initial="hidden"
@@ -453,13 +453,13 @@ export const ProjectList = () => {
                               <span
                                 className={`px-2 py-1 text-xs rounded-full ${
                                   project.completed
-                                    ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                                    : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                                    ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                                    : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
                                 }`}
                               >
                                 {project.completed
-                                  ? "Completed"
-                                  : "In Progress"}
+                                  ? 'Completed'
+                                  : 'In Progress'}
                               </span>
                             </td>
                             <td className="px-6 py-4 text-gray-500 dark:text-gray-400">

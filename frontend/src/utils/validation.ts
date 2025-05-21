@@ -1,5 +1,5 @@
 // frontend/src/utils/validation.ts
-import { z } from "zod";
+import { z } from 'zod';
 
 // Common validation patterns
 const patterns = {
@@ -14,8 +14,8 @@ const patterns = {
 export const validationSchemas = {
   // Auth schemas
   login: z.object({
-    email: z.string().email("Please enter a valid email address"),
-    password: z.string().min(1, "Password is required"),
+    email: z.string().email('Please enter a valid email address'),
+    password: z.string().min(1, 'Password is required'),
     rememberMe: z.boolean().optional().default(false),
   }),
 
@@ -23,59 +23,59 @@ export const validationSchemas = {
     .object({
       name: z
         .string()
-        .min(2, "Name must be at least 2 characters")
-        .max(50, "Name cannot exceed 50 characters"),
-      email: z.string().email("Please enter a valid email address"),
+        .min(2, 'Name must be at least 2 characters')
+        .max(50, 'Name cannot exceed 50 characters'),
+      email: z.string().email('Please enter a valid email address'),
       password: z
         .string()
-        .min(8, "Password must be at least 8 characters")
-        .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-        .regex(/[a-z]/, "Password must contain at least one lowercase letter")
-        .regex(/[0-9]/, "Password must contain at least one number")
+        .min(8, 'Password must be at least 8 characters')
+        .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+        .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+        .regex(/[0-9]/, 'Password must contain at least one number')
         .regex(
           /[^A-Za-z0-9]/,
-          "Password must contain at least one special character",
+          'Password must contain at least one special character',
         ),
       confirmPassword: z.string(),
       acceptTerms: z.boolean().refine((value) => value === true, {
-        message: "You must accept the terms and conditions",
+        message: 'You must accept the terms and conditions',
       }),
     })
     .refine((data) => data.password === data.confirmPassword, {
       message: "Passwords don't match",
-      path: ["confirmPassword"],
+      path: ['confirmPassword'],
     }),
 
   // User schemas
   profile: z.object({
     name: z
       .string()
-      .min(2, "Name must be at least 2 characters")
-      .max(50, "Name cannot exceed 50 characters"),
+      .min(2, 'Name must be at least 2 characters')
+      .max(50, 'Name cannot exceed 50 characters'),
     bio: z
       .string()
-      .max(500, "Bio cannot exceed 500 characters")
+      .max(500, 'Bio cannot exceed 500 characters')
       .optional()
       .nullable(),
     location: z
       .string()
-      .max(100, "Location cannot exceed 100 characters")
+      .max(100, 'Location cannot exceed 100 characters')
       .optional()
       .nullable(),
     website: z
       .string()
-      .url("Please enter a valid URL")
+      .url('Please enter a valid URL')
       .optional()
       .nullable()
-      .or(z.literal("")),
+      .or(z.literal('')),
     jobTitle: z
       .string()
-      .max(100, "Job title cannot exceed 100 characters")
+      .max(100, 'Job title cannot exceed 100 characters')
       .optional()
       .nullable(),
     company: z
       .string()
-      .max(100, "Company cannot exceed 100 characters")
+      .max(100, 'Company cannot exceed 100 characters')
       .optional()
       .nullable(),
   }),
@@ -84,14 +84,14 @@ export const validationSchemas = {
   project: z.object({
     title: z
       .string()
-      .min(1, "Title is required")
-      .max(100, "Title cannot exceed 100 characters"),
+      .min(1, 'Title is required')
+      .max(100, 'Title cannot exceed 100 characters'),
     description: z
       .string()
-      .min(10, "Description must be at least 10 characters"),
-    skills: z.array(z.string()).min(1, "Select at least one skill"),
-    demoUrl: z.string().url("Enter a valid URL").or(z.literal("")).optional(),
-    repoUrl: z.string().url("Enter a valid URL").or(z.literal("")).optional(),
+      .min(10, 'Description must be at least 10 characters'),
+    skills: z.array(z.string()).min(1, 'Select at least one skill'),
+    demoUrl: z.string().url('Enter a valid URL').or(z.literal('')).optional(),
+    repoUrl: z.string().url('Enter a valid URL').or(z.literal('')).optional(),
     completed: z.boolean().optional(),
     startDate: z.string().optional(),
     endDate: z.string().optional(),
@@ -103,19 +103,19 @@ export const validationSchemas = {
   certificate: z.object({
     title: z
       .string()
-      .min(1, "Title is required")
-      .max(100, "Title cannot exceed 100 characters"),
-    issuer: z.string().min(1, "Issuer is required"),
-    issueDate: z.string().min(1, "Issue date is required"),
+      .min(1, 'Title is required')
+      .max(100, 'Title cannot exceed 100 characters'),
+    issuer: z.string().min(1, 'Issuer is required'),
+    issueDate: z.string().min(1, 'Issue date is required'),
     expiryDate: z.string().optional(),
     credentialId: z.string().optional(),
     credentialUrl: z
       .string()
-      .url("Enter a valid URL")
-      .or(z.literal(""))
+      .url('Enter a valid URL')
+      .or(z.literal(''))
       .optional(),
     description: z.string().optional(),
-    skills: z.array(z.string()).min(1, "Select at least one skill"),
+    skills: z.array(z.string()).min(1, 'Select at least one skill'),
     isPublic: z.boolean().optional(),
     category: z.string().optional(),
   }),
@@ -155,7 +155,7 @@ export class ValidationError extends Error {
 
   constructor(message: string, errors: Record<string, string>) {
     super(message);
-    this.name = "ValidationError";
+    this.name = 'ValidationError';
     this.errors = errors;
   }
 }
@@ -172,7 +172,7 @@ export const validateForm = async <T>(
       const errors: Record<string, string> = {};
       error.errors.forEach((err) => {
         if (err.path) {
-          errors[err.path.join(".")] = err.message;
+          errors[err.path.join('.')] = err.message;
         }
       });
       return { success: false, errors };

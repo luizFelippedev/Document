@@ -1,5 +1,5 @@
 // src/contexts/PaginationContext.tsx
-"use client";
+'use client';
 
 import React, {
   createContext,
@@ -8,9 +8,9 @@ import React, {
   ReactNode,
   useCallback,
   useMemo,
-} from "react";
-import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { SETTINGS } from "@/config/constants";
+} from 'react';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
+import { SETTINGS } from '@/config/constants';
 
 interface PaginationState {
   page: number;
@@ -53,7 +53,7 @@ interface PaginationProviderProps {
   pageSizeParam?: string;
   siblingCount?: number;
   useUrlParams?: boolean;
-  contentType?: "projects" | "certificates" | "other";
+  contentType?: 'projects' | 'certificates' | 'other';
 }
 
 export const PaginationContext = createContext<
@@ -64,11 +64,11 @@ export const PaginationProvider: React.FC<PaginationProviderProps> = ({
   children,
   initialPage = 1,
   initialPageSize,
-  pageParam = "page",
-  pageSizeParam = "pageSize",
+  pageParam = 'page',
+  pageSizeParam = 'pageSize',
   siblingCount = 1,
   useUrlParams = true,
-  contentType = "other",
+  contentType = 'other',
 }) => {
   const router = useRouter();
   const pathname = usePathname();
@@ -76,9 +76,9 @@ export const PaginationProvider: React.FC<PaginationProviderProps> = ({
 
   // Determine initial page size based on content type if not explicitly provided
   const defaultPageSize =
-    contentType === "projects"
+    contentType === 'projects'
       ? SETTINGS.projectsPerPage
-      : contentType === "certificates"
+      : contentType === 'certificates'
         ? SETTINGS.certificatesPerPage
         : 10;
 
@@ -117,7 +117,7 @@ export const PaginationProvider: React.FC<PaginationProviderProps> = ({
 
       // Preserve existing query params
       const query = params.toString();
-      const url = `${pathname}${query ? `?${query}` : ""}`;
+      const url = `${pathname}${query ? `?${query}` : ''}`;
 
       router.push(url);
     },
@@ -279,7 +279,7 @@ export const usePagination = () => {
   const context = useContext(PaginationContext);
 
   if (!context) {
-    throw new Error("usePagination must be used within a PaginationProvider");
+    throw new Error('usePagination must be used within a PaginationProvider');
   }
 
   return context;

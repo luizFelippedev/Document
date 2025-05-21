@@ -1,10 +1,10 @@
 // frontend/src/components/ui/Dropdown.tsx
-"use client";
+'use client';
 
-import React, { Fragment, ReactNode } from "react";
-import { Menu, Transition } from "@headlessui/react";
-import { cn } from "@/utils/cn";
-import { ChevronDown } from "lucide-react";
+import React, { Fragment, ReactNode } from 'react';
+import { Menu, Transition } from '@headlessui/react';
+import { cn } from '@/utils/cn';
+import { ChevronDown } from 'lucide-react';
 
 export interface DropdownItem {
   label: string;
@@ -17,7 +17,7 @@ export interface DropdownItem {
 export interface DropdownProps {
   trigger: ReactNode;
   items: DropdownItem[];
-  align?: "left" | "right";
+  align?: 'left' | 'right';
   width?: number;
   className?: string;
   itemsClassName?: string;
@@ -30,7 +30,7 @@ export interface DropdownProps {
 export const Dropdown = ({
   trigger,
   items,
-  align = "left",
+  align = 'left',
   width = 200,
   className,
   itemsClassName,
@@ -41,14 +41,14 @@ export const Dropdown = ({
 }: DropdownProps) => {
   // Calculate position classes
   const getPositionClasses = () => {
-    if (align === "left") {
-      return "left-0 origin-top-left";
+    if (align === 'left') {
+      return 'left-0 origin-top-left';
     }
-    return "right-0 origin-top-right";
+    return 'right-0 origin-top-right';
   };
 
   return (
-    <Menu as="div" className={cn("relative inline-block text-left", className)}>
+    <Menu as="div" className={cn('relative inline-block text-left', className)}>
       {({ open }) => {
         // Allow external control of the menu state
         if (setIsOpen && open !== isOpen) {
@@ -70,7 +70,7 @@ export const Dropdown = ({
             >
               <Menu.Items
                 className={cn(
-                  "absolute z-50 mt-2 rounded-md bg-white dark:bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none",
+                  'absolute z-50 mt-2 rounded-md bg-white dark:bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none',
                   getPositionClasses(),
                   itemsClassName,
                 )}
@@ -90,12 +90,12 @@ export const Dropdown = ({
                           onClick={item.onClick}
                           className={cn(
                             active
-                              ? "bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white"
-                              : "text-gray-700 dark:text-gray-300",
+                              ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white'
+                              : 'text-gray-700 dark:text-gray-300',
                             item.disabled
-                              ? "opacity-50 cursor-not-allowed"
-                              : "cursor-pointer",
-                            "flex items-center w-full text-left px-4 py-2 text-sm",
+                              ? 'opacity-50 cursor-not-allowed'
+                              : 'cursor-pointer',
+                            'flex items-center w-full text-left px-4 py-2 text-sm',
                             item.className,
                           )}
                           disabled={item.disabled}
@@ -121,39 +121,39 @@ export const Dropdown = ({
 };
 
 // Button Dropdown (with default trigger)
-export interface ButtonDropdownProps extends Omit<DropdownProps, "trigger"> {
+export interface ButtonDropdownProps extends Omit<DropdownProps, 'trigger'> {
   label: string;
-  variant?: "default" | "outline" | "ghost";
-  size?: "sm" | "md" | "lg";
+  variant?: 'default' | 'outline' | 'ghost';
+  size?: 'sm' | 'md' | 'lg';
   icon?: ReactNode;
 }
 
 export const ButtonDropdown = ({
   label,
-  variant = "default",
-  size = "md",
+  variant = 'default',
+  size = 'md',
   icon,
   ...props
 }: ButtonDropdownProps) => {
   const sizeClasses = {
-    sm: "text-xs px-2.5 py-1.5",
-    md: "text-sm px-4 py-2",
-    lg: "text-base px-5 py-2.5",
+    sm: 'text-xs px-2.5 py-1.5',
+    md: 'text-sm px-4 py-2',
+    lg: 'text-base px-5 py-2.5',
   };
 
   const variantClasses = {
     default:
-      "bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700",
+      'bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700',
     outline:
-      "bg-transparent border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700",
+      'bg-transparent border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700',
     ghost:
-      "bg-transparent text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800",
+      'bg-transparent text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800',
   };
 
   const trigger = (
     <div
       className={cn(
-        "inline-flex items-center justify-center font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500",
+        'inline-flex items-center justify-center font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500',
         sizeClasses[size],
         variantClasses[variant],
       )}

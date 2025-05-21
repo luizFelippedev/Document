@@ -1,8 +1,8 @@
 // frontend/src/components/ui/Editor.tsx
-"use client";
+'use client';
 
-import { useRef, useState, useEffect, forwardRef } from "react";
-import { cn } from "@/utils/cn";
+import { useRef, useState, useEffect, forwardRef } from 'react';
+import { cn } from '@/utils/cn';
 
 export interface EditorProps {
   /** Initial content value */
@@ -39,11 +39,11 @@ export interface EditorProps {
 export const Editor = forwardRef<HTMLDivElement, EditorProps>(
   (
     {
-      value = "",
+      value = '',
       onChange,
-      placeholder = "Start typing...",
-      minHeight = "150px",
-      maxHeight = "500px",
+      placeholder = 'Start typing...',
+      minHeight = '150px',
+      maxHeight = '500px',
       readOnly = false,
       error,
       disabled = false,
@@ -63,32 +63,32 @@ export const Editor = forwardRef<HTMLDivElement, EditorProps>(
     const sanitizeContent = (html: string) => {
       if (!sanitize) return html;
 
-      const doc = new DOMParser().parseFromString(html, "text/html");
+      const doc = new DOMParser().parseFromString(html, 'text/html');
       const allowedTags = [
-        "p",
-        "div",
-        "span",
-        "br",
-        "b",
-        "i",
-        "strong",
-        "em",
-        "u",
-        "a",
-        "ul",
-        "ol",
-        "li",
-        "h1",
-        "h2",
-        "h3",
-        "h4",
-        "h5",
-        "h6",
-        "blockquote",
-        "pre",
-        "code",
+        'p',
+        'div',
+        'span',
+        'br',
+        'b',
+        'i',
+        'strong',
+        'em',
+        'u',
+        'a',
+        'ul',
+        'ol',
+        'li',
+        'h1',
+        'h2',
+        'h3',
+        'h4',
+        'h5',
+        'h6',
+        'blockquote',
+        'pre',
+        'code',
       ];
-      const allowedAttrs = ["href", "target", "rel", "style", "class"];
+      const allowedAttrs = ['href', 'target', 'rel', 'style', 'class'];
 
       // Recursive function to sanitize nodes
       const sanitizeNode = (node: Element) => {
@@ -172,14 +172,14 @@ export const Editor = forwardRef<HTMLDivElement, EditorProps>(
       if (readOnly || disabled) return;
 
       // Get text representation of clipboard
-      const text = e.clipboardData.getData("text/plain");
+      const text = e.clipboardData.getData('text/plain');
 
       if (!markdown) {
         // Prevent the default paste behavior
         e.preventDefault();
 
         // Insert text manually
-        document.execCommand("insertText", false, text);
+        document.execCommand('insertText', false, text);
       }
 
       handleInput();
@@ -187,16 +187,16 @@ export const Editor = forwardRef<HTMLDivElement, EditorProps>(
 
     // Generate class names
     const editorClasses = cn(
-      "prose prose-sm dark:prose-invert max-w-none p-3 outline-none transition-colors",
-      "border rounded-md",
-      "focus:ring-2 focus:ring-offset-1",
+      'prose prose-sm dark:prose-invert max-w-none p-3 outline-none transition-colors',
+      'border rounded-md',
+      'focus:ring-2 focus:ring-offset-1',
       {
-        "border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500 dark:focus:border-blue-400 dark:focus:ring-blue-400":
+        'border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500 dark:focus:border-blue-400 dark:focus:ring-blue-400':
           !error && !disabled,
-        "border-red-300 focus:border-red-500 focus:ring-red-500 dark:border-red-600 dark:focus:border-red-500":
+        'border-red-300 focus:border-red-500 focus:ring-red-500 dark:border-red-600 dark:focus:border-red-500':
           !!error,
-        "bg-gray-100 dark:bg-gray-800 cursor-not-allowed opacity-70": disabled,
-        "border-blue-500 dark:border-blue-400":
+        'bg-gray-100 dark:bg-gray-800 cursor-not-allowed opacity-70': disabled,
+        'border-blue-500 dark:border-blue-400':
           isFocused && !error && !disabled,
       },
       className,
@@ -210,7 +210,7 @@ export const Editor = forwardRef<HTMLDivElement, EditorProps>(
             <button
               type="button"
               className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
-              onClick={() => handleFormat("bold")}
+              onClick={() => handleFormat('bold')}
               title="Bold"
             >
               <svg
@@ -231,7 +231,7 @@ export const Editor = forwardRef<HTMLDivElement, EditorProps>(
             <button
               type="button"
               className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
-              onClick={() => handleFormat("italic")}
+              onClick={() => handleFormat('italic')}
               title="Italic"
             >
               <svg
@@ -252,7 +252,7 @@ export const Editor = forwardRef<HTMLDivElement, EditorProps>(
             <button
               type="button"
               className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
-              onClick={() => handleFormat("underline")}
+              onClick={() => handleFormat('underline')}
               title="Underline"
             >
               <svg
@@ -275,7 +275,7 @@ export const Editor = forwardRef<HTMLDivElement, EditorProps>(
             <button
               type="button"
               className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
-              onClick={() => handleFormat("insertOrderedList")}
+              onClick={() => handleFormat('insertOrderedList')}
               title="Numbered List"
             >
               <svg
@@ -296,7 +296,7 @@ export const Editor = forwardRef<HTMLDivElement, EditorProps>(
             <button
               type="button"
               className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
-              onClick={() => handleFormat("insertUnorderedList")}
+              onClick={() => handleFormat('insertUnorderedList')}
               title="Bullet List"
             >
               <svg
@@ -320,8 +320,8 @@ export const Editor = forwardRef<HTMLDivElement, EditorProps>(
               type="button"
               className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
               onClick={() => {
-                const url = prompt("Enter URL:");
-                if (url) handleFormat("createLink", url);
+                const url = prompt('Enter URL:');
+                if (url) handleFormat('createLink', url);
               }}
               title="Insert Link"
             >
@@ -349,7 +349,7 @@ export const Editor = forwardRef<HTMLDivElement, EditorProps>(
             <button
               type="button"
               className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
-              onClick={() => handleFormat("removeFormat")}
+              onClick={() => handleFormat('removeFormat')}
               title="Clear Formatting"
             >
               <svg
@@ -374,7 +374,7 @@ export const Editor = forwardRef<HTMLDivElement, EditorProps>(
           ref={(element) => {
             // Combine refs
             editorRef.current = element;
-            if (typeof ref === "function") {
+            if (typeof ref === 'function') {
               ref(element);
             } else if (ref) {
               ref.current = element;
@@ -390,7 +390,7 @@ export const Editor = forwardRef<HTMLDivElement, EditorProps>(
           style={{
             minHeight,
             maxHeight,
-            overflowY: "auto",
+            overflowY: 'auto',
           }}
           {...props}
         />
@@ -404,4 +404,4 @@ export const Editor = forwardRef<HTMLDivElement, EditorProps>(
   },
 );
 
-Editor.displayName = "Editor";
+Editor.displayName = 'Editor';

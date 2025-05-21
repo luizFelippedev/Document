@@ -1,18 +1,18 @@
 // frontend/src/components/projects/ProjectGallery.tsx
-"use client";
+'use client';
 
-import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
-import { MainLayout } from "@/components/layout/MainLayout";
-import { Card } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
-import { Badge } from "@/components/ui/Badge";
-import { Modal } from "@/components/ui/Modal";
-import { projectService } from "@/services/project.service";
-import { useNotification } from "@/hooks/useNotification";
-import { ROUTES } from "@/config/routes";
-import { Project } from "@/types/project";
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
+import { MainLayout } from '@/components/layout/MainLayout';
+import { Card } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
+import { Badge } from '@/components/ui/Badge';
+import { Modal } from '@/components/ui/Modal';
+import { projectService } from '@/services/project.service';
+import { useNotification } from '@/hooks/useNotification';
+import { ROUTES } from '@/config/routes';
+import { Project } from '@/types/project';
 import {
   ArrowLeft,
   Edit,
@@ -26,9 +26,9 @@ import {
   Calendar,
   CheckCircle,
   Clock,
-} from "lucide-react";
-import { cn } from "@/utils/cn";
-import { formatDate } from "@/utils/date";
+} from 'lucide-react';
+import { cn } from '@/utils/cn';
+import { formatDate } from '@/utils/date';
 
 interface ProjectGalleryProps {
   id: string;
@@ -52,8 +52,8 @@ export const ProjectGallery: React.FC<ProjectGalleryProps> = ({ id }) => {
         setLoading(true);
         const data = await projectService.getProject(id);
         setProject(data);
-      } catch (err: any) {
-        setError(err.response?.data?.message || "Failed to load project");
+      } catch (err: unknown) {
+        setError(err.response?.data?.message || 'Failed to load project');
       } finally {
         setLoading(false);
       }
@@ -66,12 +66,12 @@ export const ProjectGallery: React.FC<ProjectGalleryProps> = ({ id }) => {
   const handleDelete = async () => {
     try {
       await projectService.deleteProject(id);
-      showToast("success", "Project deleted successfully");
+      showToast('success', 'Project deleted successfully');
       router.push(ROUTES.DASHBOARD.PROJECTS);
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast(
-        "error",
-        err.response?.data?.message || "Failed to delete project",
+        'error',
+        err.response?.data?.message || 'Failed to delete project',
       );
     }
     setShowDeleteModal(false);
@@ -103,24 +103,24 @@ export const ProjectGallery: React.FC<ProjectGalleryProps> = ({ id }) => {
     if (navigator.share) {
       navigator
         .share({
-          title: project?.title || "Check out my project",
+          title: project?.title || 'Check out my project',
           text:
             project?.description?.substring(0, 100) ||
-            "Take a look at my project",
+            'Take a look at my project',
           url,
         })
         .catch((err) => {
-          console.error("Error sharing:", err);
+          console.error('Error sharing:', err);
         });
     } else {
       // Fallback to copying the URL to clipboard
       navigator.clipboard
         .writeText(url)
         .then(() => {
-          showToast("success", "Link copied to clipboard");
+          showToast('success', 'Link copied to clipboard');
         })
         .catch((err) => {
-          showToast("error", "Failed to copy link");
+          showToast('error', 'Failed to copy link');
         });
     }
   };
@@ -248,9 +248,9 @@ export const ProjectGallery: React.FC<ProjectGalleryProps> = ({ id }) => {
                       <div
                         key={index}
                         className={cn(
-                          "h-16 w-16 flex-shrink-0 rounded overflow-hidden cursor-pointer",
+                          'h-16 w-16 flex-shrink-0 rounded overflow-hidden cursor-pointer',
                           activeImageIndex === index &&
-                            "ring-2 ring-blue-500 dark:ring-blue-400",
+                            'ring-2 ring-blue-500 dark:ring-blue-400',
                         )}
                         onClick={() => selectImage(index)}
                       >
@@ -323,7 +323,7 @@ export const ProjectGallery: React.FC<ProjectGalleryProps> = ({ id }) => {
                   <div className="mb-4">
                     <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
                       {project.category
-                        .replace(/-/g, " ")
+                        .replace(/-/g, ' ')
                         .replace(/\b\w/g, (l) => l.toUpperCase())}
                     </span>
                   </div>
@@ -540,10 +540,10 @@ export const ProjectGallery: React.FC<ProjectGalleryProps> = ({ id }) => {
                   <div
                     key={index}
                     className={cn(
-                      "h-16 w-16 flex-shrink-0 rounded overflow-hidden cursor-pointer transition-opacity",
+                      'h-16 w-16 flex-shrink-0 rounded overflow-hidden cursor-pointer transition-opacity',
                       activeImageIndex === index
-                        ? "opacity-100 ring-2 ring-blue-500"
-                        : "opacity-60 hover:opacity-100",
+                        ? 'opacity-100 ring-2 ring-blue-500'
+                        : 'opacity-60 hover:opacity-100',
                     )}
                     onClick={() => selectImage(index)}
                   >

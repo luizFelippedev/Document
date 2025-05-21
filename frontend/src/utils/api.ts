@@ -4,24 +4,24 @@ import axios, {
   AxiosRequestConfig,
   AxiosResponse,
   AxiosError,
-} from "axios";
+} from 'axios';
 import {
   debounce,
   throttle,
   formatQueryParams,
   getErrorMessage,
   createCancelableRequest,
-} from "./helpers";
+} from './helpers';
 
 // Types
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   data: T;
   status: number;
   statusText: string;
   headers: Record<string, string>;
 }
 
-export interface PaginatedResponse<T = any> {
+export interface PaginatedResponse<T = unknown> {
   data: T[];
   meta: {
     currentPage: number;
@@ -41,7 +41,7 @@ export interface ApiError {
 }
 
 export interface RequestParams {
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface ApiConfig {
@@ -53,11 +53,11 @@ export interface ApiConfig {
 
 // Default configuration
 const DEFAULT_CONFIG: ApiConfig = {
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "/api",
+  baseURL: process.env.NEXT_PUBLIC_API_URL || '/api',
   timeout: 30000,
   headers: {
-    "Content-Type": "application/json",
-    Accept: "application/json",
+    'Content-Type': 'application/json',
+    Accept: 'application/json',
   },
   withCredentials: true,
 };
@@ -106,7 +106,7 @@ export function createApiInstance(
       // Handle authentication errors
       if (error.response?.status === 401) {
         // Redirect to login or refresh token
-        if (typeof window !== "undefined") {
+        if (typeof window !== 'undefined') {
           // Refresh token or redirect to login
           const refreshToken = getRefreshToken();
           if (refreshToken) {
@@ -140,7 +140,7 @@ export function createApiInstance(
         message:
           error.response?.data?.message ||
           error.message ||
-          "An unexpected error occurred",
+          'An unexpected error occurred',
         status: error.response?.status || 500,
         code: error.response?.data?.code,
         errors: error.response?.data?.errors,
@@ -164,7 +164,7 @@ export const api = createApiInstance();
 /**
  * Make a GET request
  */
-export async function get<T = any>(
+export async function get<T = unknown>(
   url: string,
   params?: RequestParams,
   config?: AxiosRequestConfig,
@@ -185,7 +185,7 @@ export async function get<T = any>(
 /**
  * Make a POST request
  */
-export async function post<T = any, D = any>(
+export async function post<T = unknown, D = unknown>(
   url: string,
   data?: D,
   config?: AxiosRequestConfig,
@@ -206,7 +206,7 @@ export async function post<T = any, D = any>(
 /**
  * Make a PUT request
  */
-export async function put<T = any, D = any>(
+export async function put<T = unknown, D = unknown>(
   url: string,
   data?: D,
   config?: AxiosRequestConfig,
@@ -227,7 +227,7 @@ export async function put<T = any, D = any>(
 /**
  * Make a PATCH request
  */
-export async function patch<T = any, D = any>(
+export async function patch<T = unknown, D = unknown>(
   url: string,
   data?: D,
   config?: AxiosRequestConfig,
@@ -248,7 +248,7 @@ export async function patch<T = any, D = any>(
 /**
  * Make a DELETE request
  */
-export async function del<T = any>(
+export async function del<T = unknown>(
   url: string,
   config?: AxiosRequestConfig,
 ): Promise<ApiResponse<T>> {
@@ -268,12 +268,12 @@ export async function del<T = any>(
 /**
  * Get a paginated response
  */
-export async function getPaginated<T = any>(
+export async function getPaginated<T = unknown>(
   url: string,
   page: number = 1,
   limit: number = 10,
-  filters?: Record<string, any>,
-  sort?: { field: string; direction: "asc" | "desc" },
+  filters?: Record<string, unknown>,
+  sort?: { field: string; direction: 'asc' | 'desc' },
   search?: string,
 ): Promise<PaginatedResponse<T>> {
   const params: RequestParams = {
@@ -298,20 +298,20 @@ export async function getPaginated<T = any>(
 /**
  * Upload a file
  */
-export async function uploadFile<T = any>(
+export async function uploadFile<T = unknown>(
   url: string,
   file: File,
   onProgress?: (percentage: number) => void,
   config?: AxiosRequestConfig,
 ): Promise<ApiResponse<T>> {
   const formData = new FormData();
-  formData.append("file", file);
+  formData.append('file', file);
 
   const uploadConfig: AxiosRequestConfig = {
     ...config,
     headers: {
       ...config?.headers,
-      "Content-Type": "multipart/form-data",
+      'Content-Type': 'multipart/form-data',
     },
     onUploadProgress: (progressEvent) => {
       if (onProgress && progressEvent.total) {
@@ -329,10 +329,10 @@ export async function uploadFile<T = any>(
 /**
  * Upload multiple files
  */
-export async function uploadFiles<T = any>(
+export async function uploadFiles<T = unknown>(
   url: string,
   files: File[],
-  fieldName: string = "files",
+  fieldName: string = 'files',
   onProgress?: (percentage: number) => void,
   config?: AxiosRequestConfig,
 ): Promise<ApiResponse<T>> {
@@ -346,7 +346,7 @@ export async function uploadFiles<T = any>(
     ...config,
     headers: {
       ...config?.headers,
-      "Content-Type": "multipart/form-data",
+      'Content-Type': 'multipart/form-data',
     },
     onUploadProgress: (progressEvent) => {
       if (onProgress && progressEvent.total) {
@@ -374,11 +374,11 @@ export async function downloadFile(
     const response = await api.get(url, {
       ...config,
       params,
-      responseType: "blob",
+      responseType: 'blob',
     });
 
     // Get the filename from the Content-Disposition header or use the provided filename
-    const contentDisposition = response.headers["content-disposition"];
+    const contentDisposition = response.headers['content-disposition'];
     let downloadFilename = filename;
 
     if (!downloadFilename && contentDisposition) {
@@ -386,18 +386,18 @@ export async function downloadFile(
         /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/,
       );
       if (filenameMatch && filenameMatch[1]) {
-        downloadFilename = filenameMatch[1].replace(/['"]/g, "");
+        downloadFilename = filenameMatch[1].replace(/['"]/g, '');
       }
     }
 
     // Create a download link and trigger the download
     const blob = new Blob([response.data], {
-      type: response.headers["content-type"],
+      type: response.headers['content-type'],
     });
     const url = window.URL.createObjectURL(blob);
-    const link = document.createElement("a");
+    const link = document.createElement('a');
     link.href = url;
-    link.setAttribute("download", downloadFilename || "download");
+    link.setAttribute('download', downloadFilename || 'download');
     document.body.appendChild(link);
     link.click();
 
@@ -415,8 +415,8 @@ export async function downloadFile(
  * Get the auth token from storage
  */
 export function getAuthToken(): string | null {
-  if (typeof window !== "undefined") {
-    return localStorage.getItem("auth_token");
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem('auth_token');
   }
   return null;
 }
@@ -425,8 +425,8 @@ export function getAuthToken(): string | null {
  * Get the refresh token from storage
  */
 export function getRefreshToken(): string | null {
-  if (typeof window !== "undefined") {
-    return localStorage.getItem("refresh_token");
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem('refresh_token');
   }
   return null;
 }
@@ -435,8 +435,8 @@ export function getRefreshToken(): string | null {
  * Set the auth token in storage
  */
 export function setAuthToken(token: string): void {
-  if (typeof window !== "undefined") {
-    localStorage.setItem("auth_token", token);
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('auth_token', token);
   }
 }
 
@@ -444,8 +444,8 @@ export function setAuthToken(token: string): void {
  * Set the refresh token in storage
  */
 export function setRefreshToken(token: string): void {
-  if (typeof window !== "undefined") {
-    localStorage.setItem("refresh_token", token);
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('refresh_token', token);
   }
 }
 
@@ -453,9 +453,9 @@ export function setRefreshToken(token: string): void {
  * Clear auth tokens from storage
  */
 export function clearAuthTokens(): void {
-  if (typeof window !== "undefined") {
-    localStorage.removeItem("auth_token");
-    localStorage.removeItem("refresh_token");
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('refresh_token');
   }
 }
 
@@ -465,7 +465,7 @@ export function clearAuthTokens(): void {
 async function refreshAuthToken(refreshToken: string): Promise<string> {
   try {
     const response = await api.post<{ token: string; refresh_token: string }>(
-      "/auth/refresh",
+      '/auth/refresh',
       { refresh_token: refreshToken },
     );
 
@@ -484,15 +484,15 @@ async function refreshAuthToken(refreshToken: string): Promise<string> {
  * Redirect to login page
  */
 function redirectToLogin(): void {
-  if (typeof window !== "undefined") {
+  if (typeof window !== 'undefined') {
     // Save the current URL to redirect back after login
     const currentPath = window.location.pathname + window.location.search;
-    if (currentPath !== "/login" && currentPath !== "/auth/login") {
-      localStorage.setItem("auth_redirect", currentPath);
+    if (currentPath !== '/login' && currentPath !== '/auth/login') {
+      localStorage.setItem('auth_redirect', currentPath);
     }
 
     // Redirect to login
-    window.location.href = "/login";
+    window.location.href = '/login';
   }
 }
 

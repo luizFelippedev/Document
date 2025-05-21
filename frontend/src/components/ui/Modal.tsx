@@ -1,11 +1,11 @@
 // frontend/src/components/ui/Modal.tsx
-"use client";
+'use client';
 
-import { useState, useEffect, Fragment, forwardRef } from "react";
-import { createPortal } from "react-dom";
-import { motion, AnimatePresence } from "framer-motion";
-import { X } from "lucide-react";
-import { cn } from "@/utils/cn";
+import { useState, useEffect, Fragment, forwardRef } from 'react';
+import { createPortal } from 'react-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { X } from 'lucide-react';
+import { cn } from '@/utils/cn';
 
 export interface ModalProps {
   /** Whether the modal is open */
@@ -23,7 +23,7 @@ export interface ModalProps {
   /** Whether to center the modal vertically */
   centered?: boolean;
   /** Modal size variant */
-  size?: "sm" | "md" | "lg" | "xl" | "full";
+  size?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
   /** Whether to show the close button */
   showCloseButton?: boolean;
   /** Footer content */
@@ -61,7 +61,7 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
       closeOnOutsideClick = true,
       closeOnEsc = true,
       centered = true,
-      size = "md",
+      size = 'md',
       showCloseButton = true,
       footer,
       containerClassName,
@@ -88,17 +88,17 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
     // Handle escape key press
     useEffect(() => {
       const handleEsc = (e: KeyboardEvent) => {
-        if (isOpen && closeOnEsc && e.key === "Escape") {
+        if (isOpen && closeOnEsc && e.key === 'Escape') {
           onClose();
         }
       };
 
       if (isOpen) {
-        window.addEventListener("keydown", handleEsc);
+        window.addEventListener('keydown', handleEsc);
       }
 
       return () => {
-        window.removeEventListener("keydown", handleEsc);
+        window.removeEventListener('keydown', handleEsc);
       };
     }, [isOpen, closeOnEsc, onClose]);
 
@@ -106,15 +106,15 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
     useEffect(() => {
       if (disableScroll) {
         if (isOpen) {
-          document.body.style.overflow = "hidden";
+          document.body.style.overflow = 'hidden';
         } else {
-          document.body.style.overflow = "";
+          document.body.style.overflow = '';
         }
       }
 
       return () => {
         if (disableScroll) {
-          document.body.style.overflow = "";
+          document.body.style.overflow = '';
         }
       };
     }, [isOpen, disableScroll]);
@@ -137,11 +137,11 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
 
     // Size classes
     const sizeClasses = {
-      sm: "max-w-sm",
-      md: "max-w-md",
-      lg: "max-w-lg",
-      xl: "max-w-xl",
-      full: "max-w-full h-full m-0 rounded-none",
+      sm: 'max-w-sm',
+      md: 'max-w-md',
+      lg: 'max-w-lg',
+      xl: 'max-w-xl',
+      full: 'max-w-full h-full m-0 rounded-none',
     };
 
     // Animation variants
@@ -157,7 +157,7 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
         scale: 1,
         y: 0,
         transition: {
-          type: "spring",
+          type: 'spring',
           damping: 25,
           stiffness: 300,
         },
@@ -176,7 +176,7 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
     if (!isMounted) return null;
 
     // Get target node for portal
-    const portalRoot = typeof window !== "undefined" ? document.body : null;
+    const portalRoot = typeof window !== 'undefined' ? document.body : null;
     if (!portalRoot) return null;
 
     return createPortal(
@@ -204,9 +204,9 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
             <motion.div
               ref={ref}
               className={cn(
-                "relative w-full mx-4 bg-white dark:bg-gray-800 rounded-lg shadow-xl overflow-hidden",
+                'relative w-full mx-4 bg-white dark:bg-gray-800 rounded-lg shadow-xl overflow-hidden',
                 sizeClasses[size],
-                centered ? "my-auto" : "my-12",
+                centered ? 'my-auto' : 'my-12',
                 containerClassName,
               )}
               variants={modalVariants}
@@ -214,7 +214,7 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
               animate="visible"
               exit="exit"
               onAnimationComplete={(definition) => {
-                if (definition === "visible") {
+                if (definition === 'visible') {
                   onAfterOpen?.();
                 }
               }}
@@ -243,7 +243,7 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
               )}
 
               {/* Content */}
-              <div className={cn("overflow-y-auto", contentClassName)}>
+              <div className={cn('overflow-y-auto', contentClassName)}>
                 {children}
               </div>
 
@@ -262,10 +262,10 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
   },
 );
 
-Modal.displayName = "Modal";
+Modal.displayName = 'Modal';
 
 // Confirmation modal variant
-interface ConfirmModalProps extends Omit<ModalProps, "children"> {
+interface ConfirmModalProps extends Omit<ModalProps, 'children'> {
   /** The message to display */
   message: string;
   /** The text for the confirm button */
@@ -275,7 +275,7 @@ interface ConfirmModalProps extends Omit<ModalProps, "children"> {
   /** Called when the confirm button is clicked */
   onConfirm: () => void;
   /** The variant of the confirm button */
-  confirmVariant?: "primary" | "danger" | "success" | "warning";
+  confirmVariant?: 'primary' | 'danger' | 'success' | 'warning';
   /** Icon to show in the modal */
   icon?: React.ReactNode;
 }
@@ -285,20 +285,20 @@ interface ConfirmModalProps extends Omit<ModalProps, "children"> {
  */
 export const ConfirmModal = ({
   message,
-  title = "Confirm",
-  confirmText = "Confirm",
-  cancelText = "Cancel",
+  title = 'Confirm',
+  confirmText = 'Confirm',
+  cancelText = 'Cancel',
   onConfirm,
-  confirmVariant = "primary",
+  confirmVariant = 'primary',
   icon,
   ...props
 }: ConfirmModalProps) => {
   // Map variants to button classes
   const buttonVariants = {
-    primary: "bg-blue-600 hover:bg-blue-700 text-white",
-    danger: "bg-red-600 hover:bg-red-700 text-white",
-    success: "bg-green-600 hover:bg-green-700 text-white",
-    warning: "bg-amber-600 hover:bg-amber-700 text-white",
+    primary: 'bg-blue-600 hover:bg-blue-700 text-white',
+    danger: 'bg-red-600 hover:bg-red-700 text-white',
+    success: 'bg-green-600 hover:bg-green-700 text-white',
+    warning: 'bg-amber-600 hover:bg-amber-700 text-white',
   };
 
   return (
@@ -322,7 +322,7 @@ export const ConfirmModal = ({
           <button
             type="button"
             className={cn(
-              "px-4 py-2 rounded-md",
+              'px-4 py-2 rounded-md',
               buttonVariants[confirmVariant],
             )}
             onClick={() => {

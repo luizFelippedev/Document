@@ -1,18 +1,18 @@
 // frontend/src/app/(auth)/verify-email/[token]/page.tsx
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { Card } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
-import { ThemeToggle } from "@/components/ui/ThemeToggle";
-import { ROUTES } from "@/config/routes";
-import { APP_NAME } from "@/config/constants";
-import { AnimatedLogo } from "@/components/ui/AnimatedLogo";
-import { Spinner } from "@/components/ui/Spinner";
-import { authService } from "@/services/auth.service";
-import { motion } from "framer-motion";
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { Card } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
+import { ROUTES } from '@/config/routes';
+import { APP_NAME } from '@/config/constants';
+import { AnimatedLogo } from '@/components/ui/AnimatedLogo';
+import { Spinner } from '@/components/ui/Spinner';
+import { authService } from '@/services/auth.service';
+import { motion } from 'framer-motion';
 
 export default function VerifyEmailPage({
   params,
@@ -33,10 +33,10 @@ export default function VerifyEmailPage({
         setTimeout(() => {
           router.push(ROUTES.AUTH.LOGIN);
         }, 5000);
-      } catch (err: any) {
+      } catch (err: unknown) {
         setError(
           err.response?.data?.message ||
-            "Email verification failed. This link may be invalid or expired.",
+            'Email verification failed. This link may be invalid or expired.',
         );
       } finally {
         setIsVerifying(false);
@@ -53,7 +53,7 @@ export default function VerifyEmailPage({
       y: 0,
       transition: {
         duration: 0.4,
-        ease: "easeOut",
+        ease: 'easeOut',
       },
     },
   };

@@ -1,12 +1,13 @@
 // frontend/src/app/(auth)/layout.tsx
-"use client";
+'use client';
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
-import { useAuth } from "@/hooks/useAuth";
-import { ROUTES } from "@/config/routes";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '@/hooks/useAuth';
+import { ROUTES } from '@/config/routes';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
+import '@/styles/globals.css';
 
 interface AuthLayoutProps {
   children: React.ReactNode;
@@ -15,7 +16,7 @@ interface AuthLayoutProps {
 export default function AuthLayout({ children }: AuthLayoutProps) {
   const { isAuthenticated, loading } = useAuth();
   const router = useRouter();
-  const isMobile = useMediaQuery("(max-width: 768px)");
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   // Redirect to dashboard if already authenticated
   useEffect(() => {
@@ -95,7 +96,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
               transition={{
                 duration: 6,
                 repeat: Infinity,
-                ease: "easeInOut",
+                ease: 'easeInOut',
               }}
             />
             <motion.div
@@ -107,7 +108,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
               transition={{
                 duration: 8,
                 repeat: Infinity,
-                ease: "easeInOut",
+                ease: 'easeInOut',
               }}
             />
             <motion.div
@@ -119,7 +120,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
               transition={{
                 duration: 5,
                 repeat: Infinity,
-                ease: "easeInOut",
+                ease: 'easeInOut',
               }}
             />
           </>

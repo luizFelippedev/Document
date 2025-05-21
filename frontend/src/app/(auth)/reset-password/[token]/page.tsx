@@ -1,20 +1,21 @@
 // frontend/src/app/(auth)/reset-password/[token]/page.tsx
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { ResetPasswordForm } from "@/components/auth/ResetPasswordForm";
-import { Card } from "@/components/ui/Card";
-import { ThemeToggle } from "@/components/ui/ThemeToggle";
-import { ROUTES } from "@/config/routes";
-import { APP_NAME } from "@/config/constants";
-import { AnimatedLogo } from "@/components/ui/AnimatedLogo";
-import { Spinner } from "@/components/ui/Spinner";
-import { Alert } from "@/components/ui/Alert";
-import { authService } from "@/services/auth.service";
-import { motion } from "framer-motion";
-import { ArrowLeft } from "lucide-react";
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { ResetPasswordForm } from '@/components/auth/ResetPasswordForm';
+import { Card } from '@/components/ui/Card';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
+import { ROUTES } from '@/config/routes';
+import { APP_NAME } from '@/config/constants';
+import { AnimatedLogo } from '@/components/ui/AnimatedLogo';
+import { Spinner } from '@/components/ui/Spinner';
+import { Alert } from '@/components/ui/Alert';
+import { authService } from '@/services/auth.service';
+import { motion } from 'framer-motion';
+import { ArrowLeft } from 'lucide-react';
+import '@/styles/globals.css';
 
 export default function ResetPasswordPage({
   params,
@@ -56,7 +57,7 @@ export default function ResetPasswordPage({
       y: 0,
       transition: {
         duration: 0.4,
-        ease: "easeOut",
+        ease: 'easeOut',
       },
     },
   };
@@ -76,8 +77,8 @@ export default function ResetPasswordPage({
             </h1>
             <p className="text-gray-600 dark:text-gray-400">
               {resetComplete
-                ? "Password Reset Successful"
-                : "Reset your password"}
+                ? 'Password Reset Successful'
+                : 'Reset your password'}
             </p>
           </div>
 

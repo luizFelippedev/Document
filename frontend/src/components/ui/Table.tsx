@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect, useRef } from "react";
-import { cn } from "@/utils/cn";
-import { AnimatePresence, motion } from "framer-motion";
+import React, { useState, useEffect, useRef } from 'react';
+import { cn } from '@/utils/cn';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
   ChevronDown,
   ChevronUp,
@@ -17,12 +17,12 @@ import {
   X,
   ChevronDownSquare,
   ChevronRightSquare,
-} from "lucide-react";
-import { Skeleton } from "./Skeleton";
-import { Input } from "./Input";
-import { Button } from "./Button";
-import { Select } from "./Select";
-import { Badge } from "./Badge";
+} from 'lucide-react';
+import { Skeleton } from './Skeleton';
+import { Input } from './Input';
+import { Button } from './Button';
+import { Select } from './Select';
+import { Badge } from './Badge';
 
 interface Column<T> {
   id: string;
@@ -34,7 +34,7 @@ interface Column<T> {
   width?: string | number;
   minWidth?: string | number;
   maxWidth?: string | number;
-  align?: "left" | "center" | "right";
+  align?: 'left' | 'center' | 'right';
   className?: string;
   headerClassName?: string;
   cellClassName?: string;
@@ -44,7 +44,7 @@ interface Column<T> {
   footer?: React.ReactNode | ((data: T[]) => React.ReactNode);
 }
 
-export interface TableProps<T extends Record<string, any>> {
+export interface TableProps<T extends Record<string, unknown>> {
   /** Data array */
   data: T[];
   /** Column configuration */
@@ -76,9 +76,9 @@ export interface TableProps<T extends Record<string, any>> {
   /** Current sort field */
   sortField?: string;
   /** Current sort direction */
-  sortDirection?: "asc" | "desc";
+  sortDirection?: 'asc' | 'desc';
   /** Called when sort changes */
-  onSortChange?: (field: string, direction: "asc" | "desc") => void;
+  onSortChange?: (field: string, direction: 'asc' | 'desc') => void;
   /** Whether the table is searchable */
   searchable?: boolean;
   /** Current search query */
@@ -90,9 +90,9 @@ export interface TableProps<T extends Record<string, any>> {
   /** Whether the table is filterable */
   filterable?: boolean;
   /** Current filters */
-  filters?: Record<string, any>;
+  filters?: Record<string, unknown>;
   /** Called when filters change */
-  onFiltersChange?: (filters: Record<string, any>) => void;
+  onFiltersChange?: (filters: Record<string, unknown>) => void;
   /** Whether the table has striped rows */
   striped?: boolean;
   /** Whether the table has hoverable rows */
@@ -134,7 +134,7 @@ export interface TableProps<T extends Record<string, any>> {
 /**
  * Advanced table component with pagination, sorting, filtering, and more
  */
-export function Table<T extends Record<string, any>>({
+export function Table<T extends Record<string, unknown>>({
   data = [],
   columns = [],
   loading = false,
@@ -150,12 +150,12 @@ export function Table<T extends Record<string, any>>({
   totalItems,
   sortable = true,
   sortField,
-  sortDirection = "asc",
+  sortDirection = 'asc',
   onSortChange,
   searchable = false,
-  searchQuery = "",
+  searchQuery = '',
   onSearchChange,
-  searchPlaceholder = "Search...",
+  searchPlaceholder = 'Search...',
   filterable = false,
   filters = {},
   onFiltersChange,
@@ -232,10 +232,10 @@ export function Table<T extends Record<string, any>>({
 
   // Handle sort
   const handleSort = (field: string) => {
-    let newDirection: "asc" | "desc" = "asc";
+    let newDirection: 'asc' | 'desc' = 'asc';
 
     if (internalSortField === field) {
-      newDirection = internalSortDirection === "asc" ? "desc" : "asc";
+      newDirection = internalSortDirection === 'asc' ? 'desc' : 'asc';
     }
 
     setInternalSortField(field);
@@ -273,11 +273,11 @@ export function Table<T extends Record<string, any>>({
 
   // Handle clear search
   const handleClearSearch = () => {
-    setSearchInputValue("");
-    setInternalSearchQuery("");
+    setSearchInputValue('');
+    setInternalSearchQuery('');
 
     if (onSearchChange) {
-      onSearchChange("");
+      onSearchChange('');
     }
 
     // Reset to first page when clearing search
@@ -330,39 +330,39 @@ export function Table<T extends Record<string, any>>({
 
   // Generate table class names
   const tableClasses = cn(
-    "w-full text-sm",
+    'w-full text-sm',
     {
-      "border-collapse": !bordered,
-      "border-separate border-spacing-0": bordered,
-      "border border-gray-200 dark:border-gray-700": bordered,
+      'border-collapse': !bordered,
+      'border-separate border-spacing-0': bordered,
+      'border border-gray-200 dark:border-gray-700': bordered,
     },
     className,
   );
 
   const headerClasses = cn(
-    "bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-medium",
+    'bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-medium',
     {
-      "sticky top-0 z-10": stickyHeader,
+      'sticky top-0 z-10': stickyHeader,
     },
     headerClassName,
   );
 
-  const bodyClasses = cn("text-gray-700 dark:text-gray-300", bodyClassName);
+  const bodyClasses = cn('text-gray-700 dark:text-gray-300', bodyClassName);
 
   const footerClasses = cn(
-    "bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300",
+    'bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300',
     footerClassName,
   );
 
   const cellClasses = (column: Column<T>) =>
     cn(
-      "px-4 py-2 border-b border-gray-200 dark:border-gray-700",
+      'px-4 py-2 border-b border-gray-200 dark:border-gray-700',
       {
-        "text-left": column.align === "left" || !column.align,
-        "text-center": column.align === "center",
-        "text-right": column.align === "right",
-        "p-0": column.disablePadding,
-        "sticky left-0 z-20 bg-white dark:bg-gray-900":
+        'text-left': column.align === 'left' || !column.align,
+        'text-center': column.align === 'center',
+        'text-right': column.align === 'right',
+        'p-0': column.disablePadding,
+        'sticky left-0 z-20 bg-white dark:bg-gray-900':
           column.sticky || (stickyFirstColumn && columns.indexOf(column) === 0),
       },
       column.cellClassName,
@@ -370,13 +370,13 @@ export function Table<T extends Record<string, any>>({
 
   const headerCellClasses = (column: Column<T>) =>
     cn(
-      "px-4 py-3 border-b border-gray-200 dark:border-gray-700",
+      'px-4 py-3 border-b border-gray-200 dark:border-gray-700',
       {
-        "text-left": column.align === "left" || !column.align,
-        "text-center": column.align === "center",
-        "text-right": column.align === "right",
-        "p-0": column.disablePadding,
-        "sticky left-0 z-30 bg-gray-50 dark:bg-gray-800":
+        'text-left': column.align === 'left' || !column.align,
+        'text-center': column.align === 'center',
+        'text-right': column.align === 'right',
+        'p-0': column.disablePadding,
+        'sticky left-0 z-30 bg-gray-50 dark:bg-gray-800':
           column.sticky || (stickyFirstColumn && columns.indexOf(column) === 0),
       },
       column.headerClassName,
@@ -385,9 +385,9 @@ export function Table<T extends Record<string, any>>({
   const rowClasses = (row: T, index: number) =>
     cn(
       {
-        "bg-gray-50 dark:bg-gray-800/50": striped && index % 2 === 1,
-        "hover:bg-gray-100 dark:hover:bg-gray-700/50": hoverable,
-        "cursor-pointer": hoverable || expandable || onRowClick,
+        'bg-gray-50 dark:bg-gray-800/50': striped && index % 2 === 1,
+        'hover:bg-gray-100 dark:hover:bg-gray-700/50': hoverable,
+        'cursor-pointer': hoverable || expandable || onRowClick,
       },
       getRowClassName?.(row, index),
     );
@@ -419,8 +419,8 @@ export function Table<T extends Record<string, any>>({
         </h3>
         <p className="mt-2 text-gray-500 dark:text-gray-400">
           {searchQuery
-            ? "No results match your search criteria. Try adjusting your search or filters."
-            : "There is no data available to display."}
+            ? 'No results match your search criteria. Try adjusting your search or filters.'
+            : 'There is no data available to display.'}
         </p>
       </div>
     );
@@ -443,7 +443,7 @@ export function Table<T extends Record<string, any>>({
   // Loading state
   if (loading && data.length === 0) {
     return (
-      <div className={cn("space-y-4", className)}>
+      <div className={cn('space-y-4', className)}>
         {searchable && (
           <div className="flex space-x-2">
             <div className="w-full max-w-md">
@@ -538,7 +538,7 @@ export function Table<T extends Record<string, any>>({
   }
 
   return (
-    <div className={cn("space-y-4", className)}>
+    <div className={cn('space-y-4', className)}>
       {/* Table actions */}
       {(searchable || filterable || downloadable) && (
         <div className="flex flex-wrap gap-3 mb-4">
@@ -663,7 +663,7 @@ export function Table<T extends Record<string, any>>({
                           <span>{column.header}</span>
                           <span className="flex items-center ml-1">
                             {internalSortField === column.id ? (
-                              internalSortDirection === "asc" ? (
+                              internalSortDirection === 'asc' ? (
                                 <SortAsc size={16} className="text-blue-500" />
                               ) : (
                                 <SortDesc size={16} className="text-blue-500" />
@@ -805,7 +805,7 @@ export function Table<T extends Record<string, any>>({
                             <AnimatePresence>
                               <motion.div
                                 initial={{ opacity: 0, height: 0 }}
-                                animate={{ opacity: 1, height: "auto" }}
+                                animate={{ opacity: 1, height: 'auto' }}
                                 exit={{ opacity: 0, height: 0 }}
                                 transition={{ duration: 0.2 }}
                               >
@@ -840,7 +840,7 @@ export function Table<T extends Record<string, any>>({
                     .map((column) => {
                       let footerContent: React.ReactNode;
 
-                      if (typeof column.footer === "function") {
+                      if (typeof column.footer === 'function') {
                         footerContent = column.footer(data);
                       } else {
                         footerContent = column.footer;
@@ -850,12 +850,12 @@ export function Table<T extends Record<string, any>>({
                         <td
                           key={column.id}
                           className={cn(
-                            "px-4 py-2 border-t border-gray-200 dark:border-gray-700",
+                            'px-4 py-2 border-t border-gray-200 dark:border-gray-700',
                             {
-                              "text-left":
-                                column.align === "left" || !column.align,
-                              "text-center": column.align === "center",
-                              "text-right": column.align === "right",
+                              'text-left':
+                                column.align === 'left' || !column.align,
+                              'text-center': column.align === 'center',
+                              'text-right': column.align === 'right',
                             },
                           )}
                           style={{
@@ -879,8 +879,8 @@ export function Table<T extends Record<string, any>>({
       {pagination && totalPages > 1 && (
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="text-sm text-gray-700 dark:text-gray-300">
-            Showing {(internalPage - 1) * itemsPerPage + 1} to{" "}
-            {Math.min(internalPage * itemsPerPage, calculatedTotalItems)} of{" "}
+            Showing {(internalPage - 1) * itemsPerPage + 1} to{' '}
+            {Math.min(internalPage * itemsPerPage, calculatedTotalItems)} of{' '}
             {calculatedTotalItems} entries
           </div>
 
@@ -923,8 +923,8 @@ export function Table<T extends Record<string, any>>({
               <Button
                 size="sm"
                 variant="outline"
-                className={cn("px-2", {
-                  "opacity-50 cursor-not-allowed": internalPage === 1,
+                className={cn('px-2', {
+                  'opacity-50 cursor-not-allowed': internalPage === 1,
                 })}
                 onClick={() => handlePageChange(1)}
                 disabled={internalPage === 1}
@@ -939,8 +939,8 @@ export function Table<T extends Record<string, any>>({
               <Button
                 size="sm"
                 variant="outline"
-                className={cn("px-2", {
-                  "opacity-50 cursor-not-allowed": internalPage === 1,
+                className={cn('px-2', {
+                  'opacity-50 cursor-not-allowed': internalPage === 1,
                 })}
                 onClick={() => handlePageChange(internalPage - 1)}
                 disabled={internalPage === 1}
@@ -968,7 +968,7 @@ export function Table<T extends Record<string, any>>({
                   <Button
                     key={pageNum}
                     size="sm"
-                    variant={internalPage === pageNum ? "default" : "outline"}
+                    variant={internalPage === pageNum ? 'default' : 'outline'}
                     className="w-8 h-8"
                     onClick={() => handlePageChange(pageNum)}
                   >
@@ -980,8 +980,8 @@ export function Table<T extends Record<string, any>>({
               <Button
                 size="sm"
                 variant="outline"
-                className={cn("px-2", {
-                  "opacity-50 cursor-not-allowed": internalPage === totalPages,
+                className={cn('px-2', {
+                  'opacity-50 cursor-not-allowed': internalPage === totalPages,
                 })}
                 onClick={() => handlePageChange(internalPage + 1)}
                 disabled={internalPage === totalPages}
@@ -993,8 +993,8 @@ export function Table<T extends Record<string, any>>({
               <Button
                 size="sm"
                 variant="outline"
-                className={cn("px-2", {
-                  "opacity-50 cursor-not-allowed": internalPage === totalPages,
+                className={cn('px-2', {
+                  'opacity-50 cursor-not-allowed': internalPage === totalPages,
                 })}
                 onClick={() => handlePageChange(totalPages)}
                 disabled={internalPage === totalPages}

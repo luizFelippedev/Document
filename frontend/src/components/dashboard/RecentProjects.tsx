@@ -1,18 +1,18 @@
 // frontend/src/components/dashboard/RecentProjects.tsx
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
-import { Project } from "@/types/project";
-import { projectService } from "@/services/project.service";
-import { Card } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
-import { Badge } from "@/components/ui/Badge";
-import { Spinner } from "@/components/ui/Spinner";
-import { ROUTES } from "@/config/routes";
-import { Eye, Calendar, ArrowRight, Briefcase } from "lucide-react";
-import { formatDate } from "@/utils/date";
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
+import { Project } from '@/types/project';
+import { projectService } from '@/services/project.service';
+import { Card } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
+import { Badge } from '@/components/ui/Badge';
+import { Spinner } from '@/components/ui/Spinner';
+import { ROUTES } from '@/config/routes';
+import { Eye, Calendar, ArrowRight, Briefcase } from 'lucide-react';
+import { formatDate } from '@/utils/date';
 
 export const RecentProjects = () => {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -35,7 +35,7 @@ export const RecentProjects = () => {
 
         setProjects(sortedProjects);
       } catch (error) {
-        console.error("Error fetching projects:", error);
+        console.error('Error fetching projects:', error);
       } finally {
         setLoading(false);
       }
@@ -140,8 +140,8 @@ export const RecentProjects = () => {
                 {/* Status badge */}
                 <div className="absolute top-2 right-2">
                   <Badge
-                    text={project.completed ? "Completed" : "In Progress"}
-                    variant={project.completed ? "success" : "warning"}
+                    text={project.completed ? 'Completed' : 'In Progress'}
+                    variant={project.completed ? 'success' : 'warning'}
                     size="sm"
                   />
                 </div>
@@ -159,7 +159,7 @@ export const RecentProjects = () => {
                 </div>
 
                 <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 line-clamp-2">
-                  {project.description.replace(/<[^>]*>/g, "")}
+                  {project.description.replace(/<[^>]*>/g, '')}
                 </p>
 
                 <div className="mt-auto">

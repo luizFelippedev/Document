@@ -1,10 +1,10 @@
 // frontend/src/components/ui/Stepper.tsx
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { cn } from "@/utils/cn";
-import { motion } from "framer-motion";
-import { Check } from "lucide-react";
+import { useState, useEffect } from 'react';
+import { cn } from '@/utils/cn';
+import { motion } from 'framer-motion';
+import { Check } from 'lucide-react';
 
 export interface Step {
   id: number | string;
@@ -28,9 +28,9 @@ export interface StepperProps {
   /** Whether completed steps show a checkmark */
   showCheckmarks?: boolean;
   /** The orientation of the stepper */
-  orientation?: "horizontal" | "vertical";
+  orientation?: 'horizontal' | 'vertical';
   /** The layout of step indicators */
-  variant?: "circles" | "pills" | "dots" | "numbers";
+  variant?: 'circles' | 'pills' | 'dots' | 'numbers';
   /** Whether steps should be connected with lines */
   connector?: boolean;
   /** Custom color for the active step */
@@ -48,10 +48,10 @@ export const Stepper = ({
   onChange,
   allowBackSteps = true,
   showCheckmarks = true,
-  orientation = "horizontal",
-  variant = "circles",
+  orientation = 'horizontal',
+  variant = 'circles',
   connector = true,
-  activeColor = "bg-blue-600 dark:bg-blue-500 text-white",
+  activeColor = 'bg-blue-600 dark:bg-blue-500 text-white',
   className,
 }: StepperProps) => {
   const [activeStep, setActiveStep] = useState<number | string>(currentStep);
@@ -94,13 +94,13 @@ export const Stepper = ({
 
     // Base classes for the indicator
     const baseClasses = cn(
-      "flex items-center justify-center transition-colors",
-      step.disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer",
+      'flex items-center justify-center transition-colors',
+      step.disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer',
       isActive
         ? activeColor
         : isCompleted
-          ? "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
-          : "bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400",
+          ? 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+          : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400',
     );
 
     // Variant-specific classes and content
@@ -108,33 +108,33 @@ export const Stepper = ({
       circles: {
         containerClass: cn(
           baseClasses,
-          "rounded-full",
-          orientation === "horizontal" ? "h-8 w-8" : "h-10 w-10",
+          'rounded-full',
+          orientation === 'horizontal' ? 'h-8 w-8' : 'h-10 w-10',
         ),
         content:
           isCompleted && showCheckmarks ? (
             <Check size={16} />
           ) : (
-            step.icon || (variant === "numbers" ? index + 1 : "")
+            step.icon || (variant === 'numbers' ? index + 1 : '')
           ),
       },
       pills: {
-        containerClass: cn(baseClasses, "rounded-full px-3 py-1 text-sm"),
+        containerClass: cn(baseClasses, 'rounded-full px-3 py-1 text-sm'),
         content: step.label,
       },
       dots: {
         containerClass: cn(
           baseClasses,
-          "rounded-full",
-          orientation === "horizontal" ? "h-3 w-3" : "h-4 w-4",
+          'rounded-full',
+          orientation === 'horizontal' ? 'h-3 w-3' : 'h-4 w-4',
         ),
         content: null,
       },
       numbers: {
         containerClass: cn(
           baseClasses,
-          "rounded-full",
-          orientation === "horizontal" ? "h-8 w-8" : "h-10 w-10",
+          'rounded-full',
+          orientation === 'horizontal' ? 'h-8 w-8' : 'h-10 w-10',
         ),
         content:
           isCompleted && showCheckmarks ? <Check size={16} /> : index + 1,
@@ -147,15 +147,15 @@ export const Stepper = ({
   };
 
   // Horizontal stepper layout
-  if (orientation === "horizontal") {
+  if (orientation === 'horizontal') {
     return (
-      <div className={cn("flex items-center justify-between", className)}>
+      <div className={cn('flex items-center justify-between', className)}>
         {steps.map((step, index) => (
           <div
             key={step.id}
             className={cn(
-              "flex flex-1 items-center",
-              index === steps.length - 1 && "flex-initial",
+              'flex flex-1 items-center',
+              index === steps.length - 1 && 'flex-initial',
             )}
           >
             {/* Step */}
@@ -167,14 +167,14 @@ export const Stepper = ({
               {renderStepIndicator(step, index)}
 
               {/* Step label */}
-              {variant !== "pills" && (
+              {variant !== 'pills' && (
                 <div
                   className={cn(
-                    "mt-2 text-xs text-center",
+                    'mt-2 text-xs text-center',
                     isStepActive(step)
-                      ? "font-medium text-gray-900 dark:text-white"
-                      : "text-gray-500 dark:text-gray-400",
-                    step.disabled && "opacity-50",
+                      ? 'font-medium text-gray-900 dark:text-white'
+                      : 'text-gray-500 dark:text-gray-400',
+                    step.disabled && 'opacity-50',
                   )}
                 >
                   <div>{step.label}</div>
@@ -202,7 +202,7 @@ export const Stepper = ({
                     animate={{
                       scaleX: isStepCompleted(step, index) ? 1 : 0,
                     }}
-                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                    transition={{ duration: 0.3, ease: 'easeInOut' }}
                   />
                 </div>
               </div>
@@ -215,7 +215,7 @@ export const Stepper = ({
 
   // Vertical stepper layout
   return (
-    <div className={cn("flex flex-col space-y-4", className)}>
+    <div className={cn('flex flex-col space-y-4', className)}>
       {steps.map((step, index) => (
         <div key={step.id} className="flex">
           {/* Step indicator and connector line */}
@@ -234,7 +234,7 @@ export const Stepper = ({
                   animate={{
                     scaleY: isStepCompleted(step, index) ? 1 : 0,
                   }}
-                  transition={{ duration: 0.3, ease: "easeInOut" }}
+                  transition={{ duration: 0.3, ease: 'easeInOut' }}
                 />
               </div>
             )}
@@ -243,17 +243,17 @@ export const Stepper = ({
           {/* Step content */}
           <div
             className={cn(
-              "flex-1 ml-4 cursor-pointer",
-              step.disabled && "opacity-50 cursor-not-allowed",
+              'flex-1 ml-4 cursor-pointer',
+              step.disabled && 'opacity-50 cursor-not-allowed',
             )}
             onClick={() => handleStepClick(step)}
           >
             <div
               className={cn(
-                "font-medium",
+                'font-medium',
                 isStepActive(step)
-                  ? "text-gray-900 dark:text-white"
-                  : "text-gray-700 dark:text-gray-300",
+                  ? 'text-gray-900 dark:text-white'
+                  : 'text-gray-700 dark:text-gray-300',
               )}
             >
               {step.label}

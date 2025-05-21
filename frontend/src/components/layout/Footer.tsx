@@ -9,26 +9,35 @@ import { ROUTES } from '@/config/routes';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { useNotification } from '@/hooks/useNotification';
-import { GitHub, Twitter, Instagram, Linkedin, Heart, Mail, ExternalLink, ArrowRight } from 'lucide-react';
+import {
+  GitHub,
+  Twitter,
+  Instagram,
+  Linkedin,
+  Heart,
+  Mail,
+  ExternalLink,
+  ArrowRight,
+} from 'lucide-react';
 
 export const Footer = () => {
   const [email, setEmail] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const { showToast } = useNotification();
-  
+
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!email.trim() || !email.includes('@')) {
       showToast('error', 'Please enter a valid email address');
       return;
     }
-    
+
     setSubmitting(true);
-    
+
     try {
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       showToast('success', 'Thanks for subscribing to our newsletter!');
       setEmail('');
     } catch (error) {
@@ -37,7 +46,7 @@ export const Footer = () => {
       setSubmitting(false);
     }
   };
-  
+
   const footerLinks = [
     {
       title: 'Product',
@@ -76,14 +85,26 @@ export const Footer = () => {
       ],
     },
   ];
-  
+
   const socialLinks = [
-    { label: 'Twitter', icon: <Twitter size={18} />, href: 'https://twitter.com' },
+    {
+      label: 'Twitter',
+      icon: <Twitter size={18} />,
+      href: 'https://twitter.com',
+    },
     { label: 'GitHub', icon: <GitHub size={18} />, href: 'https://github.com' },
-    { label: 'LinkedIn', icon: <Linkedin size={18} />, href: 'https://linkedin.com' },
-    { label: 'Instagram', icon: <Instagram size={18} />, href: 'https://instagram.com' },
+    {
+      label: 'LinkedIn',
+      icon: <Linkedin size={18} />,
+      href: 'https://linkedin.com',
+    },
+    {
+      label: 'Instagram',
+      icon: <Instagram size={18} />,
+      href: 'https://instagram.com',
+    },
   ];
-  
+
   return (
     <footer className="bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800">
       <div className="container mx-auto px-4 py-12">
@@ -95,7 +116,8 @@ export const Footer = () => {
                 Stay in the loop
               </h3>
               <p className="text-blue-100">
-                Subscribe to our newsletter for updates, tips, and special offers.
+                Subscribe to our newsletter for updates, tips, and special
+                offers.
               </p>
             </div>
             <div className="md:w-1/2">
@@ -121,7 +143,7 @@ export const Footer = () => {
             </div>
           </div>
         </div>
-        
+
         {/* Main Footer Content */}
         <div className="grid grid-cols-2 md:grid-cols-6 gap-8 mb-12">
           {/* Logo and Description */}
@@ -130,7 +152,9 @@ export const Footer = () => {
               <div className="h-10 w-10 rounded-md bg-blue-600 text-white flex items-center justify-center text-xl font-bold mr-3">
                 {APP_NAME.charAt(0)}
               </div>
-              <span className="text-xl font-bold text-gray-900 dark:text-white">{APP_NAME}</span>
+              <span className="text-xl font-bold text-gray-900 dark:text-white">
+                {APP_NAME}
+              </span>
             </Link>
             <p className="text-gray-600 dark:text-gray-400 mb-4">
               Showcase your projects and certificates with style and security.
@@ -153,7 +177,7 @@ export const Footer = () => {
               ))}
             </div>
           </div>
-          
+
           {/* Footer Links */}
           {footerLinks.map((group, index) => (
             <div key={index} className="col-span-1">
@@ -175,7 +199,7 @@ export const Footer = () => {
             </div>
           ))}
         </div>
-        
+
         {/* Bottom Section */}
         <div className="pt-8 border-t border-gray-200 dark:border-gray-800 flex flex-col md:flex-row md:items-center justify-between text-sm">
           <div className="text-gray-600 dark:text-gray-400 mb-4 md:mb-0">
@@ -183,10 +207,11 @@ export const Footer = () => {
               &copy; {new Date().getFullYear()} {APP_NAME}. All rights reserved.
             </p>
             <p className="mt-1 flex items-center">
-              Made with <Heart size={14} className="mx-1 text-red-500" /> by the {APP_NAME} Team
+              Made with <Heart size={14} className="mx-1 text-red-500" /> by the{' '}
+              {APP_NAME} Team
             </p>
           </div>
-          
+
           <div className="flex flex-wrap gap-x-6 gap-y-2">
             <Link
               href={ROUTES.PRIVACY}
@@ -206,7 +231,7 @@ export const Footer = () => {
             >
               Cookies
             </Link>
-            
+            <a
               href="https://status.devfolio.com"
               target="_blank"
               rel="noopener noreferrer"

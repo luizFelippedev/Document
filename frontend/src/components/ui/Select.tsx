@@ -1,10 +1,10 @@
 // frontend/src/components/ui/Select.tsx
-"use client";
+'use client';
 
-import React, { useState, useRef, useEffect, forwardRef } from "react";
-import { cn } from "@/utils/cn";
-import { AnimatePresence, motion } from "framer-motion";
-import { Check, ChevronDown, X, Search } from "lucide-react";
+import React, { useState, useRef, useEffect, forwardRef } from 'react';
+import { cn } from '@/utils/cn';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Check, ChevronDown, X, Search } from 'lucide-react';
 
 export interface SelectOption {
   value: string;
@@ -18,7 +18,7 @@ export interface SelectOption {
 }
 
 export interface SelectProps
-  extends Omit<React.HTMLAttributes<HTMLDivElement>, "onChange"> {
+  extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'> {
   /** Current selected value */
   value: string;
   /** Called when the value changes */
@@ -44,9 +44,9 @@ export interface SelectProps
   /** Whether to allow searching options */
   searchable?: boolean;
   /** The visual variant of the select */
-  variant?: "default" | "filled" | "underlined";
+  variant?: 'default' | 'filled' | 'underlined';
   /** The size of the select */
-  size?: "sm" | "md" | "lg";
+  size?: 'sm' | 'md' | 'lg';
   /** Whether to show option descriptions */
   showDescriptions?: boolean;
   /** Whether to show option groups */
@@ -64,7 +64,7 @@ export interface SelectProps
   /** The minimum width of the dropdown */
   minWidth?: string;
   /** The position of the dropdown */
-  position?: "bottom" | "top" | "auto";
+  position?: 'bottom' | 'top' | 'auto';
   /** Additional class name */
   className?: string;
   /** Additional dropdown class name */
@@ -80,7 +80,7 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
       value,
       onChange,
       options,
-      placeholder = "Select an option",
+      placeholder = 'Select an option',
       disabled = false,
       error,
       leftElement,
@@ -89,17 +89,17 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
       clearable = false,
       onClear,
       searchable = false,
-      variant = "default",
-      size = "md",
+      variant = 'default',
+      size = 'md',
       showDescriptions = false,
       showGroups = false,
       showIcons = false,
       multiple = false, // Not fully implemented in this version
       creatable = false,
       onCreateOption,
-      maxHeight = "300px",
-      minWidth = "200px",
-      position = "bottom",
+      maxHeight = '300px',
+      minWidth = '200px',
+      position = 'bottom',
       className,
       dropdownClassName,
       ...props
@@ -107,12 +107,12 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
     ref,
   ) => {
     const [isOpen, setIsOpen] = useState(false);
-    const [searchQuery, setSearchQuery] = useState("");
+    const [searchQuery, setSearchQuery] = useState('');
     const containerRef = useRef<HTMLDivElement>(null);
     const dropdownRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
-    const [dropdownPosition, setDropdownPosition] = useState<"bottom" | "top">(
-      position === "auto" ? "bottom" : position,
+    const [dropdownPosition, setDropdownPosition] = useState<'bottom' | 'top'>(
+      position === 'auto' ? 'bottom' : position,
     );
 
     // Get the selected option from the value
@@ -128,14 +128,14 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
     const groupedOptions = showGroups
       ? filteredOptions.reduce(
           (groups, option) => {
-            const group = option.group || "Other";
+            const group = option.group || 'Other';
             if (!groups[group]) groups[group] = [];
             groups[group].push(option);
             return groups;
           },
           {} as Record<string, SelectOption[]>,
         )
-      : { "": filteredOptions };
+      : { '': filteredOptions };
 
     // Handle click outside to close dropdown
     useEffect(() => {
@@ -148,10 +148,10 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
         }
       };
 
-      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener('mousedown', handleClickOutside);
 
       return () => {
-        document.removeEventListener("mousedown", handleClickOutside);
+        document.removeEventListener('mousedown', handleClickOutside);
       };
     }, []);
 
@@ -161,30 +161,30 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
         if (!isOpen) return;
 
         switch (event.key) {
-          case "Escape":
+          case 'Escape':
             setIsOpen(false);
             break;
-          case "ArrowDown":
+          case 'ArrowDown':
             event.preventDefault();
             // Navigate to the next option
             // (not implemented in this simplified version)
             break;
-          case "ArrowUp":
+          case 'ArrowUp':
             event.preventDefault();
             // Navigate to the previous option
             // (not implemented in this simplified version)
             break;
-          case "Enter":
+          case 'Enter':
             // Select the currently focused option
             // (not implemented in this simplified version)
             break;
         }
       };
 
-      document.addEventListener("keydown", handleKeyDown);
+      document.addEventListener('keydown', handleKeyDown);
 
       return () => {
-        document.removeEventListener("keydown", handleKeyDown);
+        document.removeEventListener('keydown', handleKeyDown);
       };
     }, [isOpen]);
 
@@ -198,7 +198,7 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
     // Determine dropdown position based on available space
     useEffect(() => {
       if (
-        position === "auto" &&
+        position === 'auto' &&
         isOpen &&
         containerRef.current &&
         dropdownRef.current
@@ -211,9 +211,9 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
         const spaceAbove = containerRect.top;
 
         if (spaceBelow < dropdownHeight && spaceAbove > spaceBelow) {
-          setDropdownPosition("top");
+          setDropdownPosition('top');
         } else {
-          setDropdownPosition("bottom");
+          setDropdownPosition('bottom');
         }
       }
     }, [isOpen, position]);
@@ -224,7 +224,7 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
         setIsOpen(!isOpen);
         // Clear search when closing
         if (isOpen) {
-          setSearchQuery("");
+          setSearchQuery('');
         }
       }
     };
@@ -235,7 +235,7 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
 
       onChange(option.value);
       setIsOpen(false);
-      setSearchQuery("");
+      setSearchQuery('');
     };
 
     // Handle clear button click
@@ -245,10 +245,10 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
       if (onClear) {
         onClear();
       } else {
-        onChange("");
+        onChange('');
       }
 
-      setSearchQuery("");
+      setSearchQuery('');
     };
 
     // Handle search input change
@@ -260,7 +260,7 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
     const handleCreateOption = () => {
       if (creatable && searchQuery && onCreateOption) {
         onCreateOption(searchQuery);
-        setSearchQuery("");
+        setSearchQuery('');
         setIsOpen(false);
       }
     };
@@ -268,40 +268,40 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
     // Determine variant styles
     const getVariantStyles = () => {
       switch (variant) {
-        case "filled":
-          return "bg-gray-100 dark:bg-gray-700 border-transparent focus-within:bg-white dark:focus-within:bg-gray-800";
-        case "underlined":
-          return "border-t-0 border-l-0 border-r-0 rounded-none px-0 bg-transparent";
+        case 'filled':
+          return 'bg-gray-100 dark:bg-gray-700 border-transparent focus-within:bg-white dark:focus-within:bg-gray-800';
+        case 'underlined':
+          return 'border-t-0 border-l-0 border-r-0 rounded-none px-0 bg-transparent';
         default:
-          return "bg-white dark:bg-gray-800";
+          return 'bg-white dark:bg-gray-800';
       }
     };
 
     // Determine size styles
     const getSizeStyles = () => {
       switch (size) {
-        case "sm":
-          return "h-8 text-xs";
-        case "lg":
-          return "h-12 text-base";
+        case 'sm':
+          return 'h-8 text-xs';
+        case 'lg':
+          return 'h-12 text-base';
         default:
-          return "h-10 text-sm";
+          return 'h-10 text-sm';
       }
     };
 
     // Generate class names
     const selectClasses = cn(
-      "relative flex items-center w-full px-3 border rounded-md appearance-none transition-colors cursor-pointer",
-      "focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-1",
+      'relative flex items-center w-full px-3 border rounded-md appearance-none transition-colors cursor-pointer',
+      'focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-1',
       getVariantStyles(),
       getSizeStyles(),
       {
-        "pl-10": !!leftElement,
-        "pr-10": !!rightElement || clearable,
-        "opacity-60 cursor-not-allowed": disabled,
-        "border-red-300 focus-within:border-red-500 focus-within:ring-red-500 dark:border-red-800":
+        'pl-10': !!leftElement,
+        'pr-10': !!rightElement || clearable,
+        'opacity-60 cursor-not-allowed': disabled,
+        'border-red-300 focus-within:border-red-500 focus-within:ring-red-500 dark:border-red-800':
           !!error,
-        "border-gray-300 focus-within:border-blue-500 focus-within:ring-blue-500 dark:border-gray-600 dark:focus-within:border-blue-500":
+        'border-gray-300 focus-within:border-blue-500 focus-within:ring-blue-500 dark:border-gray-600 dark:focus-within:border-blue-500':
           !error,
       },
       className,
@@ -368,22 +368,22 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
               <motion.div
                 ref={dropdownRef}
                 className={cn(
-                  "absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 shadow-lg rounded-md border border-gray-200 dark:border-gray-700 overflow-hidden",
-                  dropdownPosition === "top" && "bottom-full mb-1 mt-0",
+                  'absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 shadow-lg rounded-md border border-gray-200 dark:border-gray-700 overflow-hidden',
+                  dropdownPosition === 'top' && 'bottom-full mb-1 mt-0',
                   dropdownClassName,
                 )}
                 style={{
                   minWidth,
-                  maxHeight: "none",
+                  maxHeight: 'none',
                 }}
                 initial={{
                   opacity: 0,
-                  y: dropdownPosition === "top" ? 10 : -10,
+                  y: dropdownPosition === 'top' ? 10 : -10,
                 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{
                   opacity: 0,
-                  y: dropdownPosition === "top" ? 10 : -10,
+                  y: dropdownPosition === 'top' ? 10 : -10,
                   transition: { duration: 0.2 },
                 }}
                 transition={{ duration: 0.2 }}
@@ -415,7 +415,7 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
                     ([group, groupOptions]) => (
                       <div key={group}>
                         {/* Group header */}
-                        {showGroups && group !== "" && (
+                        {showGroups && group !== '' && (
                           <div className="px-3 py-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-700/50">
                             {group}
                           </div>
@@ -431,12 +431,12 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
                             <div
                               key={option.value}
                               className={cn(
-                                "px-3 py-2 flex items-center cursor-pointer",
+                                'px-3 py-2 flex items-center cursor-pointer',
                                 option.disabled
-                                  ? "opacity-50 cursor-not-allowed bg-gray-50 dark:bg-gray-800/50"
-                                  : "hover:bg-gray-100 dark:hover:bg-gray-700",
+                                  ? 'opacity-50 cursor-not-allowed bg-gray-50 dark:bg-gray-800/50'
+                                  : 'hover:bg-gray-100 dark:hover:bg-gray-700',
                                 option.value === value &&
-                                  "bg-blue-50 dark:bg-blue-900/20",
+                                  'bg-blue-50 dark:bg-blue-900/20',
                               )}
                               onClick={() => handleOptionSelect(option)}
                               role="option"
@@ -516,4 +516,4 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
   },
 );
 
-Select.displayName = "Select";
+Select.displayName = 'Select';

@@ -1,24 +1,24 @@
 // frontend/src/components/projects/ProjectForm.tsx
-"use client";
+'use client';
 
-import React, { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
-import { useForm, Controller } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { motion } from "framer-motion";
-import { Card } from "@/components/ui/Card";
-import { Input } from "@/components/ui/Input";
-import { Button } from "@/components/ui/Button";
-import { Select } from "@/components/ui/Select";
-import { Switch } from "@/components/ui/Switch";
-import { Badge } from "@/components/ui/Badge";
-import { SKILLS } from "@/config/constants";
-import { projectService } from "@/services/project.service";
-import { useNotification } from "@/hooks/useNotification";
-import { ROUTES } from "@/config/routes";
-import { Project, ProjectFormData } from "@/types/project";
-import { Editor } from "@/components/ui/Editor";
+import React, { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { motion } from 'framer-motion';
+import { Card } from '@/components/ui/Card';
+import { Input } from '@/components/ui/Input';
+import { Button } from '@/components/ui/Button';
+import { Select } from '@/components/ui/Select';
+import { Switch } from '@/components/ui/Switch';
+import { Badge } from '@/components/ui/Badge';
+import { SKILLS } from '@/config/constants';
+import { projectService } from '@/services/project.service';
+import { useNotification } from '@/hooks/useNotification';
+import { ROUTES } from '@/config/routes';
+import { Project, ProjectFormData } from '@/types/project';
+import { Editor } from '@/components/ui/Editor';
 import {
   Trash2,
   ChevronLeft,
@@ -35,30 +35,30 @@ import {
   Eye,
   Calendar,
   Link as LinkIcon,
-} from "lucide-react";
-import { cn } from "@/utils/cn";
-import { FileUploader } from "@/components/ui/FileUploader";
-import { format } from "date-fns";
+} from 'lucide-react';
+import { cn } from '@/utils/cn';
+import { FileUploader } from '@/components/ui/FileUploader';
+import { format } from 'date-fns';
 
 const MAX_IMAGES = 5;
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ALLOWED_FILE_TYPES = [
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-  "image/gif",
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'image/gif',
 ];
 
 // Schema for form validation
 const projectSchema = z.object({
   title: z
     .string()
-    .min(1, "Title is required")
-    .max(100, "Title cannot exceed 100 characters"),
-  description: z.string().min(10, "Description must be at least 10 characters"),
-  skills: z.array(z.string()).min(1, "Select at least one skill"),
-  demoUrl: z.string().url("Enter a valid URL").or(z.literal("")).optional(),
-  repoUrl: z.string().url("Enter a valid URL").or(z.literal("")).optional(),
+    .min(1, 'Title is required')
+    .max(100, 'Title cannot exceed 100 characters'),
+  description: z.string().min(10, 'Description must be at least 10 characters'),
+  skills: z.array(z.string()).min(1, 'Select at least one skill'),
+  demoUrl: z.string().url('Enter a valid URL').or(z.literal('')).optional(),
+  repoUrl: z.string().url('Enter a valid URL').or(z.literal('')).optional(),
   completed: z.boolean().optional(),
   startDate: z.string().optional(),
   endDate: z.string().optional(),
@@ -77,7 +77,7 @@ export const ProjectForm = ({ id, initialData }: ProjectFormProps) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
-  const [thumbnailPreview, setThumbnailPreview] = useState<string>("");
+  const [thumbnailPreview, setThumbnailPreview] = useState<string>('');
   const [projectImages, setProjectImages] = useState<File[]>([]);
   const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>([]);
   const [isEditorTouched, setIsEditorTouched] = useState(false);
@@ -96,24 +96,24 @@ export const ProjectForm = ({ id, initialData }: ProjectFormProps) => {
   } = useForm<ProjectFormValues>({
     resolver: zodResolver(projectSchema),
     defaultValues: {
-      title: "",
-      description: "",
+      title: '',
+      description: '',
       skills: [],
-      demoUrl: "",
-      repoUrl: "",
+      demoUrl: '',
+      repoUrl: '',
       completed: false,
-      startDate: "",
-      endDate: "",
+      startDate: '',
+      endDate: '',
       isPublic: true,
-      category: "",
+      category: '',
     },
   });
 
-  const description = watch("description");
-  const skills = watch("skills");
-  const completed = watch("completed");
-  const startDate = watch("startDate");
-  const endDate = watch("endDate");
+  const description = watch('description');
+  const skills = watch('skills');
+  const completed = watch('completed');
+  const startDate = watch('startDate');
+  const endDate = watch('endDate');
 
   // Initialize form with existing data if editing
   useEffect(() => {
@@ -122,13 +122,13 @@ export const ProjectForm = ({ id, initialData }: ProjectFormProps) => {
         title: initialData.title,
         description: initialData.description,
         skills: initialData.skills,
-        demoUrl: initialData.demoUrl || "",
-        repoUrl: initialData.repoUrl || "",
+        demoUrl: initialData.demoUrl || '',
+        repoUrl: initialData.repoUrl || '',
         completed: initialData.completed,
-        startDate: initialData.startDate || "",
-        endDate: initialData.endDate || "",
+        startDate: initialData.startDate || '',
+        endDate: initialData.endDate || '',
         isPublic: initialData.isPublic !== false, // default to true
-        category: initialData.category || "",
+        category: initialData.category || '',
       });
 
       if (initialData.thumbnail) {
@@ -143,7 +143,7 @@ export const ProjectForm = ({ id, initialData }: ProjectFormProps) => {
 
   // Handle description changes from the editor
   const handleEditorChange = (value: string) => {
-    setValue("description", value, { shouldDirty: true });
+    setValue('description', value, { shouldDirty: true });
     setIsEditorTouched(true);
   };
 
@@ -154,14 +154,14 @@ export const ProjectForm = ({ id, initialData }: ProjectFormProps) => {
 
       if (!ALLOWED_FILE_TYPES.includes(file.type)) {
         showToast(
-          "error",
-          "Please upload an image file (JPEG, PNG, WebP, or GIF)",
+          'error',
+          'Please upload an image file (JPEG, PNG, WebP, or GIF)',
         );
         return;
       }
 
       if (file.size > MAX_FILE_SIZE) {
-        showToast("error", "File size exceeds 5MB limit");
+        showToast('error', 'File size exceeds 5MB limit');
         return;
       }
 
@@ -181,7 +181,7 @@ export const ProjectForm = ({ id, initialData }: ProjectFormProps) => {
     if (files.length > 0) {
       // Check if adding these files would exceed the limit
       if (projectImages.length + files.length > MAX_IMAGES) {
-        showToast("error", `You can upload a maximum of ${MAX_IMAGES} images`);
+        showToast('error', `You can upload a maximum of ${MAX_IMAGES} images`);
         return;
       }
 
@@ -189,14 +189,14 @@ export const ProjectForm = ({ id, initialData }: ProjectFormProps) => {
       const validFiles = files.filter((file) => {
         if (!ALLOWED_FILE_TYPES.includes(file.type)) {
           showToast(
-            "error",
-            "Please upload image files only (JPEG, PNG, WebP, or GIF)",
+            'error',
+            'Please upload image files only (JPEG, PNG, WebP, or GIF)',
           );
           return false;
         }
 
         if (file.size > MAX_FILE_SIZE) {
-          showToast("error", "File size exceeds 5MB limit");
+          showToast('error', 'File size exceeds 5MB limit');
           return false;
         }
 
@@ -228,7 +228,7 @@ export const ProjectForm = ({ id, initialData }: ProjectFormProps) => {
   // Remove thumbnail
   const removeThumbnail = () => {
     setThumbnailFile(null);
-    setThumbnailPreview("");
+    setThumbnailPreview('');
   };
 
   // Remove project image
@@ -246,16 +246,16 @@ export const ProjectForm = ({ id, initialData }: ProjectFormProps) => {
 
   // Toggle skill selection
   const toggleSkill = (skill: string) => {
-    const currentSkills = watch("skills") || [];
+    const currentSkills = watch('skills') || [];
 
     if (currentSkills.includes(skill)) {
       setValue(
-        "skills",
+        'skills',
         currentSkills.filter((s) => s !== skill),
         { shouldDirty: true },
       );
     } else {
-      setValue("skills", [...currentSkills, skill], { shouldDirty: true });
+      setValue('skills', [...currentSkills, skill], { shouldDirty: true });
     }
   };
 
@@ -266,26 +266,26 @@ export const ProjectForm = ({ id, initialData }: ProjectFormProps) => {
 
       // Prepare form data for API
       const formData = new FormData();
-      formData.append("title", data.title);
-      formData.append("description", data.description);
-      formData.append("skills", JSON.stringify(data.skills));
-      formData.append("completed", String(data.completed));
+      formData.append('title', data.title);
+      formData.append('description', data.description);
+      formData.append('skills', JSON.stringify(data.skills));
+      formData.append('completed', String(data.completed));
 
-      if (data.demoUrl) formData.append("demoUrl", data.demoUrl);
-      if (data.repoUrl) formData.append("repoUrl", data.repoUrl);
-      if (data.startDate) formData.append("startDate", data.startDate);
-      if (data.endDate) formData.append("endDate", data.endDate);
-      formData.append("isPublic", String(data.isPublic));
-      if (data.category) formData.append("category", data.category);
+      if (data.demoUrl) formData.append('demoUrl', data.demoUrl);
+      if (data.repoUrl) formData.append('repoUrl', data.repoUrl);
+      if (data.startDate) formData.append('startDate', data.startDate);
+      if (data.endDate) formData.append('endDate', data.endDate);
+      formData.append('isPublic', String(data.isPublic));
+      if (data.category) formData.append('category', data.category);
 
       // Add thumbnail if changed
       if (thumbnailFile) {
-        formData.append("thumbnail", thumbnailFile);
+        formData.append('thumbnail', thumbnailFile);
       }
 
       // Add project images if changed
       projectImages.forEach((image) => {
-        formData.append("images", image);
+        formData.append('images', image);
       });
 
       // Keep track of deleted images
@@ -294,7 +294,7 @@ export const ProjectForm = ({ id, initialData }: ProjectFormProps) => {
           (url) => !imagePreviewUrls.includes(url),
         );
         if (deletedImages.length > 0) {
-          formData.append("deletedImages", JSON.stringify(deletedImages));
+          formData.append('deletedImages', JSON.stringify(deletedImages));
         }
       }
 
@@ -302,20 +302,20 @@ export const ProjectForm = ({ id, initialData }: ProjectFormProps) => {
       if (id) {
         // Update existing project
         await projectService.updateProject(id, formData);
-        showToast("success", "Project updated successfully");
+        showToast('success', 'Project updated successfully');
       } else {
         // Create new project
         await projectService.createProject(formData);
-        showToast("success", "Project created successfully");
+        showToast('success', 'Project created successfully');
       }
 
       // Redirect to projects page
       router.push(ROUTES.DASHBOARD.PROJECTS);
-    } catch (error: any) {
+    } catch (error: unknown) {
       showToast(
-        "error",
+        'error',
         error.response?.data?.message ||
-          "An error occurred while saving the project",
+          'An error occurred while saving the project',
       );
     } finally {
       setIsSubmitting(false);
@@ -343,9 +343,9 @@ export const ProjectForm = ({ id, initialData }: ProjectFormProps) => {
       // Basic info validation
       return (
         !errors.title &&
-        !!watch("title") &&
+        !!watch('title') &&
         !errors.description &&
-        !!watch("description") &&
+        !!watch('description') &&
         description.length >= 10
       );
     }
@@ -354,7 +354,7 @@ export const ProjectForm = ({ id, initialData }: ProjectFormProps) => {
       // Details validation
       return (
         !errors.skills &&
-        watch("skills").length > 0 &&
+        watch('skills').length > 0 &&
         !errors.demoUrl &&
         !errors.repoUrl
       );
@@ -374,7 +374,7 @@ export const ProjectForm = ({ id, initialData }: ProjectFormProps) => {
           <ArrowLeft size={20} />
         </button>
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-          {id ? "Edit Project" : "Create New Project"}
+          {id ? 'Edit Project' : 'Create New Project'}
         </h1>
       </div>
 
@@ -385,21 +385,21 @@ export const ProjectForm = ({ id, initialData }: ProjectFormProps) => {
             <div
               className={`flex-1 p-3 text-center ${
                 currentStep === 1
-                  ? "text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400 font-medium"
-                  : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+                  ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400 font-medium'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
               }`}
             >
               <div className="flex items-center justify-center">
                 <span
                   className={`flex items-center justify-center h-6 w-6 rounded-full ${
                     currentStep > 1
-                      ? "bg-blue-600 text-white"
+                      ? 'bg-blue-600 text-white'
                       : currentStep === 1
-                        ? "bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 border border-blue-600 dark:border-blue-400"
-                        : "bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400"
+                        ? 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 border border-blue-600 dark:border-blue-400'
+                        : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
                   } text-sm mr-2`}
                 >
-                  {currentStep > 1 ? <CheckCircle size={14} /> : "1"}
+                  {currentStep > 1 ? <CheckCircle size={14} /> : '1'}
                 </span>
                 Basic Info
               </div>
@@ -408,21 +408,21 @@ export const ProjectForm = ({ id, initialData }: ProjectFormProps) => {
             <div
               className={`flex-1 p-3 text-center ${
                 currentStep === 2
-                  ? "text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400 font-medium"
-                  : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+                  ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400 font-medium'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
               }`}
             >
               <div className="flex items-center justify-center">
                 <span
                   className={`flex items-center justify-center h-6 w-6 rounded-full ${
                     currentStep > 2
-                      ? "bg-blue-600 text-white"
+                      ? 'bg-blue-600 text-white'
                       : currentStep === 2
-                        ? "bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 border border-blue-600 dark:border-blue-400"
-                        : "bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400"
+                        ? 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 border border-blue-600 dark:border-blue-400'
+                        : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
                   } text-sm mr-2`}
                 >
-                  {currentStep > 2 ? <CheckCircle size={14} /> : "2"}
+                  {currentStep > 2 ? <CheckCircle size={14} /> : '2'}
                 </span>
                 Details
               </div>
@@ -431,16 +431,16 @@ export const ProjectForm = ({ id, initialData }: ProjectFormProps) => {
             <div
               className={`flex-1 p-3 text-center ${
                 currentStep === 3
-                  ? "text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400 font-medium"
-                  : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+                  ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400 font-medium'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
               }`}
             >
               <div className="flex items-center justify-center">
                 <span
                   className={`flex items-center justify-center h-6 w-6 rounded-full ${
                     currentStep === 3
-                      ? "bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 border border-blue-600 dark:border-blue-400"
-                      : "bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400"
+                      ? 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 border border-blue-600 dark:border-blue-400'
+                      : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
                   } text-sm mr-2`}
                 >
                   3
@@ -475,7 +475,7 @@ export const ProjectForm = ({ id, initialData }: ProjectFormProps) => {
                       id="title"
                       placeholder="Enter project title"
                       error={errors.title?.message}
-                      {...register("title")}
+                      {...register('title')}
                     />
                   </div>
 
@@ -516,28 +516,28 @@ export const ProjectForm = ({ id, initialData }: ProjectFormProps) => {
                     </label>
                     <Select
                       id="category"
-                      value={watch("category")}
+                      value={watch('category')}
                       onChange={(value) =>
-                        setValue("category", value, { shouldDirty: true })
+                        setValue('category', value, { shouldDirty: true })
                       }
                       options={[
-                        { value: "web-development", label: "Web Development" },
+                        { value: 'web-development', label: 'Web Development' },
                         {
-                          value: "mobile-development",
-                          label: "Mobile Development",
+                          value: 'mobile-development',
+                          label: 'Mobile Development',
                         },
-                        { value: "ui-ux-design", label: "UI/UX Design" },
-                        { value: "data-science", label: "Data Science" },
+                        { value: 'ui-ux-design', label: 'UI/UX Design' },
+                        { value: 'data-science', label: 'Data Science' },
                         {
-                          value: "machine-learning",
-                          label: "Machine Learning",
+                          value: 'machine-learning',
+                          label: 'Machine Learning',
                         },
-                        { value: "blockchain", label: "Blockchain" },
+                        { value: 'blockchain', label: 'Blockchain' },
                         {
-                          value: "game-development",
-                          label: "Game Development",
+                          value: 'game-development',
+                          label: 'Game Development',
                         },
-                        { value: "other", label: "Other" },
+                        { value: 'other', label: 'Other' },
                       ]}
                       placeholder="Select a category"
                     />
@@ -554,7 +554,7 @@ export const ProjectForm = ({ id, initialData }: ProjectFormProps) => {
                       <Input
                         id="startDate"
                         type="date"
-                        {...register("startDate")}
+                        {...register('startDate')}
                       />
                     </div>
 
@@ -568,7 +568,7 @@ export const ProjectForm = ({ id, initialData }: ProjectFormProps) => {
                       <Input
                         id="endDate"
                         type="date"
-                        {...register("endDate")}
+                        {...register('endDate')}
                         disabled={!completed}
                       />
                       {startDate &&
@@ -586,13 +586,13 @@ export const ProjectForm = ({ id, initialData }: ProjectFormProps) => {
                     id="completed"
                     checked={completed}
                     onChange={(checked) =>
-                      setValue("completed", checked, { shouldDirty: true })
+                      setValue('completed', checked, { shouldDirty: true })
                     }
                     label="Project is completed"
                     description={
                       completed
-                        ? "Mark this project as completed and share your results"
-                        : "Leave unchecked if the project is still in progress"
+                        ? 'Mark this project as completed and share your results'
+                        : 'Leave unchecked if the project is still in progress'
                     }
                   />
                 </div>
@@ -633,7 +633,7 @@ export const ProjectForm = ({ id, initialData }: ProjectFormProps) => {
                           key={skill}
                           text={skill}
                           variant={
-                            skills?.includes(skill) ? "primary" : "outline"
+                            skills?.includes(skill) ? 'primary' : 'outline'
                           }
                           size="lg"
                           className="cursor-pointer"
@@ -661,7 +661,7 @@ export const ProjectForm = ({ id, initialData }: ProjectFormProps) => {
                       placeholder="https://example.com"
                       error={errors.demoUrl?.message}
                       leftElement={<Globe size={18} />}
-                      {...register("demoUrl")}
+                      {...register('demoUrl')}
                     />
                     <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                       Link to a live demo of your project (if available)
@@ -680,7 +680,7 @@ export const ProjectForm = ({ id, initialData }: ProjectFormProps) => {
                       placeholder="https://github.com/username/repo"
                       error={errors.repoUrl?.message}
                       leftElement={<GitHub size={18} />}
-                      {...register("repoUrl")}
+                      {...register('repoUrl')}
                     />
                     <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                       Link to your project's code repository
@@ -689,9 +689,9 @@ export const ProjectForm = ({ id, initialData }: ProjectFormProps) => {
 
                   <Switch
                     id="isPublic"
-                    checked={watch("isPublic")}
+                    checked={watch('isPublic')}
                     onChange={(checked) =>
-                      setValue("isPublic", checked, { shouldDirty: true })
+                      setValue('isPublic', checked, { shouldDirty: true })
                     }
                     label="Project is public"
                     description="Make this project visible to everyone. Uncheck to keep it private to you and your team."
@@ -827,7 +827,7 @@ export const ProjectForm = ({ id, initialData }: ProjectFormProps) => {
                           Title
                         </p>
                         <p className="text-base text-gray-900 dark:text-white">
-                          {watch("title")}
+                          {watch('title')}
                         </p>
                       </div>
 
@@ -836,11 +836,11 @@ export const ProjectForm = ({ id, initialData }: ProjectFormProps) => {
                           Category
                         </p>
                         <p className="text-base text-gray-900 dark:text-white">
-                          {watch("category")
-                            ? watch("category")
-                                .replace("-", " ")
+                          {watch('category')
+                            ? watch('category')
+                                .replace('-', ' ')
                                 .replace(/\b\w/g, (char) => char.toUpperCase())
-                            : "Not specified"}
+                            : 'Not specified'}
                         </p>
                       </div>
 
@@ -849,7 +849,7 @@ export const ProjectForm = ({ id, initialData }: ProjectFormProps) => {
                           Status
                         </p>
                         <p className="text-base text-gray-900 dark:text-white flex items-center">
-                          {watch("completed") ? (
+                          {watch('completed') ? (
                             <>
                               <CheckCircle
                                 size={16}
@@ -874,11 +874,11 @@ export const ProjectForm = ({ id, initialData }: ProjectFormProps) => {
                           Visibility
                         </p>
                         <p className="text-base text-gray-900 dark:text-white">
-                          {watch("isPublic") ? "Public" : "Private"}
+                          {watch('isPublic') ? 'Public' : 'Private'}
                         </p>
                       </div>
 
-                      {watch("startDate") && (
+                      {watch('startDate') && (
                         <div>
                           <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
                             Start Date
@@ -886,32 +886,32 @@ export const ProjectForm = ({ id, initialData }: ProjectFormProps) => {
                           <p className="text-base text-gray-900 dark:text-white flex items-center">
                             <Calendar size={16} className="mr-2" />
                             {format(
-                              new Date(watch("startDate")),
-                              "MMMM d, yyyy",
+                              new Date(watch('startDate')),
+                              'MMMM d, yyyy',
                             )}
                           </p>
                         </div>
                       )}
 
-                      {watch("endDate") && watch("completed") && (
+                      {watch('endDate') && watch('completed') && (
                         <div>
                           <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
                             End Date
                           </p>
                           <p className="text-base text-gray-900 dark:text-white flex items-center">
                             <Calendar size={16} className="mr-2" />
-                            {format(new Date(watch("endDate")), "MMMM d, yyyy")}
+                            {format(new Date(watch('endDate')), 'MMMM d, yyyy')}
                           </p>
                         </div>
                       )}
 
-                      {watch("demoUrl") && (
+                      {watch('demoUrl') && (
                         <div>
                           <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
                             Demo URL
                           </p>
                           <a
-                            href={watch("demoUrl")}
+                            href={watch('demoUrl')}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-base text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 flex items-center"
@@ -922,13 +922,13 @@ export const ProjectForm = ({ id, initialData }: ProjectFormProps) => {
                         </div>
                       )}
 
-                      {watch("repoUrl") && (
+                      {watch('repoUrl') && (
                         <div>
                           <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
                             Repository
                           </p>
                           <a
-                            href={watch("repoUrl")}
+                            href={watch('repoUrl')}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-base text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 flex items-center"
@@ -945,7 +945,7 @@ export const ProjectForm = ({ id, initialData }: ProjectFormProps) => {
                         Skills
                       </p>
                       <div className="flex flex-wrap gap-2 mt-2">
-                        {watch("skills")?.map((skill) => (
+                        {watch('skills')?.map((skill) => (
                           <Badge
                             key={skill}
                             text={skill}
@@ -983,7 +983,7 @@ export const ProjectForm = ({ id, initialData }: ProjectFormProps) => {
                       loadingText="Saving..."
                       leftIcon={<Save size={16} />}
                     >
-                      {id ? "Update Project" : "Create Project"}
+                      {id ? 'Update Project' : 'Create Project'}
                     </Button>
                   </div>
                 </div>

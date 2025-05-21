@@ -1,13 +1,13 @@
 // frontend/src/components/notifications/NotificationCenter.tsx
-"use client";
+'use client';
 
-import React, { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { useNotification } from "@/hooks/useNotification";
-import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
-import { Switch } from "@/components/ui/Switch";
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useNotification } from '@/hooks/useNotification';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { Switch } from '@/components/ui/Switch';
 import {
   Bell,
   Check,
@@ -22,19 +22,19 @@ import {
   Info,
   AlertTriangle,
   CheckCircle,
-} from "lucide-react";
-import { cn } from "@/utils/cn";
-import { formatRelativeTime } from "@/utils/date";
-import { Notification } from "@/types/notification";
+} from 'lucide-react';
+import { cn } from '@/utils/cn';
+import { formatRelativeTime } from '@/utils/date';
+import { Notification } from '@/types/notification';
 
 export const NotificationCenter = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<"all" | "unread" | "settings">(
-    "all",
+  const [activeTab, setActiveTab] = useState<'all' | 'unread' | 'settings'>(
+    'all',
   );
   const [notificationsFilter, setNotificationsFilter] = useState<
-    "all" | "system" | "message" | "alert"
-  >("all");
+    'all' | 'system' | 'message' | 'alert'
+  >('all');
   const {
     notifications,
     markAsRead,
@@ -57,23 +57,23 @@ export const NotificationCenter = () => {
     };
 
     if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener('mousedown', handleClickOutside);
     }
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isOpen]);
 
   // Filter notifications based on tab and filter
   const filteredNotifications = notifications.filter((notification) => {
     // First filter by read/unread
-    if (activeTab === "unread" && notification.read) {
+    if (activeTab === 'unread' && notification.read) {
       return false;
     }
 
     // Then filter by type
-    if (notificationsFilter === "all") {
+    if (notificationsFilter === 'all') {
       return true;
     }
 
@@ -88,30 +88,30 @@ export const NotificationCenter = () => {
   // Get icon based on notification type
   const getIcon = (type: string) => {
     switch (type) {
-      case "system":
+      case 'system':
         return <Info size={16} className="text-blue-500 dark:text-blue-400" />;
-      case "message":
+      case 'message':
         return (
           <MessageCircle
             size={16}
             className="text-green-500 dark:text-green-400"
           />
         );
-      case "alert":
+      case 'alert':
         return (
           <AlertTriangle
             size={16}
             className="text-amber-500 dark:text-amber-400"
           />
         );
-      case "success":
+      case 'success':
         return (
           <CheckCircle
             size={16}
             className="text-green-500 dark:text-green-400"
           />
         );
-      case "error":
+      case 'error':
         return (
           <AlertCircle size={16} className="text-red-500 dark:text-red-400" />
         );
@@ -131,7 +131,7 @@ export const NotificationCenter = () => {
         <Bell size={20} />
         {unreadCount > 0 && (
           <span className="absolute top-0 right-0 inline-block h-4 w-4 rounded-full bg-red-500 text-xs text-white font-bold flex items-center justify-center">
-            {unreadCount > 9 ? "9+" : unreadCount}
+            {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
       </button>
@@ -153,7 +153,7 @@ export const NotificationCenter = () => {
                 Notifications
               </h3>
               <div className="flex items-center space-x-2">
-                {(activeTab === "all" || activeTab === "unread") && (
+                {(activeTab === 'all' || activeTab === 'unread') && (
                   <button
                     onClick={() => markAllAsRead()}
                     className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
@@ -175,23 +175,23 @@ export const NotificationCenter = () => {
             <div className="flex border-b border-gray-200 dark:border-gray-700">
               <button
                 className={cn(
-                  "flex-1 py-3 px-4 text-sm font-medium text-center",
-                  activeTab === "all"
-                    ? "text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400"
-                    : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300",
+                  'flex-1 py-3 px-4 text-sm font-medium text-center',
+                  activeTab === 'all'
+                    ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
+                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300',
                 )}
-                onClick={() => setActiveTab("all")}
+                onClick={() => setActiveTab('all')}
               >
                 All
               </button>
               <button
                 className={cn(
-                  "flex-1 py-3 px-4 text-sm font-medium text-center",
-                  activeTab === "unread"
-                    ? "text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400"
-                    : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300",
+                  'flex-1 py-3 px-4 text-sm font-medium text-center',
+                  activeTab === 'unread'
+                    ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
+                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300',
                 )}
-                onClick={() => setActiveTab("unread")}
+                onClick={() => setActiveTab('unread')}
               >
                 Unread
                 {unreadCount > 0 && (
@@ -202,61 +202,61 @@ export const NotificationCenter = () => {
               </button>
               <button
                 className={cn(
-                  "flex-1 py-3 px-4 text-sm font-medium text-center",
-                  activeTab === "settings"
-                    ? "text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400"
-                    : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300",
+                  'flex-1 py-3 px-4 text-sm font-medium text-center',
+                  activeTab === 'settings'
+                    ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
+                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300',
                 )}
-                onClick={() => setActiveTab("settings")}
+                onClick={() => setActiveTab('settings')}
               >
                 <Settings size={16} className="mx-auto" />
               </button>
             </div>
 
             {/* Filter (only visible for notifications tabs) */}
-            {activeTab !== "settings" && (
+            {activeTab !== 'settings' && (
               <div className="flex p-2 space-x-1 bg-gray-50 dark:bg-gray-800 overflow-x-auto scrollbar-hide">
                 <button
                   className={cn(
-                    "px-3 py-1 rounded-md text-xs font-medium",
-                    notificationsFilter === "all"
-                      ? "bg-blue-600 text-white dark:bg-blue-700"
-                      : "bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600",
+                    'px-3 py-1 rounded-md text-xs font-medium',
+                    notificationsFilter === 'all'
+                      ? 'bg-blue-600 text-white dark:bg-blue-700'
+                      : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600',
                   )}
-                  onClick={() => setNotificationsFilter("all")}
+                  onClick={() => setNotificationsFilter('all')}
                 >
                   All
                 </button>
                 <button
                   className={cn(
-                    "px-3 py-1 rounded-md text-xs font-medium",
-                    notificationsFilter === "system"
-                      ? "bg-blue-600 text-white dark:bg-blue-700"
-                      : "bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600",
+                    'px-3 py-1 rounded-md text-xs font-medium',
+                    notificationsFilter === 'system'
+                      ? 'bg-blue-600 text-white dark:bg-blue-700'
+                      : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600',
                   )}
-                  onClick={() => setNotificationsFilter("system")}
+                  onClick={() => setNotificationsFilter('system')}
                 >
                   System
                 </button>
                 <button
                   className={cn(
-                    "px-3 py-1 rounded-md text-xs font-medium",
-                    notificationsFilter === "message"
-                      ? "bg-blue-600 text-white dark:bg-blue-700"
-                      : "bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600",
+                    'px-3 py-1 rounded-md text-xs font-medium',
+                    notificationsFilter === 'message'
+                      ? 'bg-blue-600 text-white dark:bg-blue-700'
+                      : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600',
                   )}
-                  onClick={() => setNotificationsFilter("message")}
+                  onClick={() => setNotificationsFilter('message')}
                 >
                   Messages
                 </button>
                 <button
                   className={cn(
-                    "px-3 py-1 rounded-md text-xs font-medium",
-                    notificationsFilter === "alert"
-                      ? "bg-blue-600 text-white dark:bg-blue-700"
-                      : "bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600",
+                    'px-3 py-1 rounded-md text-xs font-medium',
+                    notificationsFilter === 'alert'
+                      ? 'bg-blue-600 text-white dark:bg-blue-700'
+                      : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600',
                   )}
-                  onClick={() => setNotificationsFilter("alert")}
+                  onClick={() => setNotificationsFilter('alert')}
                 >
                   Alerts
                 </button>
@@ -265,7 +265,7 @@ export const NotificationCenter = () => {
 
             {/* Content */}
             <div className="max-h-96 overflow-y-auto">
-              {activeTab === "settings" ? (
+              {activeTab === 'settings' ? (
                 <div className="p-4">
                   <h4 className="text-base font-medium text-gray-900 dark:text-white mb-3">
                     Notification Preferences
@@ -347,7 +347,7 @@ export const NotificationCenter = () => {
                     No notifications
                   </h5>
                   <p className="text-gray-500 dark:text-gray-400 text-sm">
-                    {activeTab === "unread"
+                    {activeTab === 'unread'
                       ? "You don't have any unread notifications"
                       : "You don't have any notifications yet"}
                   </p>
@@ -368,7 +368,7 @@ export const NotificationCenter = () => {
             </div>
 
             {/* Footer */}
-            {(activeTab === "all" || activeTab === "unread") &&
+            {(activeTab === 'all' || activeTab === 'unread') &&
               filteredNotifications.length > 0 && (
                 <div className="p-3 border-t border-gray-200 dark:border-gray-700 text-center">
                   <button
@@ -407,9 +407,9 @@ const NotificationItem = ({
   return (
     <div
       className={cn(
-        "p-4 border-b border-gray-200 dark:border-gray-700 last:border-0 transition-colors duration-200",
-        !notification.read && "bg-blue-50 dark:bg-blue-900/20",
-        isHovered && "bg-gray-50 dark:bg-gray-700/50",
+        'p-4 border-b border-gray-200 dark:border-gray-700 last:border-0 transition-colors duration-200',
+        !notification.read && 'bg-blue-50 dark:bg-blue-900/20',
+        isHovered && 'bg-gray-50 dark:bg-gray-700/50',
       )}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}

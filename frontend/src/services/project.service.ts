@@ -1,7 +1,7 @@
 // src/services/project.service.ts
-import { api } from "@/lib/axios";
-import { Project, ProjectFilter } from "@/types/project";
-import { socketEvents, socketService } from "@/lib/socket";
+import { api } from '@/lib/axios';
+import { Project, ProjectFilter } from '@/types/project';
+import { socketEvents, socketService } from '@/lib/socket';
 
 export const projectService = {
   /**
@@ -14,12 +14,12 @@ export const projectService = {
     userId?: string,
   ) {
     // Create params
-    const params: Record<string, any> = { page, limit }; // Padronizado para usar 'limit'
+    const params: Record<string, unknown> = { page, limit }; // Padronizado para usar 'limit'
 
     // Add filter parameters
     if (filter) {
       if (filter.search) params.search = filter.search;
-      if (filter.skills) params.skills = filter.skills.join(",");
+      if (filter.skills) params.skills = filter.skills.join(',');
       if (filter.completed !== undefined) params.completed = filter.completed;
       if (filter.category) params.category = filter.category;
       if (filter.sortBy) params.sortBy = filter.sortBy;
@@ -28,7 +28,7 @@ export const projectService = {
     // Add userId if provided
     if (userId) params.userId = userId;
 
-    const response = await api.get("/projects", { params });
+    const response = await api.get('/projects', { params });
     return response.data.projects;
   },
 
@@ -44,9 +44,9 @@ export const projectService = {
    * Create a new project
    */
   async createProject(projectData: FormData) {
-    const response = await api.post("/projects", projectData, {
+    const response = await api.post('/projects', projectData, {
       headers: {
-        "Content-Type": "multipart/form-data",
+        'Content-Type': 'multipart/form-data',
       },
     });
 
@@ -62,7 +62,7 @@ export const projectService = {
   async updateProject(id: string, projectData: FormData) {
     const response = await api.put(`/projects/${id}`, projectData, {
       headers: {
-        "Content-Type": "multipart/form-data",
+        'Content-Type': 'multipart/form-data',
       },
     });
 
@@ -88,7 +88,7 @@ export const projectService = {
    * Get featured projects for homepage
    */
   async getFeaturedProjects() {
-    const response = await api.get("/projects/featured");
+    const response = await api.get('/projects/featured');
     return response.data.projects;
   },
 
@@ -97,11 +97,11 @@ export const projectService = {
    */
   async uploadProjectImage(projectId: string, imageFile: File) {
     const formData = new FormData();
-    formData.append("image", imageFile);
+    formData.append('image', imageFile);
 
     const response = await api.post(`/projects/${projectId}/images`, formData, {
       headers: {
-        "Content-Type": "multipart/form-data",
+        'Content-Type': 'multipart/form-data',
       },
     });
     return response.data;
@@ -121,7 +121,7 @@ export const projectService = {
    * Search projects
    */
   async searchProjects(query: string) {
-    const response = await api.get("/projects/search", {
+    const response = await api.get('/projects/search', {
       params: { query },
     });
     return response.data.projects;
@@ -131,8 +131,8 @@ export const projectService = {
    * Filter projects by skills
    */
   async filterProjectsBySkills(skills: string[]) {
-    const response = await api.get("/projects/filter", {
-      params: { skills: skills.join(",") },
+    const response = await api.get('/projects/filter', {
+      params: { skills: skills.join(',') },
     });
     return response.data.projects;
   },

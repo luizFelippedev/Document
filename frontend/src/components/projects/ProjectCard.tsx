@@ -1,16 +1,16 @@
 // frontend/src/components/projects/ProjectCard.tsx
-"use client";
+'use client';
 
-import { useState } from "react";
-import Link from "next/link";
-import { motion } from "framer-motion";
-import { Project } from "@/types/project";
-import { Card } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
-import { SkillBadge } from "@/components/ui/SkillBadge";
-import { Dropdown } from "@/components/ui/Dropdown";
-import { formatDate } from "@/utils/date";
+import { useState } from 'react';
+import Link from 'next/link';
+import { motion } from 'framer-motion';
+import { Project } from '@/types/project';
+import { Card } from '@/components/ui/Card';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { SkillBadge } from '@/components/ui/SkillBadge';
+import { Dropdown } from '@/components/ui/Dropdown';
+import { formatDate } from '@/utils/date';
 import {
   Eye,
   Edit,
@@ -20,7 +20,7 @@ import {
   MoreVertical,
   Calendar,
   CheckCircle,
-} from "lucide-react";
+} from 'lucide-react';
 
 interface ProjectCardProps {
   project: Project;
@@ -40,27 +40,27 @@ export const ProjectCard = ({
 
   const truncateText = (text: string, maxLength: number) => {
     if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength) + "...";
+    return text.substring(0, maxLength) + '...';
   };
 
   const menuItems = [
-    { label: "View Details", onClick: onView, icon: <Eye size={16} /> },
-    { label: "Edit Project", onClick: onEdit, icon: <Edit size={16} /> },
-    { label: "Delete Project", onClick: onDelete, icon: <Trash size={16} /> },
+    { label: 'View Details', onClick: onView, icon: <Eye size={16} /> },
+    { label: 'Edit Project', onClick: onEdit, icon: <Edit size={16} /> },
+    { label: 'Delete Project', onClick: onDelete, icon: <Trash size={16} /> },
   ];
 
   if (project.demoUrl) {
     menuItems.splice(1, 0, {
-      label: "Open Demo",
-      onClick: () => window.open(project.demoUrl, "_blank"),
+      label: 'Open Demo',
+      onClick: () => window.open(project.demoUrl, '_blank'),
       icon: <ExternalLink size={16} />,
     });
   }
 
   if (project.repoUrl) {
     menuItems.splice(1, 0, {
-      label: "View Code",
-      onClick: () => window.open(project.repoUrl, "_blank"),
+      label: 'View Code',
+      onClick: () => window.open(project.repoUrl, '_blank'),
       icon: <Github size={16} />,
     });
   }
@@ -82,13 +82,13 @@ export const ProjectCard = ({
                   alt={project.title}
                   className="w-full h-full object-cover transition-transform duration-500"
                   style={{
-                    transform: isHovered ? "scale(1.05)" : "scale(1)",
+                    transform: isHovered ? 'scale(1.05)' : 'scale(1)',
                   }}
                 />
               ) : (
                 <div className="w-full h-full bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900 dark:to-indigo-900 flex items-center justify-center">
                   <div className="text-4xl text-blue-500 dark:text-blue-400 font-bold">
-                    {project.title?.charAt(0) || "P"}
+                    {project.title?.charAt(0) || 'P'}
                   </div>
                 </div>
               )}

@@ -1,24 +1,24 @@
 // frontend/src/components/ui/Toast.tsx
-"use client";
+'use client';
 
-import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { cn } from "@/utils/cn";
-import { CheckCircle, XCircle, AlertCircle, Info, X } from "lucide-react";
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '@/utils/cn';
+import { CheckCircle, XCircle, AlertCircle, Info, X } from 'lucide-react';
 
 export interface ToastProps {
   id: string;
   message: string;
-  type?: "success" | "error" | "warning" | "info";
+  type?: 'success' | 'error' | 'warning' | 'info';
   title?: string;
   duration?: number;
   position?:
-    | "top-right"
-    | "top-left"
-    | "bottom-right"
-    | "bottom-left"
-    | "top-center"
-    | "bottom-center";
+    | 'top-right'
+    | 'top-left'
+    | 'bottom-right'
+    | 'bottom-left'
+    | 'top-center'
+    | 'bottom-center';
   onClose: (id: string) => void;
   showClose?: boolean;
   action?: {
@@ -30,10 +30,10 @@ export interface ToastProps {
 export const Toast = ({
   id,
   message,
-  type = "info",
+  type = 'info',
   title,
   duration = 3000,
-  position = "top-right",
+  position = 'top-right',
   onClose,
   showClose = true,
   action,
@@ -77,17 +77,17 @@ export const Toast = ({
   // Get icon based on type
   const getIcon = () => {
     switch (type) {
-      case "success":
+      case 'success':
         return (
           <CheckCircle className="h-5 w-5 text-green-500 dark:text-green-400" />
         );
-      case "error":
+      case 'error':
         return <XCircle className="h-5 w-5 text-red-500 dark:text-red-400" />;
-      case "warning":
+      case 'warning':
         return (
           <AlertCircle className="h-5 w-5 text-amber-500 dark:text-amber-400" />
         );
-      case "info":
+      case 'info':
       default:
         return <Info className="h-5 w-5 text-blue-500 dark:text-blue-400" />;
     }
@@ -96,14 +96,14 @@ export const Toast = ({
   // Get background color class based on type
   const getContainerClass = () => {
     return cn(
-      "relative min-w-[320px] max-w-sm rounded-lg p-4 shadow-lg border",
+      'relative min-w-[320px] max-w-sm rounded-lg p-4 shadow-lg border',
       {
-        "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700": true,
-        "border-l-4": true,
-        "border-l-green-500 dark:border-l-green-500": type === "success",
-        "border-l-red-500 dark:border-l-red-500": type === "error",
-        "border-l-amber-500 dark:border-l-amber-500": type === "warning",
-        "border-l-blue-500 dark:border-l-blue-500": type === "info",
+        'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700': true,
+        'border-l-4': true,
+        'border-l-green-500 dark:border-l-green-500': type === 'success',
+        'border-l-red-500 dark:border-l-red-500': type === 'error',
+        'border-l-amber-500 dark:border-l-amber-500': type === 'warning',
+        'border-l-blue-500 dark:border-l-blue-500': type === 'info',
       },
     );
   };
@@ -114,7 +114,7 @@ export const Toast = ({
         <motion.div
           initial={{
             opacity: 0,
-            y: position.includes("top") ? -20 : 20,
+            y: position.includes('top') ? -20 : 20,
             scale: 0.95,
           }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -135,8 +135,8 @@ export const Toast = ({
               )}
               <div
                 className={cn(
-                  "text-sm text-gray-700 dark:text-gray-300",
-                  title && "mt-1",
+                  'text-sm text-gray-700 dark:text-gray-300',
+                  title && 'mt-1',
                 )}
               >
                 {message}
@@ -167,11 +167,11 @@ export const Toast = ({
           {duration !== Infinity && (
             <div className="absolute bottom-0 left-0 right-0 h-1">
               <div
-                className={cn("h-full transition-all", {
-                  "bg-green-500": type === "success",
-                  "bg-red-500": type === "error",
-                  "bg-amber-500": type === "warning",
-                  "bg-blue-500": type === "info",
+                className={cn('h-full transition-all', {
+                  'bg-green-500': type === 'success',
+                  'bg-red-500': type === 'error',
+                  'bg-amber-500': type === 'warning',
+                  'bg-blue-500': type === 'info',
                 })}
                 style={{ width: `${progress}%` }}
               ></div>
@@ -186,42 +186,42 @@ export const Toast = ({
 // Toast container
 interface ToastContainerProps {
   position?:
-    | "top-right"
-    | "top-left"
-    | "bottom-right"
-    | "bottom-left"
-    | "top-center"
-    | "bottom-center";
+    | 'top-right'
+    | 'top-left'
+    | 'bottom-right'
+    | 'bottom-left'
+    | 'top-center'
+    | 'bottom-center';
   children: React.ReactNode;
 }
 
 export const ToastContainer = ({
-  position = "top-right",
+  position = 'top-right',
   children,
 }: ToastContainerProps) => {
   const getContainerPosition = () => {
     switch (position) {
-      case "top-right":
-        return "top-0 right-0";
-      case "top-left":
-        return "top-0 left-0";
-      case "bottom-right":
-        return "bottom-0 right-0";
-      case "bottom-left":
-        return "bottom-0 left-0";
-      case "top-center":
-        return "top-0 left-1/2 -translate-x-1/2";
-      case "bottom-center":
-        return "bottom-0 left-1/2 -translate-x-1/2";
+      case 'top-right':
+        return 'top-0 right-0';
+      case 'top-left':
+        return 'top-0 left-0';
+      case 'bottom-right':
+        return 'bottom-0 right-0';
+      case 'bottom-left':
+        return 'bottom-0 left-0';
+      case 'top-center':
+        return 'top-0 left-1/2 -translate-x-1/2';
+      case 'bottom-center':
+        return 'bottom-0 left-1/2 -translate-x-1/2';
       default:
-        return "top-0 right-0";
+        return 'top-0 right-0';
     }
   };
 
   return (
     <div
       className={cn(
-        "fixed z-50 m-4 flex flex-col gap-2",
+        'fixed z-50 m-4 flex flex-col gap-2',
         getContainerPosition(),
       )}
     >

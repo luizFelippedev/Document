@@ -1,24 +1,24 @@
 // frontend/src/components/certificates/Certificate3DViewer.tsx
-"use client";
+'use client';
 
-import React, { useEffect, useState, useRef } from "react";
-import { useRouter } from "next/navigation";
+import React, { useEffect, useState, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   motion,
   useMotionValue,
   useTransform,
   AnimatePresence,
-} from "framer-motion";
-import { MainLayout } from "@/components/layout/MainLayout";
-import { Card } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
-import { Badge } from "@/components/ui/Badge";
-import { Modal } from "@/components/ui/Modal";
-import { Switch } from "@/components/ui/Switch";
-import { certificateService } from "@/services/certificate.service";
-import { useNotification } from "@/hooks/useNotification";
-import { ROUTES } from "@/config/routes";
-import { Certificate } from "@/types/certificate";
+} from 'framer-motion';
+import { MainLayout } from '@/components/layout/MainLayout';
+import { Card } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
+import { Badge } from '@/components/ui/Badge';
+import { Modal } from '@/components/ui/Modal';
+import { Switch } from '@/components/ui/Switch';
+import { certificateService } from '@/services/certificate.service';
+import { useNotification } from '@/hooks/useNotification';
+import { ROUTES } from '@/config/routes';
+import { Certificate } from '@/types/certificate';
 import {
   ArrowLeft,
   Edit,
@@ -37,10 +37,10 @@ import {
   Smartphone,
   Copy,
   QrCode,
-} from "lucide-react";
-import { cn } from "@/utils/cn";
-import { formatDate } from "@/utils/date";
-import { QRCodeCanvas } from "qrcode.react";
+} from 'lucide-react';
+import { cn } from '@/utils/cn';
+import { formatDate } from '@/utils/date';
+import { QRCodeCanvas } from 'qrcode.react';
 
 interface Certificate3DViewerProps {
   id: string;
@@ -55,7 +55,7 @@ export const Certificate3DViewer: React.FC<Certificate3DViewerProps> = ({
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showQRModal, setShowQRModal] = useState(false);
   const [showSharedView, setShowSharedView] = useState(false);
-  const [shareUrl, setShareUrl] = useState<string>("");
+  const [shareUrl, setShareUrl] = useState<string>('');
   const [is3DMode, setIs3DMode] = useState(true);
 
   const router = useRouter();
@@ -77,8 +77,8 @@ export const Certificate3DViewer: React.FC<Certificate3DViewerProps> = ({
         setLoading(true);
         const data = await certificateService.getCertificate(id);
         setCertificate(data);
-      } catch (err: any) {
-        setError(err.response?.data?.message || "Failed to load certificate");
+      } catch (err: unknown) {
+        setError(err.response?.data?.message || 'Failed to load certificate');
       } finally {
         setLoading(false);
       }
@@ -119,12 +119,12 @@ export const Certificate3DViewer: React.FC<Certificate3DViewerProps> = ({
   const handleDelete = async () => {
     try {
       await certificateService.deleteCertificate(id);
-      showToast("success", "Certificate deleted successfully");
+      showToast('success', 'Certificate deleted successfully');
       router.push(ROUTES.DASHBOARD.CERTIFICATES);
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast(
-        "error",
-        err.response?.data?.message || "Failed to delete certificate",
+        'error',
+        err.response?.data?.message || 'Failed to delete certificate',
       );
     }
     setShowDeleteModal(false);
@@ -135,12 +135,12 @@ export const Certificate3DViewer: React.FC<Certificate3DViewerProps> = ({
     if (navigator.share) {
       navigator
         .share({
-          title: certificate?.title || "My Certificate",
+          title: certificate?.title || 'My Certificate',
           text: `Check out my ${certificate?.title} certificate from ${certificate?.issuer}`,
           url: shareUrl,
         })
         .catch((err) => {
-          console.error("Error sharing:", err);
+          console.error('Error sharing:', err);
         });
     } else {
       setShowQRModal(true);
@@ -152,24 +152,24 @@ export const Certificate3DViewer: React.FC<Certificate3DViewerProps> = ({
     navigator.clipboard
       .writeText(shareUrl)
       .then(() => {
-        showToast("success", "Link copied to clipboard");
+        showToast('success', 'Link copied to clipboard');
       })
       .catch((err) => {
-        showToast("error", "Failed to copy link");
+        showToast('error', 'Failed to copy link');
       });
   };
 
   // Download certificate
   const handleDownload = () => {
     if (certificate?.fileUrl) {
-      const link = document.createElement("a");
+      const link = document.createElement('a');
       link.href = certificate.fileUrl;
       link.download = `${certificate.title} - ${certificate.issuer}.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
     } else {
-      showToast("error", "No certificate file available for download");
+      showToast('error', 'No certificate file available for download');
     }
   };
 
@@ -190,10 +190,10 @@ export const Certificate3DViewer: React.FC<Certificate3DViewerProps> = ({
 
   // Get certificate status label
   const getCertificateStatus = () => {
-    if (!certificate?.expiryDate) return "Active";
+    if (!certificate?.expiryDate) return 'Active';
 
     if (isCertificateExpired()) {
-      return "Expired";
+      return 'Expired';
     } else {
       const expiryDate = new Date(certificate.expiryDate);
       const today = new Date();
@@ -202,9 +202,9 @@ export const Certificate3DViewer: React.FC<Certificate3DViewerProps> = ({
       );
 
       if (daysLeft <= 30) {
-        return `Expiring in ${daysLeft} day${daysLeft === 1 ? "" : "s"}`;
+        return `Expiring in ${daysLeft} day${daysLeft === 1 ? '' : 's'}`;
       } else {
-        return "Active";
+        return 'Active';
       }
     }
   };
@@ -213,12 +213,12 @@ export const Certificate3DViewer: React.FC<Certificate3DViewerProps> = ({
   const getCertificateStatusColor = () => {
     const status = getCertificateStatus();
 
-    if (status === "Expired") {
-      return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300";
-    } else if (status.includes("Expiring")) {
-      return "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300";
+    if (status === 'Expired') {
+      return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
+    } else if (status.includes('Expiring')) {
+      return 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300';
     } else {
-      return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300";
+      return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
     }
   };
 
@@ -285,7 +285,7 @@ export const Certificate3DViewer: React.FC<Certificate3DViewerProps> = ({
           <div className="flex items-center gap-2">
             <div
               className={cn(
-                "px-3 py-1 text-xs font-medium rounded-full",
+                'px-3 py-1 text-xs font-medium rounded-full',
                 getCertificateStatusColor(),
               )}
             >
@@ -313,14 +313,14 @@ export const Certificate3DViewer: React.FC<Certificate3DViewerProps> = ({
               {certificate.fileUrl ? (
                 <motion.div
                   className={cn(
-                    "relative w-full max-w-2xl overflow-hidden border-8 border-gray-200 dark:border-gray-700 rounded-md shadow-lg",
-                    is3DMode ? "transform-gpu" : "",
+                    'relative w-full max-w-2xl overflow-hidden border-8 border-gray-200 dark:border-gray-700 rounded-md shadow-lg',
+                    is3DMode ? 'transform-gpu' : '',
                   )}
                   style={
                     is3DMode ? { rotateX, rotateY, perspective: 1000 } : {}
                   }
                 >
-                  {certificate.fileUrl.endsWith(".pdf") ? (
+                  {certificate.fileUrl.endsWith('.pdf') ? (
                     <div className="aspect-[4/3] flex items-center justify-center bg-gray-100 dark:bg-gray-900">
                       <div className="text-center p-4">
                         <Award
@@ -443,11 +443,11 @@ export const Certificate3DViewer: React.FC<Certificate3DViewerProps> = ({
                         <button
                           onClick={() => {
                             navigator.clipboard.writeText(
-                              certificate.credentialId || "",
+                              certificate.credentialId || '',
                             );
                             showToast(
-                              "success",
-                              "Credential ID copied to clipboard",
+                              'success',
+                              'Credential ID copied to clipboard',
                             );
                           }}
                           className="ml-2 p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
@@ -621,7 +621,7 @@ export const Certificate3DViewer: React.FC<Certificate3DViewerProps> = ({
                 level="H"
                 includeMargin={true}
                 imageSettings={{
-                  src: "/images/logo-icon.png",
+                  src: '/images/logo-icon.png',
                   x: undefined,
                   y: undefined,
                   height: 40,

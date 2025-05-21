@@ -1,7 +1,7 @@
 // frontend/src/components/dashboard/ActivityChart.tsx
-"use client";
+'use client';
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from 'react';
 import {
   LineChart,
   Line,
@@ -15,26 +15,26 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-} from "recharts";
-import { format, parseISO, isValid } from "date-fns";
-import { Card } from "@/components/ui/Card";
-import { Tabs } from "@/components/ui/Tabs";
-import { Select } from "@/components/ui/Select";
-import { Button } from "@/components/ui/Button";
-import { Badge } from "@/components/ui/Badge";
-import { useTheme } from "@/contexts/ThemeContext";
+} from 'recharts';
+import { format, parseISO, isValid } from 'date-fns';
+import { Card } from '@/components/ui/Card';
+import { Tabs } from '@/components/ui/Tabs';
+import { Select } from '@/components/ui/Select';
+import { Button } from '@/components/ui/Button';
+import { Badge } from '@/components/ui/Badge';
+import { useTheme } from '@/contexts/ThemeContext';
 import {
   BarChart2,
   TrendingUp,
   TrendingDown,
   Download,
   Filter,
-} from "lucide-react";
+} from 'lucide-react';
 
 interface ActivityData {
   date: string;
   count: number;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 interface ActivityChartProps {
@@ -48,15 +48,15 @@ interface ActivityChartProps {
 
 export const ActivityChart = ({
   data,
-  title = "Activity Overview",
+  title = 'Activity Overview',
   showControls = true,
   height = 350,
   className,
   loading = false,
 }: ActivityChartProps) => {
-  const [chartType, setChartType] = useState<"line" | "area" | "bar">("area");
-  const [timeRange, setTimeRange] = useState<"7d" | "30d" | "90d" | "all">(
-    "30d",
+  const [chartType, setChartType] = useState<'line' | 'area' | 'bar'>('area');
+  const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d' | 'all'>(
+    '30d',
   );
   const [currentData, setCurrentData] = useState<ActivityData[]>([]);
   const downloadRef = useRef<HTMLAnchorElement>(null);
@@ -85,8 +85,8 @@ export const ActivityChart = ({
     });
 
     // Filter by time range
-    if (timeRange !== "all") {
-      const days = timeRange === "7d" ? 7 : timeRange === "30d" ? 30 : 90;
+    if (timeRange !== 'all') {
+      const days = timeRange === '7d' ? 7 : timeRange === '30d' ? 30 : 90;
       const cutoff = new Date(now);
       cutoff.setDate(cutoff.getDate() - days);
 
@@ -124,10 +124,10 @@ export const ActivityChart = ({
   // Handle CSV download
   const handleDownload = () => {
     // Create CSV content
-    const headers = Object.keys(currentData[0] || {}).join(",");
+    const headers = Object.keys(currentData[0] || {}).join(',');
     const rows = currentData
-      .map((item) => Object.values(item).join(","))
-      .join("\n");
+      .map((item) => Object.values(item).join(','))
+      .join('\n');
     const csvContent = `data:text/csv;charset=utf-8,${headers}\n${rows}`;
 
     // Trigger download
@@ -135,9 +135,9 @@ export const ActivityChart = ({
     const link = downloadRef.current;
 
     if (link) {
-      link.setAttribute("href", encodedUri);
+      link.setAttribute('href', encodedUri);
       link.setAttribute(
-        "download",
+        'download',
         `activity_data_${new Date().toISOString().slice(0, 10)}.csv`,
       );
       link.click();
@@ -151,12 +151,12 @@ export const ActivityChart = ({
       if (!isValid(date)) return tickItem;
 
       // Format based on time range
-      if (timeRange === "7d") {
-        return format(date, "EEE");
-      } else if (timeRange === "30d") {
-        return format(date, "MMM d");
+      if (timeRange === '7d') {
+        return format(date, 'EEE');
+      } else if (timeRange === '30d') {
+        return format(date, 'MMM d');
       } else {
-        return format(date, "MMM yyyy");
+        return format(date, 'MMM yyyy');
       }
     } catch (error) {
       return tickItem;
@@ -164,10 +164,10 @@ export const ActivityChart = ({
   };
 
   // Custom tooltip
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip = ({ active, payload, label }: unknown) => {
     if (active && payload && payload.length) {
       const date = parseISO(label);
-      const formattedDate = isValid(date) ? format(date, "MMM d, yyyy") : label;
+      const formattedDate = isValid(date) ? format(date, 'MMM d, yyyy') : label;
 
       return (
         <div className="bg-white dark:bg-gray-800 p-3 border border-gray-200 dark:border-gray-700 rounded-md shadow-md">
@@ -175,7 +175,7 @@ export const ActivityChart = ({
             {formattedDate}
           </p>
           <p className="text-sm font-medium text-gray-900 dark:text-white">
-            Count:{" "}
+            Count:{' '}
             <span className="text-blue-600 dark:text-blue-400">
               {payload[0].value}
             </span>
@@ -190,10 +190,10 @@ export const ActivityChart = ({
   // Theme-aware colors
   const getColors = () => {
     return {
-      primary: resolvedTheme === "dark" ? "#60a5fa" : "#3b82f6",
-      gridLines: resolvedTheme === "dark" ? "#374151" : "#e5e7eb",
-      tooltip: resolvedTheme === "dark" ? "#1f2937" : "#ffffff",
-      text: resolvedTheme === "dark" ? "#9ca3af" : "#6b7280",
+      primary: resolvedTheme === 'dark' ? '#60a5fa' : '#3b82f6',
+      gridLines: resolvedTheme === 'dark' ? '#374151' : '#e5e7eb',
+      tooltip: resolvedTheme === 'dark' ? '#1f2937' : '#ffffff',
+      text: resolvedTheme === 'dark' ? '#9ca3af' : '#6b7280',
     };
   };
 
@@ -202,7 +202,7 @@ export const ActivityChart = ({
   // Render appropriate chart based on type
   const renderChart = () => {
     switch (chartType) {
-      case "line":
+      case 'line':
         return (
           <LineChart
             data={currentData}
@@ -229,7 +229,7 @@ export const ActivityChart = ({
             />
           </LineChart>
         );
-      case "area":
+      case 'area':
         return (
           <AreaChart
             data={currentData}
@@ -256,7 +256,7 @@ export const ActivityChart = ({
             />
           </AreaChart>
         );
-      case "bar":
+      case 'bar':
         return (
           <BarChart
             data={currentData}
@@ -293,33 +293,33 @@ export const ActivityChart = ({
             {/* Chart type selector */}
             <div className="hidden sm:flex bg-gray-100 dark:bg-gray-700 rounded-md p-1">
               <button
-                onClick={() => setChartType("line")}
+                onClick={() => setChartType('line')}
                 className={`p-1 rounded ${
-                  chartType === "line"
-                    ? "bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm"
-                    : "text-gray-500 dark:text-gray-400"
+                  chartType === 'line'
+                    ? 'bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm'
+                    : 'text-gray-500 dark:text-gray-400'
                 }`}
                 title="Line Chart"
               >
                 <TrendingUp size={16} />
               </button>
               <button
-                onClick={() => setChartType("area")}
+                onClick={() => setChartType('area')}
                 className={`p-1 rounded ${
-                  chartType === "area"
-                    ? "bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm"
-                    : "text-gray-500 dark:text-gray-400"
+                  chartType === 'area'
+                    ? 'bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm'
+                    : 'text-gray-500 dark:text-gray-400'
                 }`}
                 title="Area Chart"
               >
                 <TrendingUp size={16} />
               </button>
               <button
-                onClick={() => setChartType("bar")}
+                onClick={() => setChartType('bar')}
                 className={`p-1 rounded ${
-                  chartType === "bar"
-                    ? "bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm"
-                    : "text-gray-500 dark:text-gray-400"
+                  chartType === 'bar'
+                    ? 'bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm'
+                    : 'text-gray-500 dark:text-gray-400'
                 }`}
                 title="Bar Chart"
               >
@@ -330,12 +330,12 @@ export const ActivityChart = ({
             {/* Time range selector */}
             <Select
               value={timeRange}
-              onChange={(val) => setTimeRange(val as any)}
+              onChange={(val) => setTimeRange(val as unknown)}
               options={[
-                { value: "7d", label: "Last 7 days" },
-                { value: "30d", label: "Last 30 days" },
-                { value: "90d", label: "Last 90 days" },
-                { value: "all", label: "All time" },
+                { value: '7d', label: 'Last 7 days' },
+                { value: '30d', label: 'Last 30 days' },
+                { value: '90d', label: 'Last 90 days' },
+                { value: 'all', label: 'All time' },
               ]}
               variant="filled"
               size="sm"
@@ -398,19 +398,19 @@ export const ActivityChart = ({
             className="p-1.5 rounded-md text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
             onClick={() => {
               // Toggle between chart types
-              const types: ("line" | "area" | "bar")[] = [
-                "line",
-                "area",
-                "bar",
+              const types: ('line' | 'area' | 'bar')[] = [
+                'line',
+                'area',
+                'bar',
               ];
               const currentIndex = types.indexOf(chartType);
               const nextIndex = (currentIndex + 1) % types.length;
               setChartType(types[nextIndex]);
             }}
           >
-            {chartType === "line" ? (
+            {chartType === 'line' ? (
               <TrendingUp size={16} />
-            ) : chartType === "area" ? (
+            ) : chartType === 'area' ? (
               <TrendingUp size={16} />
             ) : (
               <BarChart2 size={16} />

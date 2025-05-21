@@ -1,5 +1,5 @@
 // frontend/src/contexts/NotificationContext.tsx
-"use client";
+'use client';
 
 import {
   createContext,
@@ -7,23 +7,23 @@ import {
   useState,
   useEffect,
   ReactNode,
-} from "react";
-import { v4 as uuidv4 } from "uuid";
-import { toast } from "react-hot-toast";
-import { Notification } from "@/types/notification";
-import { getFromStorage, saveToStorage } from "@/utils/storage";
+} from 'react';
+import { v4 as uuidv4 } from 'uuid';
+import { toast } from 'react-hot-toast';
+import { Notification } from '@/types/notification';
+import { getFromStorage, saveToStorage } from '@/utils/storage';
 
 interface NotificationContextData {
   notifications: Notification[];
   addNotification: (
-    notification: Omit<Notification, "id" | "read" | "createdAt">,
+    notification: Omit<Notification, 'id' | 'read' | 'createdAt'>,
   ) => void;
   markAsRead: (id: string) => void;
   markAllAsRead: () => void;
   removeNotification: (id: string) => void;
   clearAllNotifications: () => void;
   showToast: (
-    type: "success" | "error" | "info" | "warning",
+    type: 'success' | 'error' | 'info' | 'warning',
     message: string,
     title?: string,
   ) => void;
@@ -46,7 +46,7 @@ export const NotificationProvider = ({
 
   // Load notifications from storage on mount
   useEffect(() => {
-    const storedNotifications = getFromStorage("notifications");
+    const storedNotifications = getFromStorage('notifications');
     if (storedNotifications) {
       setNotifications(storedNotifications);
     }
@@ -60,12 +60,12 @@ export const NotificationProvider = ({
         0,
         maxStoredNotifications,
       );
-      saveToStorage("notifications", trimmedNotifications);
+      saveToStorage('notifications', trimmedNotifications);
     }
   }, [notifications, maxStoredNotifications]);
 
   const addNotification = (
-    notification: Omit<Notification, "id" | "read" | "createdAt">,
+    notification: Omit<Notification, 'id' | 'read' | 'createdAt'>,
   ) => {
     const newNotification: Notification = {
       id: uuidv4(),
@@ -102,43 +102,43 @@ export const NotificationProvider = ({
 
   const clearAllNotifications = () => {
     setNotifications([]);
-    saveToStorage("notifications", []);
+    saveToStorage('notifications', []);
   };
 
   // Show a toast notification that is also added to the notification center
   const showToast = (
-    type: "success" | "error" | "info" | "warning",
+    type: 'success' | 'error' | 'info' | 'warning',
     message: string,
     title?: string,
   ) => {
     // Map type to notification type
     const notificationType =
-      type === "success"
-        ? "success"
-        : type === "error"
-          ? "error"
-          : type === "warning"
-            ? "alert"
-            : "system";
+      type === 'success'
+        ? 'success'
+        : type === 'error'
+          ? 'error'
+          : type === 'warning'
+            ? 'alert'
+            : 'system';
 
     // Add to notification center
     addNotification({
       title:
         title ||
-        (type === "success"
-          ? "Success"
-          : type === "error"
-            ? "Error"
-            : type === "warning"
-              ? "Warning"
-              : "Information"),
+        (type === 'success'
+          ? 'Success'
+          : type === 'error'
+            ? 'Error'
+            : type === 'warning'
+              ? 'Warning'
+              : 'Information'),
       message,
       type: notificationType,
     });
 
     // Show toast
     toast[type](message, {
-      duration: type === "error" ? 5000 : 3000,
+      duration: type === 'error' ? 5000 : 3000,
     });
   };
 
@@ -164,7 +164,7 @@ export const useNotification = () => {
 
   if (!context) {
     throw new Error(
-      "useNotification must be used within a NotificationProvider",
+      'useNotification must be used within a NotificationProvider',
     );
   }
 

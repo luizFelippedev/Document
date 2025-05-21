@@ -1,20 +1,20 @@
 // frontend/src/app/(dashboard)/projects/new/page.tsx
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { MainLayout } from "@/components/layout/MainLayout";
-import { Card } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
-import { Select } from "@/components/ui/Select";
-import { Editor } from "@/components/ui/Editor";
-import { FileUploader } from "@/components/ui/FileUploader";
-import { Stepper } from "@/components/ui/Stepper";
-import { Alert } from "@/components/ui/Alert";
-import { ROUTES } from "@/config/routes";
-import { motion } from "framer-motion";
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { MainLayout } from '@/components/layout/MainLayout';
+import { Card } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
+import { Editor } from '@/components/ui/Editor';
+import { FileUploader } from '@/components/ui/FileUploader';
+import { Stepper } from '@/components/ui/Stepper';
+import { Alert } from '@/components/ui/Alert';
+import { ROUTES } from '@/config/routes';
+import { motion } from 'framer-motion';
 import {
   ArrowLeft,
   Plus,
@@ -24,31 +24,31 @@ import {
   Github,
   Tag,
   File,
-} from "lucide-react";
+} from 'lucide-react';
 
 export default function NewProjectPage() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    category: "",
-    status: "planning",
-    startDate: "",
-    endDate: "",
+    title: '',
+    description: '',
+    category: '',
+    status: 'planning',
+    startDate: '',
+    endDate: '',
     technologies: [] as string[],
     thumbnailUrl: null as string | null,
-    repoUrl: "",
-    demoUrl: "",
-    longDescription: "",
+    repoUrl: '',
+    demoUrl: '',
+    longDescription: '',
     featuredImages: [] as { url: string; caption: string }[],
     team: [] as string[],
-    client: "",
+    client: '',
     featured: false,
   });
-  const [newTech, setNewTech] = useState("");
-  const [newTeamMember, setNewTeamMember] = useState("");
+  const [newTech, setNewTech] = useState('');
+  const [newTeamMember, setNewTeamMember] = useState('');
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [featuredFiles, setFeaturedFiles] = useState<File[]>([]);
 
@@ -60,7 +60,7 @@ export default function NewProjectPage() {
   ) => {
     const { name, value, type } = e.target as HTMLInputElement;
 
-    if (type === "checkbox") {
+    if (type === 'checkbox') {
       setFormData({
         ...formData,
         [name]: (e.target as HTMLInputElement).checked,
@@ -88,7 +88,7 @@ export default function NewProjectPage() {
         ...formData,
         technologies: [...formData.technologies, newTech.trim()],
       });
-      setNewTech("");
+      setNewTech('');
     }
   };
 
@@ -107,7 +107,7 @@ export default function NewProjectPage() {
         ...formData,
         team: [...formData.team, newTeamMember.trim()],
       });
-      setNewTeamMember("");
+      setNewTeamMember('');
     }
   };
 
@@ -142,7 +142,7 @@ export default function NewProjectPage() {
     // For demo purposes, we'll create fake URLs
     const newImages = files.map((file) => ({
       url: URL.createObjectURL(file),
-      caption: "",
+      caption: '',
     }));
 
     setFormData({
@@ -188,7 +188,7 @@ export default function NewProjectPage() {
       // Redirect to the projects list or the new project page
       router.push(ROUTES.DASHBOARD.PROJECTS.ROOT);
     } catch (error) {
-      console.error("Error creating project:", error);
+      console.error('Error creating project:', error);
     } finally {
       setLoading(false);
     }
@@ -208,10 +208,10 @@ export default function NewProjectPage() {
 
   // Steps for the stepper
   const steps = [
-    { id: 1, label: "Basic Info" },
-    { id: 2, label: "Details" },
-    { id: 3, label: "Media" },
-    { id: 4, label: "Review" },
+    { id: 1, label: 'Basic Info' },
+    { id: 2, label: 'Details' },
+    { id: 3, label: 'Media' },
+    { id: 4, label: 'Review' },
   ];
 
   // Animation variants
@@ -222,55 +222,55 @@ export default function NewProjectPage() {
       y: 0,
       transition: {
         duration: 0.5,
-        ease: "easeOut",
+        ease: 'easeOut',
       },
     },
   };
 
   // Category options
   const categoryOptions = [
-    { value: "", label: "Select a category" },
-    { value: "Web Development", label: "Web Development" },
-    { value: "Mobile Development", label: "Mobile Development" },
-    { value: "UI/UX Design", label: "UI/UX Design" },
-    { value: "Game Development", label: "Game Development" },
-    { value: "Data Science", label: "Data Science" },
-    { value: "AI/ML", label: "AI/ML" },
-    { value: "DevOps", label: "DevOps" },
-    { value: "Blockchain", label: "Blockchain" },
+    { value: '', label: 'Select a category' },
+    { value: 'Web Development', label: 'Web Development' },
+    { value: 'Mobile Development', label: 'Mobile Development' },
+    { value: 'UI/UX Design', label: 'UI/UX Design' },
+    { value: 'Game Development', label: 'Game Development' },
+    { value: 'Data Science', label: 'Data Science' },
+    { value: 'AI/ML', label: 'AI/ML' },
+    { value: 'DevOps', label: 'DevOps' },
+    { value: 'Blockchain', label: 'Blockchain' },
   ];
 
   // Status options
   const statusOptions = [
-    { value: "planning", label: "Planning" },
-    { value: "in-progress", label: "In Progress" },
-    { value: "completed", label: "Completed" },
+    { value: 'planning', label: 'Planning' },
+    { value: 'in-progress', label: 'In Progress' },
+    { value: 'completed', label: 'Completed' },
   ];
 
   // Placeholder for popular technologies
   const popularTechnologies = [
-    "React",
-    "Angular",
-    "Vue.js",
-    "Node.js",
-    "Express",
-    "Django",
-    "Flask",
-    "Laravel",
-    "Spring Boot",
-    "Next.js",
-    "React Native",
-    "Flutter",
-    "Swift",
-    "Kotlin",
-    "TypeScript",
-    "JavaScript",
-    "Python",
-    "Java",
-    "C#",
-    "PHP",
-    "Ruby",
-    "Go",
+    'React',
+    'Angular',
+    'Vue.js',
+    'Node.js',
+    'Express',
+    'Django',
+    'Flask',
+    'Laravel',
+    'Spring Boot',
+    'Next.js',
+    'React Native',
+    'Flutter',
+    'Swift',
+    'Kotlin',
+    'TypeScript',
+    'JavaScript',
+    'Python',
+    'Java',
+    'C#',
+    'PHP',
+    'Ruby',
+    'Go',
   ];
 
   return (
@@ -421,7 +421,7 @@ export default function NewProjectPage() {
                       htmlFor="endDate"
                       className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
                     >
-                      End Date {formData.status === "completed" && "*"}
+                      End Date {formData.status === 'completed' && '*'}
                     </label>
                     <Input
                       id="endDate"
@@ -430,7 +430,7 @@ export default function NewProjectPage() {
                       value={formData.endDate}
                       onChange={handleChange}
                       leftElement={<Calendar size={16} />}
-                      required={formData.status === "completed"}
+                      required={formData.status === 'completed'}
                     />
                   </div>
                 </div>
@@ -461,7 +461,7 @@ export default function NewProjectPage() {
                     !formData.description ||
                     !formData.category ||
                     !formData.startDate ||
-                    (formData.status === "completed" && !formData.endDate)
+                    (formData.status === 'completed' && !formData.endDate)
                   }
                 >
                   Continue
@@ -511,7 +511,7 @@ export default function NewProjectPage() {
                       className="flex-1"
                       leftElement={<Tag size={16} />}
                       onKeyDown={(e) =>
-                        e.key === "Enter" && handleAddTechnology()
+                        e.key === 'Enter' && handleAddTechnology()
                       }
                     />
                     <Button
@@ -535,8 +535,8 @@ export default function NewProjectPage() {
                           type="button"
                           className={`text-xs px-2 py-1 rounded-full ${
                             formData.technologies.includes(tech)
-                              ? "bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300"
-                              : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+                              ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300'
+                              : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
                           }`}
                           onClick={() => {
                             if (!formData.technologies.includes(tech)) {
@@ -589,7 +589,7 @@ export default function NewProjectPage() {
                       placeholder="Add a team member"
                       className="flex-1"
                       onKeyDown={(e) =>
-                        e.key === "Enter" && handleAddTeamMember()
+                        e.key === 'Enter' && handleAddTeamMember()
                       }
                     />
                     <Button
@@ -832,11 +832,11 @@ export default function NewProjectPage() {
                           Status
                         </p>
                         <p className="text-gray-700 dark:text-gray-300">
-                          {formData.status === "in-progress"
-                            ? "In Progress"
-                            : formData.status === "completed"
-                              ? "Completed"
-                              : "Planning"}
+                          {formData.status === 'in-progress'
+                            ? 'In Progress'
+                            : formData.status === 'completed'
+                              ? 'Completed'
+                              : 'Planning'}
                         </p>
                       </div>
                     </div>
@@ -950,7 +950,7 @@ export default function NewProjectPage() {
                   {formData.featuredImages.length > 0 && (
                     <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Gallery: {formData.featuredImages.length} image
-                      {formData.featuredImages.length !== 1 ? "s" : ""}
+                      {formData.featuredImages.length !== 1 ? 's' : ''}
                     </p>
                   )}
 

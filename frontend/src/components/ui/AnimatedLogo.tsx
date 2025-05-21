@@ -1,9 +1,9 @@
 // frontend/src/components/ui/AnimatedLogo.tsx
-"use client";
+'use client';
 
-import { useEffect, useRef } from "react";
-import { motion, useAnimation, AnimatePresence } from "framer-motion";
-import { cn } from "@/utils/cn";
+import { useEffect, useRef } from 'react';
+import { motion, useAnimation, AnimatePresence } from 'framer-motion';
+import { cn } from '@/utils/cn';
 
 interface AnimatedLogoProps {
   /** Additional class name for the logo */
@@ -15,7 +15,7 @@ interface AnimatedLogoProps {
   /** The color of the logo */
   color?: string;
   /** The size of the logo */
-  size?: "sm" | "md" | "lg" | "xl" | number;
+  size?: 'sm' | 'md' | 'lg' | 'xl' | number;
   /** Whether to show a hover effect */
   hoverEffect?: boolean;
   /** Whether to show a click effect */
@@ -32,7 +32,7 @@ export const AnimatedLogo = ({
   animate = true,
   continuous = false,
   color,
-  size = "md",
+  size = 'md',
   hoverEffect = true,
   clickEffect = true,
   onClick,
@@ -40,10 +40,14 @@ export const AnimatedLogo = ({
   const pathControls = useAnimation();
   const circleControls = useAnimation();
   const containerControls = useAnimation();
-  const animationRef = useRef<any>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isMountedRef = useRef(true);
 
   // Define animation sequences
   const animateLogo = async () => {
+    // Verificar se o componente ainda está montado
+    if (!isMountedRef.current) return;
+
     // Reset animations
     await Promise.all([
       pathControls.set({ pathLength: 0, opacity: 0 }),
@@ -54,56 +58,76 @@ export const AnimatedLogo = ({
     await pathControls.start({
       pathLength: 1,
       opacity: 1,
-      transition: { duration: 1.2, ease: "easeInOut" },
+      transition: { duration: 1.2, ease: 'easeInOut' },
     });
+
+    // Verificar se o componente ainda está montado
+    if (!isMountedRef.current) return;
 
     // Animate circles
     await circleControls.start({
       scale: 1,
       opacity: 1,
-      transition: { duration: 0.8, ease: "backOut" },
+      transition: { duration: 0.8, ease: 'backOut' },
     });
 
-    // If continuous, loop the animation
-    if (continuous) {
-      // Add a pause between animations
-      await new Promise((resolve) => setTimeout(resolve, 3000));
+    // If continuous, loop the animation with a safe approach
+    if (continuous && isMountedRef.current) {
+      // Add a pause between animations using a ref for cleanup
+      timeoutRef.current = setTimeout(async () => {
+        if (!isMountedRef.current) return;
 
-      // Animate out
-      await Promise.all([
-        pathControls.start({
-          opacity: 0,
-          transition: { duration: 0.5 },
-        }),
-        circleControls.start({
-          scale: 0,
-          opacity: 0,
-          transition: { duration: 0.5 },
-        }),
-      ]);
+        // Animate out
+        await Promise.all([
+          pathControls.start({
+            opacity: 0,
+            transition: { duration: 0.5 },
+          }),
+          circleControls.start({
+            scale: 0,
+            opacity: 0,
+            transition: { duration: 0.5 },
+          }),
+        ]);
 
-      // Start again
-      animateLogo();
+        // Start again if still mounted
+        if (isMountedRef.current) {
+          animateLogo();
+        }
+      }, 3000);
     }
   };
 
-  // Start animation on mount
+  // Start animation on mount or when props change
   useEffect(() => {
+    // Reset the mounted flag on new effect run
+    isMountedRef.current = true;
+
+    // Start animation if animate prop is true
     if (animate) {
-      animationRef.current = animateLogo();
+      animateLogo();
     }
 
+    // Cleanup function
     return () => {
-      // Cancel animations on unmount
-      if (animationRef.current) {
-        animationRef.current.stop();
+      // Mark component as unmounted
+      isMountedRef.current = false;
+
+      // Clear any pending timeouts
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
       }
+
+      // Stop all animations
+      pathControls.stop();
+      circleControls.stop();
+      containerControls.stop();
     };
-  }, [animate, continuous]);
+  }, [animate, continuous]); // Re-run when these props change
 
   // Get size based on prop
   const getSize = () => {
-    if (typeof size === "number") return size;
+    if (typeof size === 'number') return size;
 
     const sizeMap = {
       sm: 32,
@@ -117,8 +141,7 @@ export const AnimatedLogo = ({
 
   // Get color based on prop
   const getColor = () => {
-    if (color) return color;
-    return "currentColor";
+    return color || 'currentColor';
   };
 
   // Handle click animation
@@ -130,15 +153,17 @@ export const AnimatedLogo = ({
           transition: { duration: 0.1 },
         })
         .then(() => {
-          containerControls.start({
-            scale: 1,
-            transition: {
-              duration: 0.2,
-              type: "spring",
-              stiffness: 400,
-              damping: 10,
-            },
-          });
+          if (isMountedRef.current) {
+            containerControls.start({
+              scale: 1,
+              transition: {
+                duration: 0.2,
+                type: 'spring',
+                stiffness: 400,
+                damping: 10,
+              },
+            });
+          }
         });
     }
 
@@ -150,8 +175,8 @@ export const AnimatedLogo = ({
   return (
     <motion.div
       className={cn(
-        "inline-flex items-center justify-center",
-        hoverEffect && "cursor-pointer",
+        'inline-flex items-center justify-center',
+        hoverEffect && 'cursor-pointer',
         className,
       )}
       animate={containerControls}

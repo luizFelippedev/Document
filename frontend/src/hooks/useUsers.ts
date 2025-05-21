@@ -1,10 +1,10 @@
 // frontend/src/hooks/useUsers.ts
-"use client";
+'use client';
 
-import { useState, useCallback } from "react";
-import { userService } from "@/services/user.service";
-import { useNotification } from "./useNotification";
-import { User } from "@/types/user";
+import { useState, useCallback } from 'react';
+import { userService } from '@/services/user.service';
+import { useNotification } from './useNotification';
+import { User } from '@/types/user';
 
 interface UseUsersResult {
   users: User[];
@@ -48,11 +48,11 @@ export const useUsers = (): UseUsersResult => {
         setLimit(currentLimit);
 
         return data.users;
-      } catch (err: any) {
+      } catch (err: unknown) {
         const errorMessage =
-          err.response?.data?.message || "Failed to fetch users";
+          err.response?.data?.message || 'Failed to fetch users';
         setError(errorMessage);
-        showToast("error", errorMessage);
+        showToast('error', errorMessage);
         return [];
       } finally {
         setLoading(false);
@@ -69,11 +69,11 @@ export const useUsers = (): UseUsersResult => {
 
         const user = await userService.getUserById(id);
         return user;
-      } catch (err: any) {
+      } catch (err: unknown) {
         const errorMessage =
-          err.response?.data?.message || "Failed to fetch user details";
+          err.response?.data?.message || 'Failed to fetch user details';
         setError(errorMessage);
-        showToast("error", errorMessage);
+        showToast('error', errorMessage);
         return null;
       } finally {
         setLoading(false);
@@ -95,13 +95,13 @@ export const useUsers = (): UseUsersResult => {
           prev.map((user) => (user.id === id ? updatedUser : user)),
         );
 
-        showToast("success", "User updated successfully");
+        showToast('success', 'User updated successfully');
         return updatedUser;
-      } catch (err: any) {
+      } catch (err: unknown) {
         const errorMessage =
-          err.response?.data?.message || "Failed to update user";
+          err.response?.data?.message || 'Failed to update user';
         setError(errorMessage);
-        showToast("error", errorMessage);
+        showToast('error', errorMessage);
         return null;
       } finally {
         setLoading(false);
@@ -122,13 +122,13 @@ export const useUsers = (): UseUsersResult => {
         setUsers((prev) => prev.filter((user) => user.id !== id));
         setTotal((prev) => prev - 1);
 
-        showToast("success", "User deleted successfully");
+        showToast('success', 'User deleted successfully');
         return true;
-      } catch (err: any) {
+      } catch (err: unknown) {
         const errorMessage =
-          err.response?.data?.message || "Failed to delete user";
+          err.response?.data?.message || 'Failed to delete user';
         setError(errorMessage);
-        showToast("error", errorMessage);
+        showToast('error', errorMessage);
         return false;
       } finally {
         setLoading(false);

@@ -1,8 +1,8 @@
 // src/hooks/usePagination.ts
-"use client";
+'use client';
 
-import { useState, useMemo, useCallback } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useState, useMemo, useCallback } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 interface UsePaginationOptions {
   initialPage?: number;
@@ -39,8 +39,8 @@ export const usePagination = ({
   totalItems,
   siblingCount = 1,
   useQueryParams = false,
-  pageParam = "page",
-  pageSizeParam = "pageSize",
+  pageParam = 'page',
+  pageSizeParam = 'pageSize',
 }: UsePaginationOptions): PaginationResult => {
   const router = useRouter();
   const searchParams = useSearchParams();

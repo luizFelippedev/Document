@@ -43,5 +43,5 @@ export interface ProjectFilter {
   skills?: string[];
   completed?: boolean;
   category?: string;
-  sortBy?: "newest" | "oldest" | "a-z" | "z-a";
+  sortBy?: 'newest' | 'oldest' | 'a-z' | 'z-a';
 }

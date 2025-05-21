@@ -1,14 +1,14 @@
 // src/services/auth.service.ts
-import { api } from "@/lib/axios";
-import { saveToStorage, removeFromStorage } from "@/utils/storage";
-import { socketService } from "@/lib/socket";
+import { api } from '@/lib/axios';
+import { saveToStorage, removeFromStorage } from '@/utils/storage';
+import { socketService } from '@/lib/socket';
 
 export const authService = {
   /**
    * Login user
    */
   async login(email: string, password: string, rememberMe: boolean = false) {
-    const response = await api.post("/auth/login", {
+    const response = await api.post('/auth/login', {
       email,
       password,
       rememberMe,
@@ -19,7 +19,7 @@ export const authService = {
       const storageMethod = rememberMe
         ? saveToStorage
         : (key: string, value: string) => sessionStorage.setItem(key, value);
-      storageMethod("@App:token", response.data.token);
+      storageMethod('@App:token', response.data.token);
 
       // Reconnect socket with new token
       socketService.reconnectWithToken(response.data.token);
@@ -32,7 +32,7 @@ export const authService = {
    * Register a new user
    */
   async register(userData: { name: string; email: string; password: string }) {
-    const response = await api.post("/auth/register", userData);
+    const response = await api.post('/auth/register', userData);
     return response.data;
   },
 
@@ -40,7 +40,7 @@ export const authService = {
    * Get current user data
    */
   async getCurrentUser() {
-    const response = await api.get("/auth/me");
+    const response = await api.get('/auth/me');
     return response.data.user;
   },
 
@@ -49,11 +49,11 @@ export const authService = {
    */
   async logout() {
     try {
-      const response = await api.post("/auth/logout");
+      const response = await api.post('/auth/logout');
 
       // Clean up regardless of API response
-      removeFromStorage("@App:token");
-      sessionStorage.removeItem("@App:token");
+      removeFromStorage('@App:token');
+      sessionStorage.removeItem('@App:token');
 
       // Disconnect socket
       socketService.disconnect();
@@ -61,10 +61,10 @@ export const authService = {
       return response.data;
     } catch (error) {
       // Clean up even on error
-      removeFromStorage("@App:token");
-      sessionStorage.removeItem("@App:token");
+      removeFromStorage('@App:token');
+      sessionStorage.removeItem('@App:token');
       socketService.disconnect();
-      console.error("Logout error:", error);
+      console.error('Logout error:', error);
       throw error;
     }
   },
@@ -81,7 +81,7 @@ export const authService = {
    * Forgot password request
    */
   async forgotPassword(email: string) {
-    const response = await api.post("/auth/forgot-password", { email });
+    const response = await api.post('/auth/forgot-password', { email });
     return response.data;
   },
 
@@ -89,7 +89,7 @@ export const authService = {
    * Reset password with token
    */
   async resetPassword(password: string, token: string) {
-    const response = await api.post("/auth/reset-password", {
+    const response = await api.post('/auth/reset-password', {
       password,
       token,
     });
@@ -108,7 +108,7 @@ export const authService = {
    * Update password for authenticated user
    */
   async updatePassword(currentPassword: string, newPassword: string) {
-    const response = await api.put("/auth/password", {
+    const response = await api.put('/auth/password', {
       currentPassword,
       newPassword,
     });
@@ -119,15 +119,15 @@ export const authService = {
    * Verify two-factor authentication code
    */
   async verifyTwoFactorCode(code: string) {
-    const response = await api.post("/auth/verify-2fa", { code });
+    const response = await api.post('/auth/verify-2fa', { code });
 
     // Update token if verification was successful
     if (response.data.token) {
-      const currentToken = sessionStorage.getItem("@App:token");
+      const currentToken = sessionStorage.getItem('@App:token');
       const storageMethod = currentToken
         ? sessionStorage.setItem
         : saveToStorage;
-      storageMethod("@App:token", response.data.token);
+      storageMethod('@App:token', response.data.token);
 
       // Reconnect socket with new token
       socketService.reconnectWithToken(response.data.token);
@@ -140,7 +140,7 @@ export const authService = {
    * Setup two-factor authentication
    */
   async setupTwoFactor(enabled: boolean) {
-    const response = await api.post("/auth/2fa/setup", { enabled });
+    const response = await api.post('/auth/2fa/setup', { enabled });
     return response.data;
   },
 
@@ -148,7 +148,7 @@ export const authService = {
    * Resend verification code
    */
   async resendVerificationCode() {
-    const response = await api.post("/auth/resend-verification");
+    const response = await api.post('/auth/resend-verification');
     return response.data;
   },
 };

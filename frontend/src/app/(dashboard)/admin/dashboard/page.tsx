@@ -1,25 +1,24 @@
-// frontend/src/app/(dashboard)/dashboard/page.tsx
-"use client";
+// app/(dashboard)/dashboard/page.tsx
+'use client';
 
-import { useState, useEffect } from "react";
-import { MainLayout } from "@/components/layout/MainLayout";
-import { StatCard } from "@/components/dashboard/StatCard";
-import { RecentProjects } from "@/components/dashboard/RecentProjects";
-import { ActivityChart } from "@/components/dashboard/ActivityChart";
-import { WelcomeMessage } from "@/components/dashboard/WelcomeMessage";
-import { NotificationCenter } from "@/components/notifications/NotificationCenter";
-import { Card } from "@/components/ui/Card";
-import { Tabs } from "@/components/ui/Tabs";
-import { Spinner } from "@/components/ui/Spinner";
-import { useAuth } from "@/hooks/useAuth";
-import { motion } from "framer-motion";
-import { TrendingProjects } from "@/components/dashboard/TrendingProjects";
-import { TrendingCertificates } from "@/components/dashboard/TrendingCertificates";
-import { UserProgress } from "@/components/dashboard/UserProgress";
-import { Calendar } from "lucide-react";
+import { useState, useEffect } from 'react';
+import { MainLayout } from '@/components/layout/MainLayout';
+import { StatCard } from '@/components/dashboard/StatCard';
+import { RecentProjects } from '@/components/dashboard/RecentProjects';
+import { ActivityChart } from '@/components/dashboard/ActivityChart';
+import { WelcomeMessage } from '@/components/dashboard/WelcomeMessage';
+import { NotificationCenter } from '@/components/notifications/NotificationCenter';
+import { Card } from '@/components/ui/Card';
+import { Tabs } from '@/components/ui/Tabs';
+import { Spinner } from '@/components/ui/Spinner';
+import { useAuth } from '@/hooks/useAuth';
+import { TrendingProjects } from '@/components/dashboard/TrendingProjects';
+import { TrendingCertificates } from '@/components/dashboard/TrendingCertificates';
+import { UserProgress } from '@/components/dashboard/UserProgress';
+import { Calendar } from 'lucide-react';
 
 export default function DashboardPage() {
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState('overview');
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
 
@@ -33,41 +32,29 @@ export default function DashboardPage() {
   }, []);
 
   const tabs = [
-    { id: "overview", label: "Overview" },
-    { id: "projects", label: "Projects" },
-    { id: "certificates", label: "Certificates" },
-    { id: "analytics", label: "Analytics" },
+    { id: 'overview', label: 'Overview' },
+    { id: 'projects', label: 'Projects' },
+    { id: 'certificates', label: 'Certificates' },
+    { id: 'analytics', label: 'Analytics' },
   ];
 
   // Mock data for activity chart
   const activityData = [
-    { date: "2025-05-01", count: 5 },
-    { date: "2025-05-02", count: 8 },
-    { date: "2025-05-03", count: 12 },
-    { date: "2025-05-04", count: 7 },
-    { date: "2025-05-05", count: 11 },
-    { date: "2025-05-06", count: 15 },
-    { date: "2025-05-07", count: 9 },
-    { date: "2025-05-08", count: 14 },
-    { date: "2025-05-09", count: 18 },
-    { date: "2025-05-10", count: 16 },
-    { date: "2025-05-11", count: 20 },
-    { date: "2025-05-12", count: 13 },
-    { date: "2025-05-13", count: 17 },
-    { date: "2025-05-14", count: 21 },
+    { date: '2025-05-01', count: 5 },
+    { date: '2025-05-02', count: 8 },
+    { date: '2025-05-03', count: 12 },
+    { date: '2025-05-04', count: 7 },
+    { date: '2025-05-05', count: 11 },
+    { date: '2025-05-06', count: 15 },
+    { date: '2025-05-07', count: 9 },
+    { date: '2025-05-08', count: 14 },
+    { date: '2025-05-09', count: 18 },
+    { date: '2025-05-10', count: 16 },
+    { date: '2025-05-11', count: 20 },
+    { date: '2025-05-12', count: 13 },
+    { date: '2025-05-13', count: 17 },
+    { date: '2025-05-14', count: 21 },
   ];
-
-  const fadeInUpVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: (i: number) => ({
-      opacity: 1,
-      y: 0,
-      transition: {
-        delay: i * 0.1,
-        duration: 0.5,
-      },
-    }),
-  };
 
   if (loading) {
     return (
@@ -86,15 +73,10 @@ export default function DashboardPage() {
 
         <Tabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
 
-        {activeTab === "overview" && (
+        {activeTab === 'overview' && (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <motion.div
-                custom={0}
-                initial="hidden"
-                animate="visible"
-                variants={fadeInUpVariants}
-              >
+              <div className="animate-fadeIn">
                 <StatCard
                   title="Total Projects"
                   value="24"
@@ -119,14 +101,9 @@ export default function DashboardPage() {
                   trend="+12% from last month"
                   trendDirection="up"
                 />
-              </motion.div>
+              </div>
 
-              <motion.div
-                custom={1}
-                initial="hidden"
-                animate="visible"
-                variants={fadeInUpVariants}
-              >
+              <div className="animate-fadeIn animation-delay-100">
                 <StatCard
                   title="Certificates"
                   value="8"
@@ -151,14 +128,9 @@ export default function DashboardPage() {
                   trend="+3 new certificates"
                   trendDirection="up"
                 />
-              </motion.div>
+              </div>
 
-              <motion.div
-                custom={2}
-                initial="hidden"
-                animate="visible"
-                variants={fadeInUpVariants}
-              >
+              <div className="animate-fadeIn animation-delay-200">
                 <StatCard
                   title="Skills"
                   value="12"
@@ -183,14 +155,9 @@ export default function DashboardPage() {
                   trend="+5 skills improved"
                   trendDirection="up"
                 />
-              </motion.div>
+              </div>
 
-              <motion.div
-                custom={3}
-                initial="hidden"
-                animate="visible"
-                variants={fadeInUpVariants}
-              >
+              <div className="animate-fadeIn animation-delay-300">
                 <StatCard
                   title="Completion Rate"
                   value="87%"
@@ -215,28 +182,17 @@ export default function DashboardPage() {
                   trend="+12% from last month"
                   trendDirection="up"
                 />
-              </motion.div>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <motion.div
-                className="lg:col-span-2"
-                custom={4}
-                initial="hidden"
-                animate="visible"
-                variants={fadeInUpVariants}
-              >
+              <div className="lg:col-span-2 animate-fadeIn animation-delay-400">
                 <Card title="Activity Overview">
                   <ActivityChart data={activityData} />
                 </Card>
-              </motion.div>
+              </div>
 
-              <motion.div
-                custom={5}
-                initial="hidden"
-                animate="visible"
-                variants={fadeInUpVariants}
-              >
+              <div className="animate-fadeIn animation-delay-500">
                 <Card title="Upcoming Events">
                   <div className="space-y-4">
                     {[1, 2, 3].map((_, index) => (
@@ -265,37 +221,26 @@ export default function DashboardPage() {
                     </button>
                   </div>
                 </Card>
-              </motion.div>
+              </div>
             </div>
 
-            <motion.div
-              custom={6}
-              initial="hidden"
-              animate="visible"
-              variants={fadeInUpVariants}
-            >
+            <div className="animate-fadeIn animation-delay-600">
               <RecentProjects />
-            </motion.div>
+            </div>
 
-            <motion.div
-              custom={7}
-              initial="hidden"
-              animate="visible"
-              variants={fadeInUpVariants}
-            >
+            <div className="animate-fadeIn animation-delay-700">
               <UserProgress />
-            </motion.div>
+            </div>
           </>
         )}
 
-        {activeTab === "projects" && <TrendingProjects />}
+        {activeTab === 'projects' && <TrendingProjects />}
 
-        {activeTab === "certificates" && <TrendingCertificates />}
+        {activeTab === 'certificates' && <TrendingCertificates />}
 
-        {activeTab === "analytics" && (
+        {activeTab === 'analytics' && (
           <div className="grid grid-cols-1 gap-6">
             <Card title="Performance Analytics">
-              {/* Analytics content would go here */}
               <div className="h-64 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center">
                 <p className="text-gray-500 dark:text-gray-400">
                   Detailed analytics coming soon

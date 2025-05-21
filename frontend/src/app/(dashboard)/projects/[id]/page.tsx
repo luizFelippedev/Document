@@ -1,19 +1,19 @@
 // frontend/src/app/(dashboard)/projects/[id]/page.tsx
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { MainLayout } from "@/components/layout/MainLayout";
-import { Card } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
-import { Badge } from "@/components/ui/Badge";
-import { Spinner } from "@/components/ui/Spinner";
-import { Alert } from "@/components/ui/Alert";
-import { Modal, ConfirmModal } from "@/components/ui/Modal";
-import { Tabs } from "@/components/ui/Tabs";
-import { ROUTES } from "@/config/routes";
-import { motion } from "framer-motion";
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { MainLayout } from '@/components/layout/MainLayout';
+import { Card } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
+import { Badge } from '@/components/ui/Badge';
+import { Spinner } from '@/components/ui/Spinner';
+import { Alert } from '@/components/ui/Alert';
+import { Modal, ConfirmModal } from '@/components/ui/Modal';
+import { Tabs } from '@/components/ui/Tabs';
+import { ROUTES } from '@/config/routes';
+import { motion } from 'framer-motion';
 import {
   ArrowLeft,
   Edit,
@@ -27,39 +27,39 @@ import {
   FileText,
   MessageSquare,
   Share2,
-} from "lucide-react";
+} from 'lucide-react';
 
 // Mock data - would be replaced with API call
 const getProjectById = (id: string) => {
   const mockProjects = [
     {
-      id: "1",
-      title: "E-commerce Dashboard",
+      id: '1',
+      title: 'E-commerce Dashboard',
       description:
-        "A modern dashboard for e-commerce analytics and management with real-time sales tracking, inventory management, and customer insights. Built with a focus on performance and usability.",
-      status: "completed",
-      category: "Web Development",
+        'A modern dashboard for e-commerce analytics and management with real-time sales tracking, inventory management, and customer insights. Built with a focus on performance and usability.',
+      status: 'completed',
+      category: 'Web Development',
       technologies: [
-        "React",
-        "Node.js",
-        "MongoDB",
-        "Express",
-        "Redux",
-        "TailwindCSS",
+        'React',
+        'Node.js',
+        'MongoDB',
+        'Express',
+        'Redux',
+        'TailwindCSS',
       ],
-      startDate: "2025-01-15",
-      endDate: "2025-04-20",
-      thumbnailUrl: "/projects/ecommerce-thumb.jpg",
+      startDate: '2025-01-15',
+      endDate: '2025-04-20',
+      thumbnailUrl: '/projects/ecommerce-thumb.jpg',
       images: [
-        "/projects/ecommerce-1.jpg",
-        "/projects/ecommerce-2.jpg",
-        "/projects/ecommerce-3.jpg",
+        '/projects/ecommerce-1.jpg',
+        '/projects/ecommerce-2.jpg',
+        '/projects/ecommerce-3.jpg',
       ],
-      demoUrl: "https://example.com/demo",
-      repoUrl: "https://github.com/username/ecommerce-dashboard",
+      demoUrl: 'https://example.com/demo',
+      repoUrl: 'https://github.com/username/ecommerce-dashboard',
       featured: true,
-      client: "RetailTech Inc.",
-      team: ["John Doe", "Jane Smith", "Alex Johnson"],
+      client: 'RetailTech Inc.',
+      team: ['John Doe', 'Jane Smith', 'Alex Johnson'],
       longDescription: `
         <p>This e-commerce dashboard project was developed to provide merchants with a comprehensive solution for managing their online stores. The dashboard includes modules for:</p>
         
@@ -78,55 +78,55 @@ const getProjectById = (id: string) => {
         <p>The project was completed over a 3-month period and has been successfully deployed for multiple clients in the retail sector.</p>
       `,
       achievements: [
-        "Increased sales tracking efficiency by 40%",
-        "Reduced inventory management time by 25%",
-        "Improved customer insight accuracy by 35%",
+        'Increased sales tracking efficiency by 40%',
+        'Reduced inventory management time by 25%',
+        'Improved customer insight accuracy by 35%',
       ],
       challenges: [
-        "Implementing real-time data synchronization",
-        "Optimizing database queries for large datasets",
-        "Designing an intuitive UI for complex data visualization",
+        'Implementing real-time data synchronization',
+        'Optimizing database queries for large datasets',
+        'Designing an intuitive UI for complex data visualization',
       ],
       comments: [
         {
-          id: "1",
+          id: '1',
           user: {
-            id: "101",
-            name: "David Wilson",
-            avatar: "/avatars/david.jpg",
+            id: '101',
+            name: 'David Wilson',
+            avatar: '/avatars/david.jpg',
           },
-          text: "Great work on this project! The UI is very clean and intuitive.",
-          timestamp: "2025-04-25T14:32:00Z",
+          text: 'Great work on this project! The UI is very clean and intuitive.',
+          timestamp: '2025-04-25T14:32:00Z',
         },
         {
-          id: "2",
+          id: '2',
           user: {
-            id: "102",
-            name: "Sarah Chen",
-            avatar: "/avatars/sarah.jpg",
+            id: '102',
+            name: 'Sarah Chen',
+            avatar: '/avatars/sarah.jpg',
           },
-          text: "I really like the real-time updates feature. It makes the dashboard feel very responsive.",
-          timestamp: "2025-04-26T09:15:00Z",
+          text: 'I really like the real-time updates feature. It makes the dashboard feel very responsive.',
+          timestamp: '2025-04-26T09:15:00Z',
         },
       ],
     },
     {
-      id: "2",
-      title: "Mobile Fitness App",
+      id: '2',
+      title: 'Mobile Fitness App',
       description:
-        "An iOS/Android app for tracking workouts and nutrition with personalized fitness plans and progress tracking.",
-      status: "in-progress",
-      category: "Mobile Development",
-      technologies: ["React Native", "Firebase", "Redux", "TypeScript"],
-      startDate: "2025-03-01",
+        'An iOS/Android app for tracking workouts and nutrition with personalized fitness plans and progress tracking.',
+      status: 'in-progress',
+      category: 'Mobile Development',
+      technologies: ['React Native', 'Firebase', 'Redux', 'TypeScript'],
+      startDate: '2025-03-01',
       endDate: null,
-      thumbnailUrl: "/projects/fitness-thumb.jpg",
-      images: ["/projects/fitness-1.jpg", "/projects/fitness-2.jpg"],
+      thumbnailUrl: '/projects/fitness-thumb.jpg',
+      images: ['/projects/fitness-1.jpg', '/projects/fitness-2.jpg'],
       demoUrl: null,
-      repoUrl: "https://github.com/username/fitness-app",
+      repoUrl: 'https://github.com/username/fitness-app',
       featured: false,
-      client: "FitLife Tech",
-      team: ["Jane Smith", "Mike Johnson"],
+      client: 'FitLife Tech',
+      team: ['Jane Smith', 'Mike Johnson'],
       longDescription: `
         <p>The FitLife mobile app is designed to help users track their fitness journey and maintain healthy habits. Key features include:</p>
         
@@ -143,25 +143,25 @@ const getProjectById = (id: string) => {
         <p>This project is currently in the development phase, with core features already implemented and testing in progress.</p>
       `,
       achievements: [
-        "Successfully integrated with multiple fitness wearable APIs",
-        "Implemented efficient offline data synchronization",
-        "Developed custom animation system for workout demonstrations",
+        'Successfully integrated with multiple fitness wearable APIs',
+        'Implemented efficient offline data synchronization',
+        'Developed custom animation system for workout demonstrations',
       ],
       challenges: [
-        "Cross-platform consistency in UI/UX",
-        "Battery optimization for background tracking",
-        "Privacy-compliant health data storage",
+        'Cross-platform consistency in UI/UX',
+        'Battery optimization for background tracking',
+        'Privacy-compliant health data storage',
       ],
       comments: [
         {
-          id: "1",
+          id: '1',
           user: {
-            id: "103",
-            name: "Tom Reynolds",
-            avatar: "/avatars/tom.jpg",
+            id: '103',
+            name: 'Tom Reynolds',
+            avatar: '/avatars/tom.jpg',
           },
-          text: "Looking forward to the final release. The beta version is already impressive!",
-          timestamp: "2025-05-10T16:45:00Z",
+          text: 'Looking forward to the final release. The beta version is already impressive!',
+          timestamp: '2025-05-10T16:45:00Z',
         },
       ],
     },
@@ -176,10 +176,10 @@ export default function ProjectDetailPage({
 }: {
   params: { id: string };
 }) {
-  const [project, setProject] = useState<any>(null);
+  const [project, setProject] = useState<unknown>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState('overview');
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const router = useRouter();
@@ -192,12 +192,12 @@ export default function ProjectDetailPage({
         const projectData = getProjectById(params.id);
 
         if (!projectData) {
-          setError("Project not found");
+          setError('Project not found');
         } else {
           setProject(projectData);
         }
       } catch (err) {
-        setError("Failed to load project details");
+        setError('Failed to load project details');
         console.error(err);
       } finally {
         setLoading(false);
@@ -227,17 +227,17 @@ export default function ProjectDetailPage({
       y: 0,
       transition: {
         duration: 0.5,
-        ease: "easeOut",
+        ease: 'easeOut',
       },
     },
   };
 
   // Tab configuration
   const tabs = [
-    { id: "overview", label: "Overview" },
-    { id: "details", label: "Technical Details" },
-    { id: "gallery", label: "Gallery" },
-    { id: "discussion", label: "Discussion" },
+    { id: 'overview', label: 'Overview' },
+    { id: 'details', label: 'Technical Details' },
+    { id: 'gallery', label: 'Gallery' },
+    { id: 'discussion', label: 'Discussion' },
   ];
 
   // Conditional loading and error states
@@ -268,9 +268,9 @@ export default function ProjectDetailPage({
           <Alert
             type="error"
             title="Error"
-            message={error || "Project not found"}
+            message={error || 'Project not found'}
             action={{
-              label: "Go back to projects",
+              label: 'Go back to projects',
               onClick: () => router.push(ROUTES.DASHBOARD.PROJECTS.ROOT),
             }}
           />
@@ -299,18 +299,18 @@ export default function ProjectDetailPage({
             <div className="flex flex-wrap items-center gap-2 mt-2">
               <Badge
                 text={
-                  project.status === "completed"
-                    ? "Completed"
-                    : project.status === "in-progress"
-                      ? "In Progress"
-                      : "Planning"
+                  project.status === 'completed'
+                    ? 'Completed'
+                    : project.status === 'in-progress'
+                      ? 'In Progress'
+                      : 'Planning'
                 }
                 variant={
-                  project.status === "completed"
-                    ? "success"
-                    : project.status === "in-progress"
-                      ? "warning"
-                      : "info"
+                  project.status === 'completed'
+                    ? 'success'
+                    : project.status === 'in-progress'
+                      ? 'warning'
+                      : 'info'
                 }
               />
 
@@ -347,7 +347,7 @@ export default function ProjectDetailPage({
         {/* Tab content */}
         <div className="space-y-6">
           {/* Overview Tab */}
-          {activeTab === "overview" && (
+          {activeTab === 'overview' && (
             <motion.div
               variants={fadeIn}
               initial="hidden"
@@ -451,7 +451,7 @@ export default function ProjectDetailPage({
                       <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">
                         Client
                       </h4>
-                      <p className="mt-1">{project.client || "N/A"}</p>
+                      <p className="mt-1">{project.client || 'N/A'}</p>
                     </div>
 
                     <div>
@@ -558,7 +558,7 @@ export default function ProjectDetailPage({
           )}
 
           {/* Technical Details Tab */}
-          {activeTab === "details" && (
+          {activeTab === 'details' && (
             <motion.div
               variants={fadeIn}
               initial="hidden"
@@ -577,11 +577,11 @@ export default function ProjectDetailPage({
                     {project.technologies
                       .filter((tech: string) =>
                         [
-                          "React",
-                          "React Native",
-                          "Redux",
-                          "TailwindCSS",
-                          "TypeScript",
+                          'React',
+                          'React Native',
+                          'Redux',
+                          'TailwindCSS',
+                          'TypeScript',
                         ].includes(tech),
                       )
                       .map((tech: string, index: number) => (
@@ -593,7 +593,7 @@ export default function ProjectDetailPage({
                   <ul>
                     {project.technologies
                       .filter((tech: string) =>
-                        ["Node.js", "Express", "MongoDB", "Firebase"].includes(
+                        ['Node.js', 'Express', 'MongoDB', 'Firebase'].includes(
                           tech,
                         ),
                       )
@@ -629,7 +629,7 @@ export default function ProjectDetailPage({
           )}
 
           {/* Gallery Tab */}
-          {activeTab === "gallery" && (
+          {activeTab === 'gallery' && (
             <motion.div variants={fadeIn} initial="hidden" animate="visible">
               <Card title="Project Gallery">
                 {project.images && project.images.length > 0 ? (
@@ -698,7 +698,7 @@ export default function ProjectDetailPage({
           )}
 
           {/* Discussion Tab */}
-          {activeTab === "discussion" && (
+          {activeTab === 'discussion' && (
             <motion.div
               variants={fadeIn}
               initial="hidden"
@@ -708,7 +708,7 @@ export default function ProjectDetailPage({
               <Card title="Comments & Feedback">
                 {project.comments && project.comments.length > 0 ? (
                   <div className="space-y-4">
-                    {project.comments.map((comment: any) => (
+                    {project.comments.map((comment: unknown) => (
                       <div
                         key={comment.id}
                         className="flex gap-4 p-4 rounded-lg bg-gray-50 dark:bg-gray-800"

@@ -1,7 +1,7 @@
 // frontend/src/hooks/useLocalStorage.ts
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 
 export function useLocalStorage<T>(
   key: string,
@@ -9,7 +9,7 @@ export function useLocalStorage<T>(
 ): [T, (value: T | ((val: T) => T)) => void] {
   // Get from local storage if available
   const readValue = (): T => {
-    if (typeof window === "undefined") {
+    if (typeof window === 'undefined') {
       return initialValue;
     }
 
@@ -28,7 +28,7 @@ export function useLocalStorage<T>(
   // Return a wrapped version of useState's setter function that
   // persists the new value to localStorage
   const setValue = (value: T | ((val: T) => T)) => {
-    if (typeof window === "undefined") {
+    if (typeof window === 'undefined') {
       console.warn(
         `Tried setting localStorage key "${key}" even though environment is not a browser`,
       );
@@ -43,7 +43,7 @@ export function useLocalStorage<T>(
       setStoredValue(valueToStore);
 
       // Save to local storage
-      if (typeof window !== "undefined") {
+      if (typeof window !== 'undefined') {
         window.localStorage.setItem(key, JSON.stringify(valueToStore));
 
         // Trigger a custom event for other hooks that are using the same key
@@ -64,12 +64,12 @@ export function useLocalStorage<T>(
     };
 
     // Listen for storage change events from other windows
-    if (typeof window !== "undefined") {
-      window.addEventListener("storage", handleStorageChange);
+    if (typeof window !== 'undefined') {
+      window.addEventListener('storage', handleStorageChange);
 
       // Clean up
       return () => {
-        window.removeEventListener("storage", handleStorageChange);
+        window.removeEventListener('storage', handleStorageChange);
       };
     }
   }, [key]);

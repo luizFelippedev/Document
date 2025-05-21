@@ -1,17 +1,17 @@
-// frontend/src/app/(auth)/login/page.tsx
-"use client";
+// app/login/page.tsx ou app/(auth)/login/page.tsx
+'use client';
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { LoginForm } from "@/components/auth/LoginForm";
-import { TwoFactorForm } from "@/components/auth/TwoFactorForm";
-import { Button } from "@/components/ui/Button";
-import { ROUTES } from "@/config/routes";
-import { Card } from "@/components/ui/Card";
-import { ThemeToggle } from "@/components/ui/ThemeToggle";
-import { APP_NAME } from "@/config/constants";
-import { AnimatedLogo } from "@/components/ui/AnimatedLogo";
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { LoginForm } from '@/components/auth/LoginForm';
+import { TwoFactorForm } from '@/components/auth/TwoFactorForm';
+import { Button } from '@/components/ui/Button';
+import { ROUTES } from '@/config/routes';
+import { Card } from '@/components/ui/Card';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
+import { APP_NAME } from '@/config/constants';
+import { AnimatedLogo } from '@/components/ui/AnimatedLogo';
 
 export default function LoginPage() {
   const [showTwoFactor, setShowTwoFactor] = useState(false);
@@ -43,7 +43,7 @@ export default function LoginPage() {
               {APP_NAME}
             </h1>
             <p className="text-gray-600 dark:text-gray-400">
-              Sign in to your account
+              Faça login na sua conta
             </p>
           </div>
 
@@ -60,7 +60,7 @@ export default function LoginPage() {
                   </div>
                   <div className="relative flex justify-center text-sm">
                     <span className="px-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400">
-                      Or continue with
+                      Ou continue com
                     </span>
                   </div>
                 </div>
@@ -70,7 +70,7 @@ export default function LoginPage() {
                     variant="outline"
                     className="w-full flex items-center justify-center"
                     onClick={() => {
-                      /* Implement OAuth */
+                      /* Implementar OAuth */
                     }}
                   >
                     <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24">
@@ -85,7 +85,7 @@ export default function LoginPage() {
                     variant="outline"
                     className="w-full flex items-center justify-center"
                     onClick={() => {
-                      /* Implement OAuth */
+                      /* Implementar OAuth */
                     }}
                   >
                     <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24">
@@ -104,18 +104,18 @@ export default function LoginPage() {
                   href={ROUTES.AUTH.FORGOT_PASSWORD}
                   className="text-sm text-blue-600 hover:text-blue-500 dark:text-blue-400"
                 >
-                  Forgot your password?
+                  Esqueceu sua senha?
                 </Link>
               </div>
 
               <div className="mt-6 text-center">
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Don't have an account?{" "}
+                  Não tem uma conta?{' '}
                   <Link
-                    href={ROUTES.AUTH.REGISTER}
+                    href="/register"
                     className="text-blue-600 hover:text-blue-500 dark:text-blue-400"
                   >
-                    Sign up
+                    Cadastre-se
                   </Link>
                 </p>
               </div>

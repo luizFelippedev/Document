@@ -1,10 +1,10 @@
 // frontend/src/hooks/useProjects.ts
-"use client";
+'use client';
 
-import { useState, useCallback } from "react";
-import { Project, ProjectFilter } from "@/types/project";
-import { projectService } from "@/services/project.service";
-import { useNotification } from "./useNotification";
+import { useState, useCallback } from 'react';
+import { Project, ProjectFilter } from '@/types/project';
+import { projectService } from '@/services/project.service';
+import { useNotification } from './useNotification';
 
 export const useProjects = () => {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -22,9 +22,9 @@ export const useProjects = () => {
       setProjects(data);
 
       return data;
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Failed to fetch projects");
-      showToast("error", "Failed to fetch projects");
+    } catch (err: unknown) {
+      setError(err.response?.data?.message || 'Failed to fetch projects');
+      showToast('error', 'Failed to fetch projects');
       return [];
     } finally {
       setLoading(false);
@@ -40,9 +40,9 @@ export const useProjects = () => {
 
         const data = await projectService.getProject(id);
         return data;
-      } catch (err: any) {
-        setError(err.response?.data?.message || "Failed to fetch project");
-        showToast("error", "Failed to fetch project details");
+      } catch (err: unknown) {
+        setError(err.response?.data?.message || 'Failed to fetch project');
+        showToast('error', 'Failed to fetch project details');
         return null;
       } finally {
         setLoading(false);
@@ -61,11 +61,11 @@ export const useProjects = () => {
         const data = await projectService.createProject(projectData);
         setProjects((prev) => [data, ...prev]);
 
-        showToast("success", "Project created successfully");
+        showToast('success', 'Project created successfully');
         return data;
-      } catch (err: any) {
-        setError(err.response?.data?.message || "Failed to create project");
-        showToast("error", "Failed to create project");
+      } catch (err: unknown) {
+        setError(err.response?.data?.message || 'Failed to create project');
+        showToast('error', 'Failed to create project');
         return null;
       } finally {
         setLoading(false);
@@ -87,11 +87,11 @@ export const useProjects = () => {
           prev.map((proj) => (proj.id === id ? data : proj)),
         );
 
-        showToast("success", "Project updated successfully");
+        showToast('success', 'Project updated successfully');
         return data;
-      } catch (err: any) {
-        setError(err.response?.data?.message || "Failed to update project");
-        showToast("error", "Failed to update project");
+      } catch (err: unknown) {
+        setError(err.response?.data?.message || 'Failed to update project');
+        showToast('error', 'Failed to update project');
         return null;
       } finally {
         setLoading(false);
@@ -110,11 +110,11 @@ export const useProjects = () => {
         await projectService.deleteProject(id);
         setProjects((prev) => prev.filter((proj) => proj.id !== id));
 
-        showToast("success", "Project deleted successfully");
+        showToast('success', 'Project deleted successfully');
         return true;
-      } catch (err: any) {
-        setError(err.response?.data?.message || "Failed to delete project");
-        showToast("error", "Failed to delete project");
+      } catch (err: unknown) {
+        setError(err.response?.data?.message || 'Failed to delete project');
+        showToast('error', 'Failed to delete project');
         return false;
       } finally {
         setLoading(false);
@@ -166,33 +166,33 @@ export const useProjects = () => {
         // Sort results
         if (filters.sortBy) {
           switch (filters.sortBy) {
-            case "newest":
+            case 'newest':
               filteredProjs.sort(
                 (a, b) =>
                   new Date(b.createdAt).getTime() -
                   new Date(a.createdAt).getTime(),
               );
               break;
-            case "oldest":
+            case 'oldest':
               filteredProjs.sort(
                 (a, b) =>
                   new Date(a.createdAt).getTime() -
                   new Date(b.createdAt).getTime(),
               );
               break;
-            case "a-z":
+            case 'a-z':
               filteredProjs.sort((a, b) => a.title.localeCompare(b.title));
               break;
-            case "z-a":
+            case 'z-a':
               filteredProjs.sort((a, b) => b.title.localeCompare(a.title));
               break;
           }
         }
 
         return filteredProjs;
-      } catch (err: any) {
-        setError(err.response?.data?.message || "Failed to filter projects");
-        showToast("error", "Failed to filter projects");
+      } catch (err: unknown) {
+        setError(err.response?.data?.message || 'Failed to filter projects');
+        showToast('error', 'Failed to filter projects');
         return [];
       } finally {
         setLoading(false);

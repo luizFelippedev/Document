@@ -1,16 +1,16 @@
 // frontend/src/components/layout/MainLayout.tsx
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { ThemeToggle } from "@/components/ui/ThemeToggle";
-import { Avatar } from "@/components/ui/Avatar";
-import { Button } from "@/components/ui/Button";
-import { Badge } from "@/components/ui/Badge";
-import { ROUTES } from "@/config/routes";
-import { APP_NAME } from "@/config/constants";
-import { useAuth } from "@/hooks/useAuth";
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
+import { Avatar } from '@/components/ui/Avatar';
+import { Button } from '@/components/ui/Button';
+import { Badge } from '@/components/ui/Badge';
+import { ROUTES } from '@/config/routes';
+import { APP_NAME } from '@/config/constants';
+import { useAuth } from '@/hooks/useAuth';
 import {
   Menu,
   X,
@@ -23,7 +23,7 @@ import {
   LogOut,
   ChevronDown,
   Plus,
-} from "lucide-react";
+} from 'lucide-react';
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -47,32 +47,32 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
       }
     };
 
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   // Navigation items
   const navItems = [
     {
-      name: "Dashboard",
+      name: 'Dashboard',
       href: ROUTES.DASHBOARD.ROOT,
       icon: <Home size={20} />,
       active: pathname === ROUTES.DASHBOARD.ROOT,
     },
     {
-      name: "Projects",
+      name: 'Projects',
       href: ROUTES.DASHBOARD.PROJECTS.ROOT,
       icon: <Folder size={20} />,
       active: pathname.startsWith(ROUTES.DASHBOARD.PROJECTS.ROOT),
     },
     {
-      name: "Certificates",
+      name: 'Certificates',
       href: ROUTES.DASHBOARD.CERTIFICATES.ROOT,
       icon: <Award size={20} />,
       active: pathname.startsWith(ROUTES.DASHBOARD.CERTIFICATES.ROOT),
     },
     {
-      name: "Profile",
+      name: 'Profile',
       href: ROUTES.DASHBOARD.PROFILE.ROOT,
       icon: <User size={20} />,
       active: pathname.startsWith(ROUTES.DASHBOARD.PROFILE.ROOT),
@@ -103,8 +103,8 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
               href={item.href}
               className={`flex items-center px-4 py-2.5 text-sm font-medium rounded-lg transition-colors ${
                 item.active
-                  ? "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400"
-                  : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400'
+                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
               }`}
             >
               <span className="mr-3">{item.icon}</span>
@@ -140,15 +140,15 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
           <div className="flex items-center">
             <Avatar
               src={user?.avatarUrl}
-              alt={user?.name || "User"}
+              alt={user?.name || 'User'}
               size="sm"
             />
             <div className="ml-3 flex-1 min-w-0">
               <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                {user?.name || "User Name"}
+                {user?.name || 'User Name'}
               </p>
               <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                {user?.email || "user@example.com"}
+                {user?.email || 'user@example.com'}
               </p>
             </div>
             <button
@@ -172,7 +172,7 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
       {/* Mobile sidebar */}
       <div
         className={`fixed inset-y-0 left-0 z-30 w-64 bg-white dark:bg-gray-800 transform ${
-          mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+          mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
         } transition-transform duration-300 ease-in-out lg:hidden`}
       >
         {/* Logo and close button */}
@@ -201,8 +201,8 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
               href={item.href}
               className={`flex items-center px-4 py-2.5 text-sm font-medium rounded-lg transition-colors ${
                 item.active
-                  ? "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400"
-                  : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400'
+                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
               }`}
             >
               <span className="mr-3">{item.icon}</span>
@@ -216,15 +216,15 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
           <div className="flex items-center">
             <Avatar
               src={user?.avatarUrl}
-              alt={user?.name || "User"}
+              alt={user?.name || 'User'}
               size="sm"
             />
             <div className="ml-3 flex-1 min-w-0">
               <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                {user?.name || "User Name"}
+                {user?.name || 'User Name'}
               </p>
               <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                {user?.email || "user@example.com"}
+                {user?.email || 'user@example.com'}
               </p>
             </div>
             <button
@@ -289,7 +289,7 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
               <button className="flex items-center text-sm text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100">
                 <Avatar
                   src={user?.avatarUrl}
-                  alt={user?.name || "User"}
+                  alt={user?.name || 'User'}
                   size="sm"
                 />
                 <ChevronDown size={16} className="ml-1" />

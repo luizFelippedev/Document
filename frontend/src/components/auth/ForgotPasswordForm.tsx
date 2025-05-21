@@ -1,22 +1,22 @@
 // frontend/src/components/auth/ForgotPasswordForm.tsx
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { authService } from "@/services/auth.service";
-import { Button } from "../ui/Button";
-import { Input } from "../ui/Input";
-import { Spinner } from "../ui/Spinner";
-import { Alert } from "../ui/Alert";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { authService } from '@/services/auth.service';
+import { Button } from '../ui/Button';
+import { Input } from '../ui/Input';
+import { Spinner } from '../ui/Spinner';
+import { Alert } from '../ui/Alert';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const forgotPasswordSchema = z.object({
   email: z
     .string()
-    .email("Please enter a valid email address")
-    .min(1, "Email is required"),
+    .email('Please enter a valid email address')
+    .min(1, 'Email is required'),
 });
 
 type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>;
@@ -36,7 +36,7 @@ export const ForgotPasswordForm = ({ onSuccess }: ForgotPasswordFormProps) => {
   } = useForm<ForgotPasswordFormValues>({
     resolver: zodResolver(forgotPasswordSchema),
     defaultValues: {
-      email: "",
+      email: '',
     },
   });
 
@@ -46,10 +46,10 @@ export const ForgotPasswordForm = ({ onSuccess }: ForgotPasswordFormProps) => {
       setError(null);
       await authService.forgotPassword(data.email);
       onSuccess(data.email);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(
         err.response?.data?.message ||
-          "Failed to send reset link. Please try again.",
+          'Failed to send reset link. Please try again.',
       );
     } finally {
       setIsSubmitting(false);
@@ -82,7 +82,7 @@ export const ForgotPasswordForm = ({ onSuccess }: ForgotPasswordFormProps) => {
           type="email"
           placeholder="Enter your email address"
           error={errors.email?.message}
-          {...register("email")}
+          {...register('email')}
         />
         {errors.email && (
           <p className="mt-1 text-sm text-red-600 dark:text-red-400">
@@ -104,7 +104,7 @@ export const ForgotPasswordForm = ({ onSuccess }: ForgotPasswordFormProps) => {
               Sending...
             </>
           ) : (
-            "Send Reset Link"
+            'Send Reset Link'
           )}
         </Button>
       </div>

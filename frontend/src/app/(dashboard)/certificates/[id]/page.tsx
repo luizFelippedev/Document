@@ -1,19 +1,19 @@
 // frontend/src/app/(dashboard)/certificates/[id]/page.tsx
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { MainLayout } from "@/components/layout/MainLayout";
-import { Card } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
-import { Badge } from "@/components/ui/Badge";
-import { Spinner } from "@/components/ui/Spinner";
-import { Alert } from "@/components/ui/Alert";
-import { Modal, ConfirmModal } from "@/components/ui/Modal";
-import { Tabs } from "@/components/ui/Tabs";
-import { ROUTES } from "@/config/routes";
-import { motion } from "framer-motion";
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { MainLayout } from '@/components/layout/MainLayout';
+import { Card } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
+import { Badge } from '@/components/ui/Badge';
+import { Spinner } from '@/components/ui/Spinner';
+import { Alert } from '@/components/ui/Alert';
+import { Modal, ConfirmModal } from '@/components/ui/Modal';
+import { Tabs } from '@/components/ui/Tabs';
+import { ROUTES } from '@/config/routes';
+import { motion } from 'framer-motion';
 import {
   ArrowLeft,
   Edit,
@@ -28,105 +28,105 @@ import {
   Fingerprint,
   CheckCircle,
   AlertTriangle,
-} from "lucide-react";
+} from 'lucide-react';
 
 // Mock data - would be replaced with API call
 const getCertificateById = (id: string) => {
   const mockCertificates = [
     {
-      id: "1",
-      title: "AWS Certified Solutions Architect",
-      issuer: "Amazon Web Services",
-      issueDate: "2025-02-15",
-      expiryDate: "2028-02-15",
-      credentialId: "AWS-CSA-12345",
-      credentialUrl: "https://aws.amazon.com/verification",
-      skills: ["Cloud Architecture", "AWS Services", "Infrastructure Design"],
-      description: "Certification for designing distributed systems on AWS",
+      id: '1',
+      title: 'AWS Certified Solutions Architect',
+      issuer: 'Amazon Web Services',
+      issueDate: '2025-02-15',
+      expiryDate: '2028-02-15',
+      credentialId: 'AWS-CSA-12345',
+      credentialUrl: 'https://aws.amazon.com/verification',
+      skills: ['Cloud Architecture', 'AWS Services', 'Infrastructure Design'],
+      description: 'Certification for designing distributed systems on AWS',
       verified: true,
-      thumbnailUrl: "/certificates/aws-cert.jpg",
+      thumbnailUrl: '/certificates/aws-cert.jpg',
       verificationDetails: {
         blockchainVerified: true,
-        lastVerified: "2025-05-10T14:23:00Z",
+        lastVerified: '2025-05-10T14:23:00Z',
         verificationHistory: [
           {
-            date: "2025-05-10T14:23:00Z",
-            status: "success",
-            method: "blockchain",
+            date: '2025-05-10T14:23:00Z',
+            status: 'success',
+            method: 'blockchain',
           },
-          { date: "2025-04-15T10:05:00Z", status: "success", method: "issuer" },
+          { date: '2025-04-15T10:05:00Z', status: 'success', method: 'issuer' },
         ],
-        blockchainTxId: "0x3a1e02c4d6a2bd5e3e304841b131572a8c4f7b71",
-        blockchainNetwork: "Ethereum",
+        blockchainTxId: '0x3a1e02c4d6a2bd5e3e304841b131572a8c4f7b71',
+        blockchainNetwork: 'Ethereum',
       },
     },
     {
-      id: "2",
-      title: "Professional Scrum Master I",
-      issuer: "Scrum.org",
-      issueDate: "2024-11-10",
+      id: '2',
+      title: 'Professional Scrum Master I',
+      issuer: 'Scrum.org',
+      issueDate: '2024-11-10',
       expiryDate: null,
-      credentialId: "PSM-I-87654",
-      credentialUrl: "https://scrum.org/verification",
-      skills: ["Agile Methodologies", "Scrum Framework", "Team Management"],
-      description: "Professional certification for Scrum Masters",
+      credentialId: 'PSM-I-87654',
+      credentialUrl: 'https://scrum.org/verification',
+      skills: ['Agile Methodologies', 'Scrum Framework', 'Team Management'],
+      description: 'Professional certification for Scrum Masters',
       verified: true,
-      thumbnailUrl: "/certificates/scrum-cert.jpg",
+      thumbnailUrl: '/certificates/scrum-cert.jpg',
       verificationDetails: {
         blockchainVerified: true,
-        lastVerified: "2025-05-08T09:12:00Z",
+        lastVerified: '2025-05-08T09:12:00Z',
         verificationHistory: [
           {
-            date: "2025-05-08T09:12:00Z",
-            status: "success",
-            method: "blockchain",
+            date: '2025-05-08T09:12:00Z',
+            status: 'success',
+            method: 'blockchain',
           },
-          { date: "2025-03-22T16:30:00Z", status: "success", method: "issuer" },
+          { date: '2025-03-22T16:30:00Z', status: 'success', method: 'issuer' },
         ],
-        blockchainTxId: "0x7b9c42f1d6a8e4c5a3b2f1d6a8e4c5a3b2f1d6a8",
-        blockchainNetwork: "Polygon",
+        blockchainTxId: '0x7b9c42f1d6a8e4c5a3b2f1d6a8e4c5a3b2f1d6a8',
+        blockchainNetwork: 'Polygon',
       },
     },
     {
-      id: "3",
-      title: "Google Professional Data Engineer",
-      issuer: "Google Cloud",
-      issueDate: "2025-01-20",
-      expiryDate: "2027-01-20",
-      credentialId: "GCP-PDE-56789",
-      credentialUrl: "https://cloud.google.com/certification/verification",
-      skills: ["Data Processing", "Machine Learning", "Data Analytics", "GCP"],
+      id: '3',
+      title: 'Google Professional Data Engineer',
+      issuer: 'Google Cloud',
+      issueDate: '2025-01-20',
+      expiryDate: '2027-01-20',
+      credentialId: 'GCP-PDE-56789',
+      credentialUrl: 'https://cloud.google.com/certification/verification',
+      skills: ['Data Processing', 'Machine Learning', 'Data Analytics', 'GCP'],
       description:
-        "Certification for designing and building data processing systems on Google Cloud",
+        'Certification for designing and building data processing systems on Google Cloud',
       verified: true,
-      thumbnailUrl: "/certificates/gcp-cert.jpg",
+      thumbnailUrl: '/certificates/gcp-cert.jpg',
       verificationDetails: {
         blockchainVerified: true,
-        lastVerified: "2025-05-02T11:18:00Z",
+        lastVerified: '2025-05-02T11:18:00Z',
         verificationHistory: [
           {
-            date: "2025-05-02T11:18:00Z",
-            status: "success",
-            method: "blockchain",
+            date: '2025-05-02T11:18:00Z',
+            status: 'success',
+            method: 'blockchain',
           },
-          { date: "2025-02-14T08:45:00Z", status: "success", method: "issuer" },
+          { date: '2025-02-14T08:45:00Z', status: 'success', method: 'issuer' },
         ],
-        blockchainTxId: "0x9d2e85f6c4b3a1d7e2f9c8b5a4d3e2f1c0b9a8d7",
-        blockchainNetwork: "Ethereum",
+        blockchainTxId: '0x9d2e85f6c4b3a1d7e2f9c8b5a4d3e2f1c0b9a8d7',
+        blockchainNetwork: 'Ethereum',
       },
     },
     {
-      id: "4",
-      title: "Certified Kubernetes Administrator",
-      issuer: "Cloud Native Computing Foundation",
-      issueDate: "2024-09-05",
-      expiryDate: "2027-09-05",
-      credentialId: "CKA-98765",
-      credentialUrl: "https://www.cncf.io/certification/verification",
-      skills: ["Kubernetes", "Container Orchestration", "Cloud Native"],
-      description: "Certification for Kubernetes administration and operations",
+      id: '4',
+      title: 'Certified Kubernetes Administrator',
+      issuer: 'Cloud Native Computing Foundation',
+      issueDate: '2024-09-05',
+      expiryDate: '2027-09-05',
+      credentialId: 'CKA-98765',
+      credentialUrl: 'https://www.cncf.io/certification/verification',
+      skills: ['Kubernetes', 'Container Orchestration', 'Cloud Native'],
+      description: 'Certification for Kubernetes administration and operations',
       verified: false,
-      thumbnailUrl: "/certificates/k8s-cert.jpg",
+      thumbnailUrl: '/certificates/k8s-cert.jpg',
       verificationDetails: {
         blockchainVerified: false,
         lastVerified: null,
@@ -146,9 +146,9 @@ export default function CertificateDetailPage({
   params: { id: string };
 }) {
   const [loading, setLoading] = useState(true);
-  const [certificate, setCertificate] = useState<any>(null);
+  const [certificate, setCertificate] = useState<unknown>(null);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState('overview');
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [verificationModalOpen, setVerificationModalOpen] = useState(false);
   const [verifying, setVerifying] = useState(false);
@@ -162,12 +162,12 @@ export default function CertificateDetailPage({
         const certificateData = getCertificateById(params.id);
 
         if (!certificateData) {
-          setError("Certificate not found");
+          setError('Certificate not found');
         } else {
           setCertificate(certificateData);
         }
       } catch (err) {
-        setError("Failed to load certificate details");
+        setError('Failed to load certificate details');
         console.error(err);
       } finally {
         setLoading(false);
@@ -208,17 +208,17 @@ export default function CertificateDetailPage({
           verificationHistory: [
             {
               date: new Date().toISOString(),
-              status: "success",
-              method: "blockchain",
+              status: 'success',
+              method: 'blockchain',
             },
             ...(prev.verificationDetails?.verificationHistory || []),
           ],
-          blockchainTxId: "0x" + Math.random().toString(16).substring(2, 42),
-          blockchainNetwork: "Ethereum",
+          blockchainTxId: '0x' + Math.random().toString(16).substring(2, 42),
+          blockchainNetwork: 'Ethereum',
         },
       }));
     } catch (err) {
-      console.error("Verification failed:", err);
+      console.error('Verification failed:', err);
     } finally {
       setVerifying(false);
       setVerificationModalOpen(false);
@@ -233,27 +233,27 @@ export default function CertificateDetailPage({
       y: 0,
       transition: {
         duration: 0.5,
-        ease: "easeOut",
+        ease: 'easeOut',
       },
     },
   };
 
   // Tab configuration
   const tabs = [
-    { id: "overview", label: "Overview" },
-    { id: "verification", label: "Verification" },
-    { id: "share", label: "Share" },
+    { id: 'overview', label: 'Overview' },
+    { id: 'verification', label: 'Verification' },
+    { id: 'share', label: 'Share' },
   ];
 
   // Format date function
   const formatDate = (dateString: string) => {
-    if (!dateString) return "N/A";
+    if (!dateString) return 'N/A';
     return new Date(dateString).toLocaleDateString();
   };
 
   // Format datetime function
   const formatDateTime = (dateTimeString: string) => {
-    if (!dateTimeString) return "N/A";
+    if (!dateTimeString) return 'N/A';
     return new Date(dateTimeString).toLocaleString();
   };
 
@@ -284,9 +284,9 @@ export default function CertificateDetailPage({
           <Alert
             type="error"
             title="Error"
-            message={error || "Certificate not found"}
+            message={error || 'Certificate not found'}
             action={{
-              label: "Go back to certificates",
+              label: 'Go back to certificates',
               onClick: () => router.push(ROUTES.DASHBOARD.CERTIFICATES.ROOT),
             }}
           />
@@ -314,8 +314,8 @@ export default function CertificateDetailPage({
             </h1>
             <div className="mt-2 flex flex-wrap items-center gap-2">
               <Badge
-                text={certificate.verified ? "Verified" : "Unverified"}
-                variant={certificate.verified ? "success" : "warning"}
+                text={certificate.verified ? 'Verified' : 'Unverified'}
+                variant={certificate.verified ? 'success' : 'warning'}
                 icon={
                   certificate.verified ? <FileCheck size={14} /> : undefined
                 }
@@ -331,7 +331,7 @@ export default function CertificateDetailPage({
             <Button
               variant="outline"
               leftIcon={<Download size={16} />}
-              onClick={() => console.log("Download certificate")}
+              onClick={() => console.log('Download certificate')}
             >
               Download
             </Button>
@@ -364,7 +364,7 @@ export default function CertificateDetailPage({
         {/* Tab content */}
         <div className="space-y-6">
           {/* Overview Tab */}
-          {activeTab === "overview" && (
+          {activeTab === 'overview' && (
             <motion.div
               variants={fadeIn}
               initial="hidden"
@@ -499,8 +499,8 @@ export default function CertificateDetailPage({
                     <div
                       className={`p-3 rounded-lg ${
                         certificate.verified
-                          ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300"
-                          : "bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300"
+                          ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300'
+                          : 'bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300'
                       }`}
                     >
                       <div className="flex items-center">
@@ -523,14 +523,14 @@ export default function CertificateDetailPage({
 
                       <p className="text-sm mt-1">
                         {certificate.verified
-                          ? "This certificate has been verified and recorded on the blockchain."
-                          : "This certificate has not been verified yet."}
+                          ? 'This certificate has been verified and recorded on the blockchain.'
+                          : 'This certificate has not been verified yet.'}
                       </p>
                     </div>
 
                     {certificate.verified ? (
                       <p className="text-sm text-gray-600 dark:text-gray-400">
-                        Last verified on{" "}
+                        Last verified on{' '}
                         {formatDateTime(
                           certificate.verificationDetails?.lastVerified,
                         )}
@@ -551,7 +551,7 @@ export default function CertificateDetailPage({
           )}
 
           {/* Verification Tab */}
-          {activeTab === "verification" && (
+          {activeTab === 'verification' && (
             <motion.div
               variants={fadeIn}
               initial="hidden"
@@ -629,15 +629,15 @@ export default function CertificateDetailPage({
 
                       <div className="relative border-l-2 border-gray-200 dark:border-gray-700 ml-3 pl-6 space-y-6">
                         {certificate.verificationDetails?.verificationHistory.map(
-                          (record: any, index: number) => (
+                          (record: unknown, index: number) => (
                             <div key={index} className="relative">
                               {/* Timeline dot */}
                               <div className="absolute -left-9 mt-1">
                                 <div
                                   className={`w-4 h-4 rounded-full border-2 border-white dark:border-gray-800 ${
-                                    record.status === "success"
-                                      ? "bg-green-500"
-                                      : "bg-red-500"
+                                    record.status === 'success'
+                                      ? 'bg-green-500'
+                                      : 'bg-red-500'
                                   }`}
                                 ></div>
                               </div>
@@ -645,9 +645,9 @@ export default function CertificateDetailPage({
                               <div>
                                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                                   <h4 className="text-base font-medium text-gray-900 dark:text-white">
-                                    {record.method === "blockchain"
-                                      ? "Blockchain Verification"
-                                      : "Issuer Verification"}
+                                    {record.method === 'blockchain'
+                                      ? 'Blockchain Verification'
+                                      : 'Issuer Verification'}
                                   </h4>
                                   <span className="text-sm text-gray-500 dark:text-gray-400">
                                     {formatDateTime(record.date)}
@@ -655,7 +655,7 @@ export default function CertificateDetailPage({
                                 </div>
 
                                 <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                                  {record.status === "success"
+                                  {record.status === 'success'
                                     ? `Successfully verified certificate via ${record.method}.`
                                     : `Verification failed via ${record.method}.`}
                                 </p>
@@ -708,7 +708,7 @@ export default function CertificateDetailPage({
           )}
 
           {/* Share Tab */}
-          {activeTab === "share" && (
+          {activeTab === 'share' && (
             <motion.div
               variants={fadeIn}
               initial="hidden"

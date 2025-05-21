@@ -1,18 +1,18 @@
 // src/services/ai.service.ts
-import { api } from "@/lib/axios";
+import { api } from '@/lib/axios';
 
 interface AIPromptParams {
   prompt: string;
   maxTokens?: number;
   temperature?: number;
-  options?: Record<string, any>;
+  options?: Record<string, unknown>;
 }
 
 interface AIImageParams {
   prompt: string;
   n?: number;
-  size?: "256x256" | "512x512" | "1024x1024";
-  responseFormat?: "url" | "b64_json";
+  size?: '256x256' | '512x512' | '1024x1024';
+  responseFormat?: 'url' | 'b64_json';
 }
 
 interface AIRecommendationParams {
@@ -32,7 +32,7 @@ export const aiService = {
     temperature = 0.7,
     options = {},
   }: AIPromptParams) {
-    const response = await api.post("/ai/text", {
+    const response = await api.post('/ai/text', {
       prompt,
       maxTokens,
       temperature,
@@ -47,10 +47,10 @@ export const aiService = {
   async generateImage({
     prompt,
     n = 1,
-    size = "512x512",
-    responseFormat = "url",
+    size = '512x512',
+    responseFormat = 'url',
   }: AIImageParams) {
-    const response = await api.post("/ai/image", {
+    const response = await api.post('/ai/image', {
       prompt,
       n,
       size,
@@ -76,7 +76,7 @@ export const aiService = {
    * Get AI-generated recommendations based on user profile
    */
   async getRecommendations(params: AIRecommendationParams) {
-    const response = await api.post("/ai/recommendations", params);
+    const response = await api.post('/ai/recommendations', params);
     return response.data;
   },
 
@@ -84,7 +84,7 @@ export const aiService = {
    * Get AI-suggested skills based on project or certificate
    */
   async suggestSkills(text: string) {
-    const response = await api.post("/ai/suggest-skills", { text });
+    const response = await api.post('/ai/suggest-skills', { text });
     return response.data.skills;
   },
 
@@ -92,7 +92,7 @@ export const aiService = {
    * Check content for sensitive or inappropriate information
    */
   async moderateContent(content: string) {
-    const response = await api.post("/ai/moderate", { content });
+    const response = await api.post('/ai/moderate', { content });
     return response.data;
   },
 
@@ -100,7 +100,7 @@ export const aiService = {
    * Generate a portfolio summary from user's projects and certificates
    */
   async generatePortfolioSummary(userId?: string) {
-    const response = await api.post("/ai/portfolio-summary", { userId });
+    const response = await api.post('/ai/portfolio-summary', { userId });
     return response.data;
   },
 
@@ -108,7 +108,7 @@ export const aiService = {
    * Generate SEO metadata for portfolio
    */
   async generateSEOMetadata(text: string) {
-    const response = await api.post("/ai/seo", { text });
+    const response = await api.post('/ai/seo', { text });
     return response.data;
   },
 

@@ -1,9 +1,7 @@
-// .prettierrc.json
 {
-  "semi": true,
   "singleQuote": true,
-  "printWidth": 100,
-  "tabWidth": 2,
   "trailingComma": "all",
-  "plugins": ["prettier-plugin-tailwindcss"] // Important for Tailwind CSS sorting
+  "printWidth": 80,
+  "tabWidth": 2,
+  "semi": true
 }

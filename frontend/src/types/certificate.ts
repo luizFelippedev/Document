@@ -50,5 +50,5 @@ export interface CertificateFilter {
   issuer?: string;
   category?: string;
   expired?: boolean;
-  sortBy?: "newest" | "oldest" | "a-z" | "z-a";
+  sortBy?: 'newest' | 'oldest' | 'a-z' | 'z-a';
 }

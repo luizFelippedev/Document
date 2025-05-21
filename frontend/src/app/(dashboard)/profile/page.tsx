@@ -1,17 +1,17 @@
 // frontend/src/app/(dashboard)/profile/page.tsx
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import Link from "next/link";
-import { MainLayout } from "@/components/layout/MainLayout";
-import { Card } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
-import { Badge } from "@/components/ui/Badge";
-import { Avatar } from "@/components/ui/Avatar";
-import { Spinner } from "@/components/ui/Spinner";
-import { Tabs } from "@/components/ui/Tabs";
-import { ROUTES } from "@/config/routes";
-import { motion } from "framer-motion";
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { MainLayout } from '@/components/layout/MainLayout';
+import { Card } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
+import { Badge } from '@/components/ui/Badge';
+import { Avatar } from '@/components/ui/Avatar';
+import { Spinner } from '@/components/ui/Spinner';
+import { Tabs } from '@/components/ui/Tabs';
+import { ROUTES } from '@/config/routes';
+import { motion } from 'framer-motion';
 import {
   Edit,
   MapPin,
@@ -24,74 +24,74 @@ import {
   Linkedin,
   ExternalLink,
   Phone,
-} from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
+} from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 
 // Mock user data - would come from your auth context or API
 const mockUserData = {
-  id: "1",
-  fullName: "Alex Johnson",
-  email: "alex.johnson@example.com",
-  phone: "+1 (555) 123-4567",
-  role: "Full Stack Developer",
-  company: "TechInnovate Solutions",
-  location: "San Francisco, CA",
-  website: "https://alexjohnson.dev",
-  bio: "Passionate full-stack developer with 7+ years of experience building web and mobile applications. Specialized in React, Node.js, and cloud architecture. Open source contributor and continuous learner.",
-  avatarUrl: "/avatars/alex.jpg",
-  coverImageUrl: "/covers/dev-cover.jpg",
-  joinedDate: "2024-06-15",
+  id: '1',
+  fullName: 'Alex Johnson',
+  email: 'alex.johnson@example.com',
+  phone: '+1 (555) 123-4567',
+  role: 'Full Stack Developer',
+  company: 'TechInnovate Solutions',
+  location: 'San Francisco, CA',
+  website: 'https://alexjohnson.dev',
+  bio: 'Passionate full-stack developer with 7+ years of experience building web and mobile applications. Specialized in React, Node.js, and cloud architecture. Open source contributor and continuous learner.',
+  avatarUrl: '/avatars/alex.jpg',
+  coverImageUrl: '/covers/dev-cover.jpg',
+  joinedDate: '2024-06-15',
   socialLinks: {
-    github: "https://github.com/alexjohnson",
-    twitter: "https://twitter.com/alexjohnson",
-    linkedin: "https://linkedin.com/in/alexjohnson",
+    github: 'https://github.com/alexjohnson',
+    twitter: 'https://twitter.com/alexjohnson',
+    linkedin: 'https://linkedin.com/in/alexjohnson',
   },
   skills: [
-    { name: "React", level: 95 },
-    { name: "Node.js", level: 90 },
-    { name: "TypeScript", level: 85 },
-    { name: "AWS", level: 80 },
-    { name: "GraphQL", level: 75 },
-    { name: "MongoDB", level: 85 },
-    { name: "Docker", level: 70 },
-    { name: "Python", level: 65 },
+    { name: 'React', level: 95 },
+    { name: 'Node.js', level: 90 },
+    { name: 'TypeScript', level: 85 },
+    { name: 'AWS', level: 80 },
+    { name: 'GraphQL', level: 75 },
+    { name: 'MongoDB', level: 85 },
+    { name: 'Docker', level: 70 },
+    { name: 'Python', level: 65 },
   ],
   education: [
     {
-      institution: "Stanford University",
-      degree: "M.S. Computer Science",
-      date: "2015 - 2017",
+      institution: 'Stanford University',
+      degree: 'M.S. Computer Science',
+      date: '2015 - 2017',
       description:
-        "Specialized in Artificial Intelligence and Machine Learning",
+        'Specialized in Artificial Intelligence and Machine Learning',
     },
     {
-      institution: "University of California, Berkeley",
-      degree: "B.S. Computer Science",
-      date: "2011 - 2015",
-      description: "Minor in Mathematics",
+      institution: 'University of California, Berkeley',
+      degree: 'B.S. Computer Science',
+      date: '2011 - 2015',
+      description: 'Minor in Mathematics',
     },
   ],
   experience: [
     {
-      company: "TechInnovate Solutions",
-      role: "Senior Full Stack Developer",
-      date: "2020 - Present",
+      company: 'TechInnovate Solutions',
+      role: 'Senior Full Stack Developer',
+      date: '2020 - Present',
       description:
-        "Lead developer for enterprise SaaS applications serving Fortune 500 clients. Architected and built scalable cloud solutions using React, Node.js, and AWS.",
+        'Lead developer for enterprise SaaS applications serving Fortune 500 clients. Architected and built scalable cloud solutions using React, Node.js, and AWS.',
     },
     {
-      company: "CodeFuture Inc.",
-      role: "Full Stack Developer",
-      date: "2017 - 2020",
+      company: 'CodeFuture Inc.',
+      role: 'Full Stack Developer',
+      date: '2017 - 2020',
       description:
-        "Developed and maintained web applications for fintech clients. Implemented CI/CD pipelines and containerized deployments.",
+        'Developed and maintained web applications for fintech clients. Implemented CI/CD pipelines and containerized deployments.',
     },
     {
-      company: "StartupVision",
-      role: "Frontend Developer",
-      date: "2015 - 2017",
+      company: 'StartupVision',
+      role: 'Frontend Developer',
+      date: '2015 - 2017',
       description:
-        "Built responsive and accessible user interfaces for early-stage startups. Worked with React and Vue.js.",
+        'Built responsive and accessible user interfaces for early-stage startups. Worked with React and Vue.js.',
     },
   ],
   projectStats: {
@@ -108,8 +108,8 @@ const mockUserData = {
 
 export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
-  const [userData, setUserData] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState("overview");
+  const [userData, setUserData] = useState<unknown>(null);
+  const [activeTab, setActiveTab] = useState('overview');
   const { user } = useAuth();
 
   // Fetch user data
@@ -120,7 +120,7 @@ export default function ProfilePage() {
         // In a real app, this would fetch from your API
         setUserData(mockUserData);
       } catch (error) {
-        console.error("Error fetching user data:", error);
+        console.error('Error fetching user data:', error);
       } finally {
         setLoading(false);
       }
@@ -137,17 +137,17 @@ export default function ProfilePage() {
       y: 0,
       transition: {
         duration: 0.5,
-        ease: "easeOut",
+        ease: 'easeOut',
       },
     },
   };
 
   // Tab configuration
   const tabs = [
-    { id: "overview", label: "Overview" },
-    { id: "skills", label: "Skills & Expertise" },
-    { id: "experience", label: "Experience" },
-    { id: "education", label: "Education" },
+    { id: 'overview', label: 'Overview' },
+    { id: 'skills', label: 'Skills & Expertise' },
+    { id: 'experience', label: 'Experience' },
+    { id: 'education', label: 'Education' },
   ];
 
   if (loading) {
@@ -273,7 +273,7 @@ export default function ProfilePage() {
                   {userData.joinedDate && (
                     <div className="flex items-center text-gray-700 dark:text-gray-300">
                       <Calendar size={18} className="mr-2" />
-                      Joined{" "}
+                      Joined{' '}
                       {new Date(userData.joinedDate).toLocaleDateString()}
                     </div>
                   )}
@@ -351,7 +351,7 @@ export default function ProfilePage() {
                   {userData.projectStats?.total || 0}
                 </h3>
                 <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  {userData.projectStats?.completed || 0} completed ·{" "}
+                  {userData.projectStats?.completed || 0} completed ·{' '}
                   {userData.projectStats?.inProgress || 0} in progress
                 </div>
               </div>
@@ -416,8 +416,8 @@ export default function ProfilePage() {
                   {userData.skills?.length || 0}
                 </h3>
                 <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  {userData.skills?.filter((s: any) => s.level >= 80).length ||
-                    0}{" "}
+                  {userData.skills?.filter((s: unknown) => s.level >= 80)
+                    .length || 0}{' '}
                   expert-level skills
                 </div>
               </div>
@@ -450,7 +450,7 @@ export default function ProfilePage() {
                   {userData.experience?.length || 0}
                 </h3>
                 <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  {userData.experience?.[0]?.company || "No current company"}
+                  {userData.experience?.[0]?.company || 'No current company'}
                 </div>
               </div>
             </div>
@@ -463,7 +463,7 @@ export default function ProfilePage() {
         {/* Tab Content */}
         <div className="space-y-6">
           {/* Overview Tab */}
-          {activeTab === "overview" && (
+          {activeTab === 'overview' && (
             <motion.div
               variants={fadeIn}
               initial="hidden"
@@ -476,7 +476,7 @@ export default function ProfilePage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {userData.skills
                       ?.slice(0, 6)
-                      .map((skill: any, index: number) => (
+                      .map((skill: unknown, index: number) => (
                         <div key={index} className="space-y-1">
                           <div className="flex justify-between">
                             <span className="text-gray-700 dark:text-gray-300">
@@ -499,7 +499,7 @@ export default function ProfilePage() {
                   <div className="mt-4 text-center">
                     <button
                       className="text-blue-600 dark:text-blue-400 hover:underline"
-                      onClick={() => setActiveTab("skills")}
+                      onClick={() => setActiveTab('skills')}
                     >
                       View all skills
                     </button>
@@ -511,7 +511,7 @@ export default function ProfilePage() {
                   <div className="space-y-6">
                     {userData.experience
                       ?.slice(0, 2)
-                      .map((exp: any, index: number) => (
+                      .map((exp: unknown, index: number) => (
                         <div key={index} className="flex">
                           <div className="flex-shrink-0 mr-4">
                             <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-500 dark:text-gray-400">
@@ -537,7 +537,7 @@ export default function ProfilePage() {
                     <div className="mt-4 text-center">
                       <button
                         className="text-blue-600 dark:text-blue-400 hover:underline"
-                        onClick={() => setActiveTab("experience")}
+                        onClick={() => setActiveTab('experience')}
                       >
                         View all experience
                       </button>
@@ -550,7 +550,7 @@ export default function ProfilePage() {
               <div>
                 <Card title="Education">
                   <div className="space-y-6">
-                    {userData.education?.map((edu: any, index: number) => (
+                    {userData.education?.map((edu: unknown, index: number) => (
                       <div key={index} className="flex">
                         <div className="flex-shrink-0 mr-4">
                           <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-500 dark:text-gray-400">
@@ -594,11 +594,11 @@ export default function ProfilePage() {
           )}
 
           {/* Skills Tab */}
-          {activeTab === "skills" && (
+          {activeTab === 'skills' && (
             <motion.div variants={fadeIn} initial="hidden" animate="visible">
               <Card title="Skills & Expertise">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {userData.skills?.map((skill: any, index: number) => (
+                  {userData.skills?.map((skill: unknown, index: number) => (
                     <div key={index} className="space-y-1">
                       <div className="flex justify-between">
                         <span className="text-gray-700 dark:text-gray-300">
@@ -612,10 +612,10 @@ export default function ProfilePage() {
                         <div
                           className={`h-2.5 rounded-full ${
                             skill.level >= 90
-                              ? "bg-green-600 dark:bg-green-500"
+                              ? 'bg-green-600 dark:bg-green-500'
                               : skill.level >= 70
-                                ? "bg-blue-600 dark:bg-blue-500"
-                                : "bg-amber-500 dark:bg-amber-400"
+                                ? 'bg-blue-600 dark:bg-blue-500'
+                                : 'bg-amber-500 dark:bg-amber-400'
                           }`}
                           style={{ width: `${skill.level}%` }}
                         ></div>
@@ -628,11 +628,11 @@ export default function ProfilePage() {
           )}
 
           {/* Experience Tab */}
-          {activeTab === "experience" && (
+          {activeTab === 'experience' && (
             <motion.div variants={fadeIn} initial="hidden" animate="visible">
               <Card title="Professional Experience">
                 <div className="relative border-l-2 border-gray-200 dark:border-gray-700 ml-6 pl-6 space-y-10">
-                  {userData.experience?.map((exp: any, index: number) => (
+                  {userData.experience?.map((exp: unknown, index: number) => (
                     <div key={index} className="relative">
                       {/* Timeline dot */}
                       <div className="absolute -left-10 mt-1.5">
@@ -669,11 +669,11 @@ export default function ProfilePage() {
           )}
 
           {/* Education Tab */}
-          {activeTab === "education" && (
+          {activeTab === 'education' && (
             <motion.div variants={fadeIn} initial="hidden" animate="visible">
               <Card title="Education">
                 <div className="relative border-l-2 border-gray-200 dark:border-gray-700 ml-6 pl-6 space-y-10">
-                  {userData.education?.map((edu: any, index: number) => (
+                  {userData.education?.map((edu: unknown, index: number) => (
                     <div key={index} className="relative">
                       {/* Timeline dot */}
                       <div className="absolute -left-10 mt-1.5">

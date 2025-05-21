@@ -1,22 +1,22 @@
 // frontend/src/app/page.tsx
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
-import { ThemeToggle } from "@/components/ui/ThemeToggle";
-import { Button } from "@/components/ui/Button";
-import { ROUTES } from "@/config/routes";
-import { APP_NAME } from "@/config/constants";
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
+import { Button } from '@/components/ui/Button';
+import { ROUTES } from '@/config/routes';
+import { APP_NAME } from '@/config/constants';
 import {
   ArrowRight,
   Check,
   ChevronDown,
   Github,
   ExternalLink,
-} from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
+} from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function HomePage() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -29,8 +29,8 @@ export default function HomePage() {
       setIsScrolled(window.scrollY > 10);
     };
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   // Redirect authenticated users to dashboard
@@ -42,27 +42,27 @@ export default function HomePage() {
 
   const features = [
     {
-      title: "Project Management",
-      description: "Track and showcase your portfolio projects in one place.",
-      icon: "📁",
+      title: 'Project Management',
+      description: 'Track and showcase your portfolio projects in one place.',
+      icon: '📁',
     },
     {
-      title: "Certificate Verification",
+      title: 'Certificate Verification',
       description:
-        "Store and verify your credentials with blockchain technology.",
-      icon: "🔐",
+        'Store and verify your credentials with blockchain technology.',
+      icon: '🔐',
     },
     {
-      title: "Skill Tracking",
+      title: 'Skill Tracking',
       description:
-        "Monitor your progress and growth in various skills over time.",
-      icon: "📈",
+        'Monitor your progress and growth in various skills over time.',
+      icon: '📈',
     },
     {
-      title: "AI-Powered Insights",
+      title: 'AI-Powered Insights',
       description:
-        "Get personalized recommendations to enhance your portfolio.",
-      icon: "🤖",
+        'Get personalized recommendations to enhance your portfolio.',
+      icon: '🤖',
     },
   ];
 
@@ -72,8 +72,8 @@ export default function HomePage() {
       <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           isScrolled
-            ? "py-3 bg-white dark:bg-gray-900 shadow-md"
-            : "py-5 bg-transparent"
+            ? 'py-3 bg-white dark:bg-gray-900 shadow-md'
+            : 'py-5 bg-transparent'
         }`}
       >
         <div className="container mx-auto px-4">
@@ -144,7 +144,7 @@ export default function HomePage() {
               >
                 Showcase Your Projects
                 <span className="text-blue-600 dark:text-blue-500">
-                  {" "}
+                  {' '}
                   Like Never Before
                 </span>
               </motion.h1>
@@ -238,7 +238,7 @@ export default function HomePage() {
             duration: 0.5,
             delay: 0.8,
             repeat: Infinity,
-            repeatType: "reverse",
+            repeatType: 'reverse',
             repeatDelay: 1,
           }}
         >

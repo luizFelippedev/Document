@@ -1,20 +1,20 @@
 // frontend/src/components/certificates/CertificateList.tsx
-"use client";
+'use client';
 
-import React, { useState, useEffect, useMemo } from "react";
-import { useRouter } from "next/navigation";
-import { certificateService } from "@/services/certificate.service";
-import { useNotification } from "@/hooks/useNotification";
-import { MainLayout } from "@/components/layout/MainLayout";
-import { Card } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
-import { Select } from "@/components/ui/Select";
-import { Badge } from "@/components/ui/Badge";
-import { Pagination } from "@/components/ui/Pagination";
-import { Modal } from "@/components/ui/Modal";
-import { ROUTES } from "@/config/routes";
-import { Certificate } from "@/types/certificate";
+import React, { useState, useEffect, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
+import { certificateService } from '@/services/certificate.service';
+import { useNotification } from '@/hooks/useNotification';
+import { MainLayout } from '@/components/layout/MainLayout';
+import { Card } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
+import { Badge } from '@/components/ui/Badge';
+import { Pagination } from '@/components/ui/Pagination';
+import { Modal } from '@/components/ui/Modal';
+import { ROUTES } from '@/config/routes';
+import { Certificate } from '@/types/certificate';
 import {
   Plus,
   Search,
@@ -27,22 +27,22 @@ import {
   ExternalLink,
   AlertCircle,
   Calendar,
-} from "lucide-react";
-import { cn } from "@/utils/cn";
-import { formatDate, getRelativeTime } from "@/utils/date";
-import { motion } from "framer-motion";
+} from 'lucide-react';
+import { cn } from '@/utils/cn';
+import { formatDate, getRelativeTime } from '@/utils/date';
+import { motion } from 'framer-motion';
 
 export const CertificateList = () => {
   const [certificates, setCertificates] = useState<Certificate[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [sortBy, setSortBy] = useState<"newest" | "oldest" | "a-z" | "z-a">(
-    "newest",
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'a-z' | 'z-a'>(
+    'newest',
   );
-  const [filterCategory, setFilterCategory] = useState<string>("all");
+  const [filterCategory, setFilterCategory] = useState<string>('all');
   const [filterStatus, setFilterStatus] = useState<
-    "all" | "active" | "expired"
-  >("all");
+    'all' | 'active' | 'expired'
+  >('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [certificateToDelete, setCertificateToDelete] = useState<string | null>(
@@ -61,10 +61,10 @@ export const CertificateList = () => {
         setLoading(true);
         const data = await certificateService.getCertificates();
         setCertificates(data);
-      } catch (error: any) {
+      } catch (error: unknown) {
         showToast(
-          "error",
-          error.response?.data?.message || "Failed to load certificates",
+          'error',
+          error.response?.data?.message || 'Failed to load certificates',
         );
       } finally {
         setLoading(false);
@@ -76,7 +76,7 @@ export const CertificateList = () => {
 
   // Handle navigation
   const handleCreate = () => {
-    router.push(ROUTES.DASHBOARD.CERTIFICATES + "/new");
+    router.push(ROUTES.DASHBOARD.CERTIFICATES + '/new');
   };
 
   const handleView = (id: string) => {
@@ -98,16 +98,16 @@ export const CertificateList = () => {
 
     try {
       await certificateService.deleteCertificate(certificateToDelete);
-      showToast("success", "Certificate deleted successfully");
+      showToast('success', 'Certificate deleted successfully');
       setCertificates(
         certificates.filter((cert) => cert.id !== certificateToDelete),
       );
       setShowDeleteModal(false);
       setCertificateToDelete(null);
-    } catch (error: any) {
+    } catch (error: unknown) {
       showToast(
-        "error",
-        error.response?.data?.message || "Failed to delete certificate",
+        'error',
+        error.response?.data?.message || 'Failed to delete certificate',
       );
     }
   };
@@ -139,35 +139,35 @@ export const CertificateList = () => {
     }
 
     // Filter by category
-    if (filterCategory !== "all") {
+    if (filterCategory !== 'all') {
       filtered = filtered.filter((cert) => cert.category === filterCategory);
     }
 
     // Filter by status
-    if (filterStatus === "active") {
+    if (filterStatus === 'active') {
       filtered = filtered.filter((cert) => !isCertificateExpired(cert));
-    } else if (filterStatus === "expired") {
+    } else if (filterStatus === 'expired') {
       filtered = filtered.filter((cert) => isCertificateExpired(cert));
     }
 
     // Sort certificates
     switch (sortBy) {
-      case "newest":
+      case 'newest':
         filtered.sort(
           (a, b) =>
             new Date(b.issueDate).getTime() - new Date(a.issueDate).getTime(),
         );
         break;
-      case "oldest":
+      case 'oldest':
         filtered.sort(
           (a, b) =>
             new Date(a.issueDate).getTime() - new Date(b.issueDate).getTime(),
         );
         break;
-      case "a-z":
+      case 'a-z':
         filtered.sort((a, b) => a.title.localeCompare(b.title));
         break;
-      case "z-a":
+      case 'z-a':
         filtered.sort((a, b) => b.title.localeCompare(a.title));
         break;
     }
@@ -185,10 +185,10 @@ export const CertificateList = () => {
 
   // Clear all filters
   const clearFilters = () => {
-    setSearchQuery("");
-    setFilterCategory("all");
-    setFilterStatus("all");
-    setSortBy("newest");
+    setSearchQuery('');
+    setFilterCategory('all');
+    setFilterStatus('all');
+    setSortBy('newest');
     setCurrentPage(1);
   };
 
@@ -201,14 +201,14 @@ export const CertificateList = () => {
     }
 
     const colors = [
-      "from-blue-500 to-indigo-600",
-      "from-green-500 to-emerald-600",
-      "from-purple-500 to-indigo-600",
-      "from-amber-500 to-orange-600",
-      "from-rose-500 to-pink-600",
-      "from-cyan-500 to-blue-600",
-      "from-fuchsia-500 to-purple-600",
-      "from-teal-500 to-green-600",
+      'from-blue-500 to-indigo-600',
+      'from-green-500 to-emerald-600',
+      'from-purple-500 to-indigo-600',
+      'from-amber-500 to-orange-600',
+      'from-rose-500 to-pink-600',
+      'from-cyan-500 to-blue-600',
+      'from-fuchsia-500 to-purple-600',
+      'from-teal-500 to-green-600',
     ];
 
     const index = Math.abs(hash) % colors.length;
@@ -262,16 +262,16 @@ export const CertificateList = () => {
                   value={filterCategory}
                   onChange={setFilterCategory}
                   options={[
-                    { value: "all", label: "All Categories" },
-                    { value: "it-certification", label: "IT Certification" },
+                    { value: 'all', label: 'All Categories' },
+                    { value: 'it-certification', label: 'IT Certification' },
                     {
-                      value: "professional-license",
-                      label: "Professional License",
+                      value: 'professional-license',
+                      label: 'Professional License',
                     },
-                    { value: "course-completion", label: "Course Completion" },
-                    { value: "academic-degree", label: "Academic Degree" },
-                    { value: "award", label: "Award" },
-                    { value: "other", label: "Other" },
+                    { value: 'course-completion', label: 'Course Completion' },
+                    { value: 'academic-degree', label: 'Academic Degree' },
+                    { value: 'award', label: 'Award' },
+                    { value: 'other', label: 'Other' },
                   ]}
                   variant="filled"
                   size="sm"
@@ -283,9 +283,9 @@ export const CertificateList = () => {
                   value={filterStatus}
                   onChange={setFilterStatus}
                   options={[
-                    { value: "all", label: "All Status" },
-                    { value: "active", label: "Active" },
-                    { value: "expired", label: "Expired" },
+                    { value: 'all', label: 'All Status' },
+                    { value: 'active', label: 'Active' },
+                    { value: 'expired', label: 'Expired' },
                   ]}
                   variant="filled"
                   size="sm"
@@ -297,10 +297,10 @@ export const CertificateList = () => {
                   value={sortBy}
                   onChange={setSortBy}
                   options={[
-                    { value: "newest", label: "Newest First" },
-                    { value: "oldest", label: "Oldest First" },
-                    { value: "a-z", label: "A-Z" },
-                    { value: "z-a", label: "Z-A" },
+                    { value: 'newest', label: 'Newest First' },
+                    { value: 'oldest', label: 'Oldest First' },
+                    { value: 'a-z', label: 'A-Z' },
+                    { value: 'z-a', label: 'Z-A' },
                   ]}
                   variant="filled"
                   size="sm"
@@ -309,9 +309,9 @@ export const CertificateList = () => {
 
                 {/* Clear filters button */}
                 {(searchQuery ||
-                  filterCategory !== "all" ||
-                  filterStatus !== "all" ||
-                  sortBy !== "newest") && (
+                  filterCategory !== 'all' ||
+                  filterStatus !== 'all' ||
+                  sortBy !== 'newest') && (
                   <Button variant="outline" size="sm" onClick={clearFilters}>
                     Clear Filters
                   </Button>
@@ -339,14 +339,14 @@ export const CertificateList = () => {
                 </h3>
                 <p className="text-gray-500 dark:text-gray-400 mb-4">
                   {searchQuery ||
-                  filterCategory !== "all" ||
-                  filterStatus !== "all"
-                    ? "Try adjusting your search or filters"
-                    : "Get started by adding your first certificate"}
+                  filterCategory !== 'all' ||
+                  filterStatus !== 'all'
+                    ? 'Try adjusting your search or filters'
+                    : 'Get started by adding your first certificate'}
                 </p>
                 {searchQuery ||
-                filterCategory !== "all" ||
-                filterStatus !== "all" ? (
+                filterCategory !== 'all' ||
+                filterStatus !== 'all' ? (
                   <Button variant="outline" onClick={clearFilters}>
                     Clear All Filters
                   </Button>
@@ -373,7 +373,7 @@ export const CertificateList = () => {
                       {/* Certificate Header/Banner */}
                       <div
                         className={cn(
-                          "relative h-24 bg-gradient-to-r",
+                          'relative h-24 bg-gradient-to-r',
                           getCertificateColor(
                             certificate.title,
                             certificate.issuer,
@@ -412,7 +412,7 @@ export const CertificateList = () => {
                           Issued: {formatDate(certificate.issueDate)}
                           {certificate.expiryDate && (
                             <>
-                              {" "}
+                              {' '}
                               • Expires: {formatDate(certificate.expiryDate)}
                             </>
                           )}
@@ -442,7 +442,7 @@ export const CertificateList = () => {
                         {/* Verification */}
                         {certificate.credentialId && (
                           <div className="flex items-center mb-2 text-xs text-gray-500 dark:text-gray-400">
-                            <span className="font-medium mr-1">ID:</span>{" "}
+                            <span className="font-medium mr-1">ID:</span>{' '}
                             {certificate.credentialId}
                           </div>
                         )}

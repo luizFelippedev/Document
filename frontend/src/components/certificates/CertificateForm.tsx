@@ -1,25 +1,25 @@
 // frontend/src/components/certificates/CertificateForm.tsx
-"use client";
+'use client';
 
-import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useForm, Controller } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { motion } from "framer-motion";
-import { Card } from "@/components/ui/Card";
-import { Input } from "@/components/ui/Input";
-import { Button } from "@/components/ui/Button";
-import { Select } from "@/components/ui/Select";
-import { Switch } from "@/components/ui/Switch";
-import { Badge } from "@/components/ui/Badge";
-import { SKILLS } from "@/config/constants";
-import { certificateService } from "@/services/certificate.service";
-import { useNotification } from "@/hooks/useNotification";
-import { ROUTES } from "@/config/routes";
-import { Certificate, CertificateFormData } from "@/types/certificate";
-import { Editor } from "@/components/ui/Editor";
-import { FileUploader } from "@/components/ui/FileUploader";
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { motion } from 'framer-motion';
+import { Card } from '@/components/ui/Card';
+import { Input } from '@/components/ui/Input';
+import { Button } from '@/components/ui/Button';
+import { Select } from '@/components/ui/Select';
+import { Switch } from '@/components/ui/Switch';
+import { Badge } from '@/components/ui/Badge';
+import { SKILLS } from '@/config/constants';
+import { certificateService } from '@/services/certificate.service';
+import { useNotification } from '@/hooks/useNotification';
+import { ROUTES } from '@/config/routes';
+import { Certificate, CertificateFormData } from '@/types/certificate';
+import { Editor } from '@/components/ui/Editor';
+import { FileUploader } from '@/components/ui/FileUploader';
 import {
   ArrowLeft,
   Save,
@@ -30,34 +30,34 @@ import {
   Building,
   FileCheck,
   Tag,
-} from "lucide-react";
-import { cn } from "@/utils/cn";
+} from 'lucide-react';
+import { cn } from '@/utils/cn';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ALLOWED_FILE_TYPES = [
-  "application/pdf",
-  "image/jpeg",
-  "image/png",
-  "image/webp",
+  'application/pdf',
+  'image/jpeg',
+  'image/png',
+  'image/webp',
 ];
 
 // Schema for form validation
 const certificateSchema = z.object({
   title: z
     .string()
-    .min(1, "Title is required")
-    .max(100, "Title cannot exceed 100 characters"),
-  issuer: z.string().min(1, "Issuer is required"),
-  issueDate: z.string().min(1, "Issue date is required"),
+    .min(1, 'Title is required')
+    .max(100, 'Title cannot exceed 100 characters'),
+  issuer: z.string().min(1, 'Issuer is required'),
+  issueDate: z.string().min(1, 'Issue date is required'),
   expiryDate: z.string().optional(),
   credentialId: z.string().optional(),
   credentialUrl: z
     .string()
-    .url("Enter a valid URL")
-    .or(z.literal(""))
+    .url('Enter a valid URL')
+    .or(z.literal(''))
     .optional(),
   description: z.string().optional(),
-  skills: z.array(z.string()).min(1, "Select at least one skill"),
+  skills: z.array(z.string()).min(1, 'Select at least one skill'),
   isPublic: z.boolean().optional(),
   category: z.string().optional(),
 });
@@ -72,7 +72,7 @@ interface CertificateFormProps {
 export const CertificateForm = ({ id, initialData }: CertificateFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [certificateFile, setCertificateFile] = useState<File | null>(null);
-  const [filePreviewUrl, setFilePreviewUrl] = useState<string>("");
+  const [filePreviewUrl, setFilePreviewUrl] = useState<string>('');
   const [neverExpires, setNeverExpires] = useState(true);
 
   const router = useRouter();
@@ -89,21 +89,21 @@ export const CertificateForm = ({ id, initialData }: CertificateFormProps) => {
   } = useForm<CertificateFormValues>({
     resolver: zodResolver(certificateSchema),
     defaultValues: {
-      title: "",
-      issuer: "",
-      issueDate: "",
-      expiryDate: "",
-      credentialId: "",
-      credentialUrl: "",
-      description: "",
+      title: '',
+      issuer: '',
+      issueDate: '',
+      expiryDate: '',
+      credentialId: '',
+      credentialUrl: '',
+      description: '',
       skills: [],
       isPublic: true,
-      category: "",
+      category: '',
     },
   });
 
-  const skills = watch("skills");
-  const expiryDate = watch("expiryDate");
+  const skills = watch('skills');
+  const expiryDate = watch('expiryDate');
 
   // Initialize form with existing data if editing
   useEffect(() => {
@@ -112,13 +112,13 @@ export const CertificateForm = ({ id, initialData }: CertificateFormProps) => {
         title: initialData.title,
         issuer: initialData.issuer,
         issueDate: initialData.issueDate,
-        expiryDate: initialData.expiryDate || "",
-        credentialId: initialData.credentialId || "",
-        credentialUrl: initialData.credentialUrl || "",
-        description: initialData.description || "",
+        expiryDate: initialData.expiryDate || '',
+        credentialId: initialData.credentialId || '',
+        credentialUrl: initialData.credentialUrl || '',
+        description: initialData.description || '',
         skills: initialData.skills,
         isPublic: initialData.isPublic !== false, // default to true
-        category: initialData.category || "",
+        category: initialData.category || '',
       });
 
       // If no expiry date is set, assume it never expires
@@ -132,7 +132,7 @@ export const CertificateForm = ({ id, initialData }: CertificateFormProps) => {
 
   // Handle description changes from the editor
   const handleEditorChange = (value: string) => {
-    setValue("description", value, { shouldDirty: true });
+    setValue('description', value, { shouldDirty: true });
   };
 
   // Handle certificate file upload
@@ -142,21 +142,21 @@ export const CertificateForm = ({ id, initialData }: CertificateFormProps) => {
 
       if (!ALLOWED_FILE_TYPES.includes(file.type)) {
         showToast(
-          "error",
-          "Please upload a PDF or image file (JPEG, PNG, WebP)",
+          'error',
+          'Please upload a PDF or image file (JPEG, PNG, WebP)',
         );
         return;
       }
 
       if (file.size > MAX_FILE_SIZE) {
-        showToast("error", "File size exceeds 5MB limit");
+        showToast('error', 'File size exceeds 5MB limit');
         return;
       }
 
       setCertificateFile(file);
 
       // Create preview URL for images
-      if (file.type.startsWith("image/")) {
+      if (file.type.startsWith('image/')) {
         const reader = new FileReader();
         reader.onloadend = () => {
           setFilePreviewUrl(reader.result as string);
@@ -164,7 +164,7 @@ export const CertificateForm = ({ id, initialData }: CertificateFormProps) => {
         reader.readAsDataURL(file);
       } else {
         // For PDFs, just set a placeholder
-        setFilePreviewUrl("pdf");
+        setFilePreviewUrl('pdf');
       }
     }
   };
@@ -172,21 +172,21 @@ export const CertificateForm = ({ id, initialData }: CertificateFormProps) => {
   // Remove certificate file
   const removeFile = () => {
     setCertificateFile(null);
-    setFilePreviewUrl("");
+    setFilePreviewUrl('');
   };
 
   // Toggle skill selection
   const toggleSkill = (skill: string) => {
-    const currentSkills = watch("skills") || [];
+    const currentSkills = watch('skills') || [];
 
     if (currentSkills.includes(skill)) {
       setValue(
-        "skills",
+        'skills',
         currentSkills.filter((s) => s !== skill),
         { shouldDirty: true },
       );
     } else {
-      setValue("skills", [...currentSkills, skill], { shouldDirty: true });
+      setValue('skills', [...currentSkills, skill], { shouldDirty: true });
     }
   };
 
@@ -195,7 +195,7 @@ export const CertificateForm = ({ id, initialData }: CertificateFormProps) => {
     setNeverExpires(checked);
 
     if (checked) {
-      setValue("expiryDate", "", { shouldDirty: true });
+      setValue('expiryDate', '', { shouldDirty: true });
     }
   };
 
@@ -206,46 +206,46 @@ export const CertificateForm = ({ id, initialData }: CertificateFormProps) => {
 
       // Prepare form data for API
       const formData = new FormData();
-      formData.append("title", data.title);
-      formData.append("issuer", data.issuer);
-      formData.append("issueDate", data.issueDate);
+      formData.append('title', data.title);
+      formData.append('issuer', data.issuer);
+      formData.append('issueDate', data.issueDate);
 
       if (!neverExpires && data.expiryDate) {
-        formData.append("expiryDate", data.expiryDate);
+        formData.append('expiryDate', data.expiryDate);
       }
 
-      if (data.credentialId) formData.append("credentialId", data.credentialId);
+      if (data.credentialId) formData.append('credentialId', data.credentialId);
       if (data.credentialUrl)
-        formData.append("credentialUrl", data.credentialUrl);
-      if (data.description) formData.append("description", data.description);
+        formData.append('credentialUrl', data.credentialUrl);
+      if (data.description) formData.append('description', data.description);
 
-      formData.append("skills", JSON.stringify(data.skills));
-      formData.append("isPublic", String(data.isPublic));
-      if (data.category) formData.append("category", data.category);
+      formData.append('skills', JSON.stringify(data.skills));
+      formData.append('isPublic', String(data.isPublic));
+      if (data.category) formData.append('category', data.category);
 
       // Add certificate file if changed
       if (certificateFile) {
-        formData.append("file", certificateFile);
+        formData.append('file', certificateFile);
       }
 
       // Send request to API
       if (id) {
         // Update existing certificate
         await certificateService.updateCertificate(id, formData);
-        showToast("success", "Certificate updated successfully");
+        showToast('success', 'Certificate updated successfully');
       } else {
         // Create new certificate
         await certificateService.createCertificate(formData);
-        showToast("success", "Certificate created successfully");
+        showToast('success', 'Certificate created successfully');
       }
 
       // Redirect to certificates page
       router.push(ROUTES.DASHBOARD.CERTIFICATES);
-    } catch (error: any) {
+    } catch (error: unknown) {
       showToast(
-        "error",
+        'error',
         error.response?.data?.message ||
-          "An error occurred while saving the certificate",
+          'An error occurred while saving the certificate',
       );
     } finally {
       setIsSubmitting(false);
@@ -263,7 +263,7 @@ export const CertificateForm = ({ id, initialData }: CertificateFormProps) => {
           <ArrowLeft size={20} />
         </button>
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-          {id ? "Edit Certificate" : "Add New Certificate"}
+          {id ? 'Edit Certificate' : 'Add New Certificate'}
         </h1>
       </div>
 
@@ -289,7 +289,7 @@ export const CertificateForm = ({ id, initialData }: CertificateFormProps) => {
                     id="title"
                     placeholder="e.g. AWS Certified Solutions Architect"
                     error={errors.title?.message}
-                    {...register("title")}
+                    {...register('title')}
                     leftElement={<Award size={18} />}
                   />
                 </div>
@@ -305,7 +305,7 @@ export const CertificateForm = ({ id, initialData }: CertificateFormProps) => {
                     id="issuer"
                     placeholder="e.g. Amazon Web Services"
                     error={errors.issuer?.message}
-                    {...register("issuer")}
+                    {...register('issuer')}
                     leftElement={<Building size={18} />}
                   />
                 </div>
@@ -320,7 +320,7 @@ export const CertificateForm = ({ id, initialData }: CertificateFormProps) => {
                   <Input
                     id="issueDate"
                     type="date"
-                    {...register("issueDate")}
+                    {...register('issueDate')}
                     error={errors.issueDate?.message}
                     leftElement={<Calendar size={18} />}
                   />
@@ -344,7 +344,7 @@ export const CertificateForm = ({ id, initialData }: CertificateFormProps) => {
                   <Input
                     id="expiryDate"
                     type="date"
-                    {...register("expiryDate")}
+                    {...register('expiryDate')}
                     disabled={neverExpires}
                     leftElement={<Calendar size={18} />}
                   />
@@ -360,7 +360,7 @@ export const CertificateForm = ({ id, initialData }: CertificateFormProps) => {
                   <Input
                     id="credentialId"
                     placeholder="e.g. ABC123XYZ"
-                    {...register("credentialId")}
+                    {...register('credentialId')}
                     leftElement={<FileCheck size={18} />}
                   />
                 </div>
@@ -375,7 +375,7 @@ export const CertificateForm = ({ id, initialData }: CertificateFormProps) => {
                   <Input
                     id="credentialUrl"
                     placeholder="https://example.com/verify/ABC123XYZ"
-                    {...register("credentialUrl")}
+                    {...register('credentialUrl')}
                     error={errors.credentialUrl?.message}
                     leftElement={<LinkIcon size={18} />}
                   />
@@ -390,23 +390,23 @@ export const CertificateForm = ({ id, initialData }: CertificateFormProps) => {
                   </label>
                   <Select
                     id="category"
-                    value={watch("category")}
+                    value={watch('category')}
                     onChange={(value) =>
-                      setValue("category", value, { shouldDirty: true })
+                      setValue('category', value, { shouldDirty: true })
                     }
                     options={[
-                      { value: "it-certification", label: "IT Certification" },
+                      { value: 'it-certification', label: 'IT Certification' },
                       {
-                        value: "professional-license",
-                        label: "Professional License",
+                        value: 'professional-license',
+                        label: 'Professional License',
                       },
                       {
-                        value: "course-completion",
-                        label: "Course Completion",
+                        value: 'course-completion',
+                        label: 'Course Completion',
                       },
-                      { value: "academic-degree", label: "Academic Degree" },
-                      { value: "award", label: "Award" },
-                      { value: "other", label: "Other" },
+                      { value: 'academic-degree', label: 'Academic Degree' },
+                      { value: 'award', label: 'Award' },
+                      { value: 'other', label: 'Other' },
                     ]}
                     placeholder="Select a category"
                     leftElement={<Tag size={18} />}
@@ -416,9 +416,9 @@ export const CertificateForm = ({ id, initialData }: CertificateFormProps) => {
                 <div className="col-span-1 md:col-span-2">
                   <Switch
                     id="isPublic"
-                    checked={watch("isPublic")}
+                    checked={watch('isPublic')}
                     onChange={(checked) =>
-                      setValue("isPublic", checked, { shouldDirty: true })
+                      setValue('isPublic', checked, { shouldDirty: true })
                     }
                     label="Certificate is public"
                     description="Make this certificate visible to everyone. Uncheck to keep it private to you and your team."
@@ -443,7 +443,7 @@ export const CertificateForm = ({ id, initialData }: CertificateFormProps) => {
                     <Badge
                       key={skill}
                       text={skill}
-                      variant={skills?.includes(skill) ? "primary" : "outline"}
+                      variant={skills?.includes(skill) ? 'primary' : 'outline'}
                       size="lg"
                       className="cursor-pointer"
                       onClick={() => toggleSkill(skill)}
@@ -503,7 +503,7 @@ export const CertificateForm = ({ id, initialData }: CertificateFormProps) => {
 
                   {filePreviewUrl ? (
                     <div className="mb-4">
-                      {filePreviewUrl === "pdf" ? (
+                      {filePreviewUrl === 'pdf' ? (
                         <div className="flex items-center space-x-2 p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800">
                           <div className="w-10 h-12 bg-red-100 dark:bg-red-900 rounded flex items-center justify-center">
                             <svg
@@ -581,7 +581,7 @@ export const CertificateForm = ({ id, initialData }: CertificateFormProps) => {
                     <FileUploader
                       onFilesSelected={handleFileUpload}
                       multiple={false}
-                      accept={ALLOWED_FILE_TYPES.join(",")}
+                      accept={ALLOWED_FILE_TYPES.join(',')}
                       maxFiles={1}
                       className="w-full h-40"
                     >
@@ -669,7 +669,7 @@ export const CertificateForm = ({ id, initialData }: CertificateFormProps) => {
                 loadingText="Saving..."
                 leftIcon={<Save size={16} />}
               >
-                {id ? "Update Certificate" : "Add Certificate"}
+                {id ? 'Update Certificate' : 'Add Certificate'}
               </Button>
             </div>
           </div>

@@ -1,21 +1,22 @@
 // frontend/src/app/(dashboard)/profile/settings/page.tsx
-"use client";
+'use client';
 
-import { useState, useEffect, useRef } from "react";
-import Link from "next/link";
-import { MainLayout } from "@/components/layout/MainLayout";
-import { Card } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
-import { Badge } from "@/components/ui/Badge";
-import { Avatar } from "@/components/ui/Avatar";
-import { Spinner } from "@/components/ui/Spinner";
-import { Alert } from "@/components/ui/Alert";
-import { Tabs } from "@/components/ui/Tabs";
-import { Editor } from "@/components/ui/Editor";
-import { Switch } from "@/components/ui/Switch";
-import { ROUTES } from "@/config/routes";
-import { motion } from "framer-motion";
+import { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import { MainLayout } from '@/components/layout/MainLayout';
+import { Card } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { Badge } from '@/components/ui/Badge';
+// Avatar removido, pois não está sendo usado
+import { Spinner } from '@/components/ui/Spinner';
+import { Alert } from '@/components/ui/Alert';
+import { Tabs } from '@/components/ui/Tabs';
+import { Editor } from '@/components/ui/Editor';
+import { Switch } from '@/components/ui/Switch';
+import { ROUTES } from '@/config/routes';
+import { motion } from 'framer-motion';
 import {
   ArrowLeft,
   User,
@@ -30,44 +31,41 @@ import {
   Camera,
   Upload,
   Lock,
-  Shield,
-  BellRing,
-  Clock,
   LogOut,
   Trash2,
-} from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
+  Download, // Importado o componente Download que estava faltando
+  // Shield, BellRing, Clock removidos pois não estavam sendo usados
+} from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 
 // Mock user data - would come from your auth context or API
 const mockUserData = {
-  id: "1",
-  fullName: "Alex Johnson",
-  email: "alex.johnson@example.com",
-  phone: "+1 (555) 123-4567",
-  role: "Full Stack Developer",
-  company: "TechInnovate Solutions",
-  location: "San Francisco, CA",
-  website: "https://alexjohnson.dev",
-  bio: "Passionate full-stack developer with 7+ years of experience building web and mobile applications. Specialized in React, Node.js, and cloud architecture. Open source contributor and continuous learner.",
-  avatarUrl: "/avatars/alex.jpg",
-  coverImageUrl: "/covers/dev-cover.jpg",
-  joinedDate: "2024-06-15",
+  id: '1',
+  fullName: 'Alex Johnson',
+  email: 'alex.johnson@example.com',
+  phone: '+1 (555) 123-4567',
+  role: 'Full Stack Developer',
+  company: 'TechInnovate Solutions',
+  location: 'San Francisco, CA',
+  website: 'https://alexjohnson.dev',
+  bio: 'Passionate full-stack developer with 7+ years of experience building web and mobile applications. Specialized in React, Node.js, and cloud architecture. Open source contributor and continuous learner.',
+  avatarUrl: '/avatars/alex.jpg',
+  coverImageUrl: '/covers/dev-cover.jpg',
+  joinedDate: '2024-06-15',
   socialLinks: {
-    github: "https://github.com/alexjohnson",
-    twitter: "https://twitter.com/alexjohnson",
-    linkedin: "https://linkedin.com/in/alexjohnson",
+    github: 'https://github.com/alexjohnson',
+    twitter: 'https://twitter.com/alexjohnson',
+    linkedin: 'https://linkedin.com/in/alexjohnson',
   },
 };
 
 export default function ProfileSettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [userData, setUserData] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState("profile");
+  const [userData, setUserData] = useState<Record<string, any>>({});
+  const [activeTab, setActiveTab] = useState('profile');
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [formData, setFormData] = useState<any>({});
-  const [avatarFile, setAvatarFile] = useState<File | null>(null);
-  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [formData, setFormData] = useState<Record<string, any>>({});
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const { user } = useAuth();
@@ -84,7 +82,10 @@ export default function ProfileSettingsPage() {
         setUserData(mockUserData);
         setFormData(mockUserData);
       } catch (error) {
-        console.error("Error fetching user data:", error);
+        // Log error only in development
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Error fetching user data:', error);
+        }
       } finally {
         setLoading(false);
       }
@@ -126,8 +127,7 @@ export default function ProfileSettingsPage() {
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      setAvatarFile(file);
-
+      
       // Create a preview URL
       const reader = new FileReader();
       reader.onload = () => {
@@ -145,8 +145,7 @@ export default function ProfileSettingsPage() {
   const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      setCoverFile(file);
-
+      
       // Create a preview URL
       const reader = new FileReader();
       reader.onload = () => {
@@ -169,14 +168,17 @@ export default function ProfileSettingsPage() {
       setUserData(formData);
 
       // Show success message
-      setSuccessMessage("Profile updated successfully");
+      setSuccessMessage('Profile updated successfully');
 
       // Clear success message after 3 seconds
       setTimeout(() => {
         setSuccessMessage(null);
       }, 3000);
     } catch (error) {
-      console.error("Error updating profile:", error);
+      // Log error only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error updating profile:', error);
+      }
     } finally {
       setSaving(false);
     }
@@ -190,18 +192,18 @@ export default function ProfileSettingsPage() {
       y: 0,
       transition: {
         duration: 0.5,
-        ease: "easeOut",
+        ease: 'easeOut',
       },
     },
   };
 
   // Tab configuration
   const tabs = [
-    { id: "profile", label: "Profile" },
-    { id: "account", label: "Account" },
-    { id: "security", label: "Security & Privacy" },
-    { id: "notifications", label: "Notifications" },
-    { id: "danger", label: "Danger Zone" },
+    { id: 'profile', label: 'Profile' },
+    { id: 'account', label: 'Account' },
+    { id: 'security', label: 'Security & Privacy' },
+    { id: 'notifications', label: 'Notifications' },
+    { id: 'danger', label: 'Danger Zone' },
   ];
 
   if (loading) {
@@ -254,7 +256,7 @@ export default function ProfileSettingsPage() {
         {/* Tab content */}
         <div className="space-y-6">
           {/* Profile Settings Tab */}
-          {activeTab === "profile" && (
+          {activeTab === 'profile' && (
             <motion.div variants={fadeIn} initial="hidden" animate="visible">
               <form onSubmit={handleSubmit}>
                 <Card title="Profile Information">
@@ -277,11 +279,14 @@ export default function ProfileSettingsPage() {
                               onClick={handleAvatarClick}
                             >
                               {avatarPreview || formData.avatarUrl ? (
-                                <img
-                                  src={avatarPreview || formData.avatarUrl}
-                                  alt="Avatar"
-                                  className="w-full h-full object-cover"
-                                />
+                                <div className="relative w-full h-full">
+                                  <Image
+                                    src={avatarPreview || formData.avatarUrl}
+                                    alt="Avatar"
+                                    fill
+                                    className="object-cover"
+                                  />
+                                </div>
                               ) : (
                                 <div className="w-full h-full flex items-center justify-center">
                                   <User size={40} className="text-gray-400" />
@@ -315,11 +320,14 @@ export default function ProfileSettingsPage() {
                               onClick={handleCoverClick}
                             >
                               {coverPreview || formData.coverImageUrl ? (
-                                <img
-                                  src={coverPreview || formData.coverImageUrl}
-                                  alt="Cover"
-                                  className="w-full h-full object-cover"
-                                />
+                                <div className="relative w-full h-full">
+                                  <Image
+                                    src={coverPreview || formData.coverImageUrl}
+                                    alt="Cover"
+                                    fill
+                                    className="object-cover"
+                                  />
+                                </div>
                               ) : (
                                 <div className="w-full h-full flex items-center justify-center">
                                   <Upload size={32} className="text-gray-400" />
@@ -356,7 +364,7 @@ export default function ProfileSettingsPage() {
                         <Input
                           id="fullName"
                           name="fullName"
-                          value={formData.fullName || ""}
+                          value={formData.fullName || ''}
                           onChange={handleChange}
                           required
                         />
@@ -373,7 +381,7 @@ export default function ProfileSettingsPage() {
                           id="email"
                           name="email"
                           type="email"
-                          value={formData.email || ""}
+                          value={formData.email || ''}
                           onChange={handleChange}
                           leftElement={<Mail size={16} />}
                           required
@@ -390,7 +398,7 @@ export default function ProfileSettingsPage() {
                         <Input
                           id="phone"
                           name="phone"
-                          value={formData.phone || ""}
+                          value={formData.phone || ''}
                           onChange={handleChange}
                           leftElement={<Phone size={16} />}
                         />
@@ -406,7 +414,7 @@ export default function ProfileSettingsPage() {
                         <Input
                           id="location"
                           name="location"
-                          value={formData.location || ""}
+                          value={formData.location || ''}
                           onChange={handleChange}
                           leftElement={<MapPin size={16} />}
                           placeholder="City, Country"
@@ -423,7 +431,7 @@ export default function ProfileSettingsPage() {
                         <Input
                           id="role"
                           name="role"
-                          value={formData.role || ""}
+                          value={formData.role || ''}
                           onChange={handleChange}
                           leftElement={<Briefcase size={16} />}
                         />
@@ -439,7 +447,7 @@ export default function ProfileSettingsPage() {
                         <Input
                           id="company"
                           name="company"
-                          value={formData.company || ""}
+                          value={formData.company || ''}
                           onChange={handleChange}
                         />
                       </div>
@@ -455,7 +463,7 @@ export default function ProfileSettingsPage() {
                       </label>
                       <div className="mt-1">
                         <Editor
-                          value={formData.bio || ""}
+                          value={formData.bio || ''}
                           onChange={handleBioChange}
                           minHeight="150px"
                           placeholder="Write something about yourself..."
@@ -475,7 +483,7 @@ export default function ProfileSettingsPage() {
                         id="website"
                         name="website"
                         type="url"
-                        value={formData.website || ""}
+                        value={formData.website || ''}
                         onChange={handleChange}
                         leftElement={<Globe size={16} />}
                         placeholder="https://yourwebsite.com"
@@ -496,7 +504,7 @@ export default function ProfileSettingsPage() {
                       <Input
                         id="github"
                         name="github"
-                        value={formData.socialLinks?.github || ""}
+                        value={formData.socialLinks?.github || ''}
                         onChange={handleSocialChange}
                         leftElement={<Github size={16} />}
                         placeholder="https://github.com/username"
@@ -513,7 +521,7 @@ export default function ProfileSettingsPage() {
                       <Input
                         id="twitter"
                         name="twitter"
-                        value={formData.socialLinks?.twitter || ""}
+                        value={formData.socialLinks?.twitter || ''}
                         onChange={handleSocialChange}
                         leftElement={<Twitter size={16} />}
                         placeholder="https://twitter.com/username"
@@ -530,7 +538,7 @@ export default function ProfileSettingsPage() {
                       <Input
                         id="linkedin"
                         name="linkedin"
-                        value={formData.socialLinks?.linkedin || ""}
+                        value={formData.socialLinks?.linkedin || ''}
                         onChange={handleSocialChange}
                         leftElement={<Linkedin size={16} />}
                         placeholder="https://linkedin.com/in/username"
@@ -553,7 +561,7 @@ export default function ProfileSettingsPage() {
           )}
 
           {/* Account Settings Tab */}
-          {activeTab === "account" && (
+          {activeTab === 'account' && (
             <motion.div
               variants={fadeIn}
               initial="hidden"
@@ -721,7 +729,7 @@ export default function ProfileSettingsPage() {
           )}
 
           {/* Security Settings Tab */}
-          {activeTab === "security" && (
+          {activeTab === 'security' && (
             <motion.div
               variants={fadeIn}
               initial="hidden"
@@ -849,7 +857,7 @@ export default function ProfileSettingsPage() {
           )}
 
           {/* Notifications Settings Tab */}
-          {activeTab === "notifications" && (
+          {activeTab === 'notifications' && (
             <motion.div
               variants={fadeIn}
               initial="hidden"
@@ -956,7 +964,7 @@ export default function ProfileSettingsPage() {
                     </h4>
                     <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
                       During these hours, notifications will be silenced unless
-                      they're critical
+                      they&apos;re critical
                     </p>
 
                     <div className="flex items-center justify-between">
@@ -990,7 +998,7 @@ export default function ProfileSettingsPage() {
           )}
 
           {/* Danger Zone Tab */}
-          {activeTab === "danger" && (
+          {activeTab === 'danger' && (
             <motion.div
               variants={fadeIn}
               initial="hidden"
@@ -1008,7 +1016,7 @@ export default function ProfileSettingsPage() {
                     </h3>
                     <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
                       This will sign you out of all sessions across all devices.
-                      You'll need to sign in again on each device.
+                      You&apos;ll need to sign in again on each device.
                     </p>
                     <Button variant="outline" leftIcon={<LogOut size={16} />}>
                       Sign Out Everywhere

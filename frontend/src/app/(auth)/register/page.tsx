@@ -1,25 +1,25 @@
 // frontend/src/app/(auth)/register/page.tsx
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { RegisterForm } from "@/components/auth/RegisterForm";
-import { Card } from "@/components/ui/Card";
-import { ThemeToggle } from "@/components/ui/ThemeToggle";
-import { ROUTES } from "@/config/routes";
-import { APP_NAME } from "@/config/constants";
-import { AnimatedLogo } from "@/components/ui/AnimatedLogo";
-import { Stepper } from "@/components/ui/Stepper";
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { RegisterForm } from '@/components/auth/RegisterForm';
+import { Card } from '@/components/ui/Card';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
+import { ROUTES } from '@/config/routes';
+import { APP_NAME } from '@/config/constants';
+import { AnimatedLogo } from '@/components/ui/AnimatedLogo';
+import { Stepper } from '@/components/ui/Stepper';
 
 export default function RegisterPage() {
   const [currentStep, setCurrentStep] = useState(1);
   const router = useRouter();
 
   const steps = [
-    { id: 1, label: "Account" },
-    { id: 2, label: "Profile" },
-    { id: 3, label: "Complete" },
+    { id: 1, label: 'Account' },
+    { id: 2, label: 'Profile' },
+    { id: 3, label: 'Complete' },
   ];
 
   const handleStepChange = (step: number) => {
@@ -115,7 +115,7 @@ export default function RegisterPage() {
 
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              Already have an account?{" "}
+              Already have an account?{' '}
               <Link
                 href={ROUTES.AUTH.LOGIN}
                 className="text-blue-600 hover:text-blue-500 dark:text-blue-400"

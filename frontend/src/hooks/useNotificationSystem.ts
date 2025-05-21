@@ -1,13 +1,13 @@
 // frontend/src/hooks/useNotificationSystem.ts
-"use client";
+'use client';
 
-import { useState, useEffect, useCallback } from "react";
-import { socketService, socketEvents } from "@/lib/socket";
-import { notificationService } from "@/services/notification.service";
-import { Notification } from "@/types/notification";
-import { useAuth } from "./useAuth";
-import { useNotification } from "@/contexts/NotificationContext";
-import { NOTIFICATION_SETTINGS } from "@/config/constants";
+import { useState, useEffect, useCallback } from 'react';
+import { socketService, socketEvents } from '@/lib/socket';
+import { notificationService } from '@/services/notification.service';
+import { Notification } from '@/types/notification';
+import { useAuth } from './useAuth';
+import { useNotification } from '@/contexts/NotificationContext';
+import { NOTIFICATION_SETTINGS } from '@/config/constants';
 
 /**
  * Hook unificado para gerenciar notificações em tempo real
@@ -66,14 +66,14 @@ export const useNotificationSystem = () => {
       });
 
       return data;
-    } catch (err: any) {
+    } catch (err: unknown) {
       const errorMessage =
-        err.response?.data?.message || "Failed to fetch notifications";
+        err.response?.data?.message || 'Failed to fetch notifications';
       setError(errorMessage);
 
       // Só exibir toast para erros que não sejam de conectividade
-      if (err.message !== "Network Error") {
-        showToast("error", errorMessage);
+      if (err.message !== 'Network Error') {
+        showToast('error', errorMessage);
       }
 
       return [];
@@ -90,8 +90,8 @@ export const useNotificationSystem = () => {
       const count = await notificationService.getUnreadCount();
       setUnreadCount(count);
       return count;
-    } catch (err: any) {
-      console.error("Failed to fetch unread notification count:", err);
+    } catch (err: unknown) {
+      console.error('Failed to fetch unread notification count:', err);
       return 0;
     }
   }, [user]);
@@ -119,14 +119,14 @@ export const useNotificationSystem = () => {
         setUnreadCount((prev) => Math.max(0, prev - 1));
 
         return true;
-      } catch (err: any) {
+      } catch (err: unknown) {
         const errorMessage =
-          err.response?.data?.message || "Failed to mark notification as read";
+          err.response?.data?.message || 'Failed to mark notification as read';
         setError(errorMessage);
 
         // Só exibir toast para erros que não sejam de conectividade
-        if (err.message !== "Network Error") {
-          showToast("error", errorMessage);
+        if (err.message !== 'Network Error') {
+          showToast('error', errorMessage);
         }
 
         return false;
@@ -157,15 +157,15 @@ export const useNotificationSystem = () => {
       setUnreadCount(0);
 
       return true;
-    } catch (err: any) {
+    } catch (err: unknown) {
       const errorMessage =
         err.response?.data?.message ||
-        "Failed to mark all notifications as read";
+        'Failed to mark all notifications as read';
       setError(errorMessage);
 
       // Só exibir toast para erros que não sejam de conectividade
-      if (err.message !== "Network Error") {
-        showToast("error", errorMessage);
+      if (err.message !== 'Network Error') {
+        showToast('error', errorMessage);
       }
 
       return false;
@@ -196,14 +196,14 @@ export const useNotificationSystem = () => {
         }
 
         return true;
-      } catch (err: any) {
+      } catch (err: unknown) {
         const errorMessage =
-          err.response?.data?.message || "Failed to delete notification";
+          err.response?.data?.message || 'Failed to delete notification';
         setError(errorMessage);
 
         // Só exibir toast para erros que não sejam de conectividade
-        if (err.message !== "Network Error") {
-          showToast("error", errorMessage);
+        if (err.message !== 'Network Error') {
+          showToast('error', errorMessage);
         }
 
         return false;

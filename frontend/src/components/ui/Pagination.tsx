@@ -1,9 +1,9 @@
 // frontend/src/components/ui/Pagination.tsx
-"use client";
+'use client';
 
-import React from "react";
-import { cn } from "@/utils/cn";
-import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
+import React from 'react';
+import { cn } from '@/utils/cn';
+import { ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-react';
 
 interface PaginationProps {
   currentPage: number;
@@ -11,8 +11,8 @@ interface PaginationProps {
   onPageChange: (page: number) => void;
   siblingCount?: number;
   className?: string;
-  size?: "sm" | "md" | "lg";
-  variant?: "default" | "outline" | "minimal";
+  size?: 'sm' | 'md' | 'lg';
+  variant?: 'default' | 'outline' | 'minimal';
 }
 
 export const Pagination = ({
@@ -21,8 +21,8 @@ export const Pagination = ({
   onPageChange,
   siblingCount = 1,
   className,
-  size = "md",
-  variant = "default",
+  size = 'md',
+  variant = 'default',
 }: PaginationProps) => {
   // Helper function to create range array
   const range = (start: number, end: number) => {
@@ -53,14 +53,14 @@ export const Pagination = ({
     if (shouldShowLeftDots && !shouldShowRightDots) {
       const rightItemCount = 3 + 2 * siblingCount;
       const rightRange = range(totalPages - rightItemCount + 1, totalPages);
-      return [firstPageIndex, "left-dots", ...rightRange];
+      return [firstPageIndex, 'left-dots', ...rightRange];
     }
 
     // Case: show right dots but no left dots
     if (!shouldShowLeftDots && shouldShowRightDots) {
       const leftItemCount = 3 + 2 * siblingCount;
       const leftRange = range(1, leftItemCount);
-      return [...leftRange, "right-dots", lastPageIndex];
+      return [...leftRange, 'right-dots', lastPageIndex];
     }
 
     // Case: show both left and right dots
@@ -68,9 +68,9 @@ export const Pagination = ({
       const middleRange = range(leftSiblingIndex, rightSiblingIndex);
       return [
         firstPageIndex,
-        "left-dots",
+        'left-dots',
         ...middleRange,
-        "right-dots",
+        'right-dots',
         lastPageIndex,
       ];
     }
@@ -98,36 +98,36 @@ export const Pagination = ({
 
   // Size classes
   const sizeClasses = {
-    sm: "h-7 w-7 text-xs",
-    md: "h-9 w-9 text-sm",
-    lg: "h-11 w-11 text-base",
+    sm: 'h-7 w-7 text-xs',
+    md: 'h-9 w-9 text-sm',
+    lg: 'h-11 w-11 text-base',
   };
 
   // Variant classes
   const getVariantClasses = (isActive: boolean) => {
-    if (variant === "default") {
+    if (variant === 'default') {
       return isActive
-        ? "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700"
-        : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600";
+        ? 'bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700'
+        : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600';
     }
 
-    if (variant === "outline") {
+    if (variant === 'outline') {
       return isActive
-        ? "border-blue-600 dark:border-blue-500 text-blue-600 dark:text-blue-500 border bg-blue-50 dark:bg-blue-900/20"
-        : "border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-blue-600 dark:hover:border-blue-500";
+        ? 'border-blue-600 dark:border-blue-500 text-blue-600 dark:text-blue-500 border bg-blue-50 dark:bg-blue-900/20'
+        : 'border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-blue-600 dark:hover:border-blue-500';
     }
 
-    if (variant === "minimal") {
+    if (variant === 'minimal') {
       return isActive
-        ? "text-blue-600 dark:text-blue-500 font-medium"
-        : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200";
+        ? 'text-blue-600 dark:text-blue-500 font-medium'
+        : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200';
     }
 
-    return "";
+    return '';
   };
 
   return (
-    <nav className={cn("flex items-center justify-center", className)}>
+    <nav className={cn('flex items-center justify-center', className)}>
       <ul className="flex items-center">
         {/* Previous button */}
         <li>
@@ -135,32 +135,32 @@ export const Pagination = ({
             onClick={handlePrevious}
             disabled={currentPage === 1}
             className={cn(
-              "flex items-center justify-center rounded-md",
-              "focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600",
-              "transition-colors duration-200",
+              'flex items-center justify-center rounded-md',
+              'focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600',
+              'transition-colors duration-200',
               getVariantClasses(false),
               sizeClasses[size],
-              currentPage === 1 && "opacity-50 cursor-not-allowed",
+              currentPage === 1 && 'opacity-50 cursor-not-allowed',
             )}
             aria-label="Previous page"
           >
-            <ChevronLeft size={size === "sm" ? 14 : size === "md" ? 16 : 18} />
+            <ChevronLeft size={size === 'sm' ? 14 : size === 'md' ? 16 : 18} />
           </button>
         </li>
 
         {/* Page numbers */}
         {paginationRange?.map((pageNumber, i) => {
-          if (pageNumber === "left-dots" || pageNumber === "right-dots") {
+          if (pageNumber === 'left-dots' || pageNumber === 'right-dots') {
             return (
               <li key={`dots-${i}`} className="mx-1">
                 <div
                   className={cn(
-                    "flex items-center justify-center",
+                    'flex items-center justify-center',
                     sizeClasses[size],
                   )}
                 >
                   <MoreHorizontal
-                    size={size === "sm" ? 14 : size === "md" ? 16 : 18}
+                    size={size === 'sm' ? 14 : size === 'md' ? 16 : 18}
                   />
                 </div>
               </li>
@@ -174,13 +174,13 @@ export const Pagination = ({
               <button
                 onClick={() => onPageChange(pageNumber as number)}
                 className={cn(
-                  "flex items-center justify-center rounded-md",
-                  "focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600",
-                  "transition-colors duration-200",
+                  'flex items-center justify-center rounded-md',
+                  'focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600',
+                  'transition-colors duration-200',
                   getVariantClasses(isActive),
                   sizeClasses[size],
                 )}
-                aria-current={isActive ? "page" : undefined}
+                aria-current={isActive ? 'page' : undefined}
               >
                 {pageNumber}
               </button>
@@ -194,16 +194,16 @@ export const Pagination = ({
             onClick={handleNext}
             disabled={currentPage === totalPages}
             className={cn(
-              "flex items-center justify-center rounded-md",
-              "focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600",
-              "transition-colors duration-200",
+              'flex items-center justify-center rounded-md',
+              'focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600',
+              'transition-colors duration-200',
               getVariantClasses(false),
               sizeClasses[size],
-              currentPage === totalPages && "opacity-50 cursor-not-allowed",
+              currentPage === totalPages && 'opacity-50 cursor-not-allowed',
             )}
             aria-label="Next page"
           >
-            <ChevronRight size={size === "sm" ? 14 : size === "md" ? 16 : 18} />
+            <ChevronRight size={size === 'sm' ? 14 : size === 'md' ? 16 : 18} />
           </button>
         </li>
       </ul>

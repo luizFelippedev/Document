@@ -14,7 +14,7 @@ export interface User {
     dribbble?: string;
     behance?: string;
   };
-  role: "user" | "admin";
+  role: 'user' | 'admin';
   skills?: string[];
   jobTitle?: string | null;
   company?: string | null;
@@ -27,7 +27,7 @@ export interface User {
 export interface UserSettings {
   id: string;
   userId: string;
-  theme: "light" | "dark" | "system";
+  theme: 'light' | 'dark' | 'system';
   emailNotifications: boolean;
   pushNotifications: boolean;
   marketingEmails: boolean;

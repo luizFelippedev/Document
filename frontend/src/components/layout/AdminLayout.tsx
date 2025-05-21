@@ -1,18 +1,18 @@
 // frontend/src/components/layout/AdminLayout.tsx
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { useRouter, usePathname } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
-import { useAuth } from "@/hooks/useAuth";
-import { ROUTES } from "@/config/routes";
-import { Sidebar } from "./Sidebar";
-import { Navbar } from "./Navbar";
-import { Footer } from "./Footer";
-import { Spinner } from "@/components/ui/Spinner";
-import { Alert } from "@/components/ui/Alert";
-import { userService } from "@/services/user.service";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { useState, useEffect } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '@/hooks/useAuth';
+import { ROUTES } from '@/config/routes';
+import { Sidebar } from './Sidebar';
+import { Navbar } from './Navbar';
+import { Footer } from './Footer';
+import { Spinner } from '@/components/ui/Spinner';
+import { Alert } from '@/components/ui/Alert';
+import { userService } from '@/services/user.service';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -22,12 +22,12 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [stats, setStats] = useState<any>(null);
+  const [stats, setStats] = useState<unknown>(null);
 
   const { user, isAuthenticated } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
-  const isMobile = useMediaQuery("(max-width: 1024px)");
+  const isMobile = useMediaQuery('(max-width: 1024px)');
 
   // Check admin authorization
   useEffect(() => {
@@ -40,8 +40,8 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
           return;
         }
 
-        if (user?.role !== "admin") {
-          setError("You do not have permission to access this area");
+        if (user?.role !== 'admin') {
+          setError('You do not have permission to access this area');
           setTimeout(() => {
             router.push(ROUTES.DASHBOARD.ROOT);
           }, 3000);
@@ -51,9 +51,9 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
         // Fetch admin dashboard statistics
         const statistics = await userService.getStatistics();
         setStats(statistics);
-      } catch (err: any) {
+      } catch (err: unknown) {
         setError(
-          err.response?.data?.message || "Failed to load admin dashboard",
+          err.response?.data?.message || 'Failed to load admin dashboard',
         );
       } finally {
         setLoading(false);
@@ -105,7 +105,7 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
             title="Access Denied"
             message={error}
             action={{
-              label: "Back to Dashboard",
+              label: 'Back to Dashboard',
               onClick: () => router.push(ROUTES.DASHBOARD.ROOT),
             }}
           />
@@ -139,7 +139,7 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
                 animate={{ x: 0, opacity: 1 }}
                 exit={{ x: -280, opacity: 0 }}
                 transition={{ duration: 0.3 }}
-                className={`fixed lg:relative z-30 h-full ${isMobile ? "w-[280px]" : "w-64"}`}
+                className={`fixed lg:relative z-30 h-full ${isMobile ? 'w-[280px]' : 'w-64'}`}
               >
                 <Sidebar isAdmin={true} />
               </motion.div>
@@ -149,7 +149,7 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
 
         <main
           className={`flex-1 overflow-auto transition-all duration-300 ${
-            sidebarOpen && !isMobile ? "ml-64" : ""
+            sidebarOpen && !isMobile ? 'ml-64' : ''
           }
         `}
         >

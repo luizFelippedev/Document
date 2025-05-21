@@ -6,14 +6,14 @@ export const Sidebar = ({ isAdmin = false }) => {
   );
 };
 // frontend/src/components/layout/Sidebar.tsx
-("use client");
+('use client');
 
-import { useState } from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useAuth } from "@/hooks/useAuth";
-import { ROUTES } from "@/config/routes";
-import { motion } from "framer-motion";
+import { useState } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useAuth } from '@/hooks/useAuth';
+import { ROUTES } from '@/config/routes';
+import { motion } from 'framer-motion';
 import {
   Home,
   Briefcase,
@@ -27,7 +27,7 @@ import {
   FileText,
   ChevronDown,
   ChevronRight,
-} from "lucide-react";
+} from 'lucide-react';
 
 interface SidebarProps {
   isAdmin?: boolean;
@@ -62,51 +62,51 @@ export const Sidebar = ({ isAdmin = false }: SidebarProps) => {
 
   const userNavItems: NavItem[] = [
     {
-      label: "Dashboard",
+      label: 'Dashboard',
       path: ROUTES.DASHBOARD.ROOT,
       icon: <Home size={18} />,
     },
     {
-      label: "Projects",
+      label: 'Projects',
       path: ROUTES.DASHBOARD.PROJECTS,
       icon: <Briefcase size={18} />,
       children: [
         {
-          label: "All Projects",
+          label: 'All Projects',
           path: ROUTES.DASHBOARD.PROJECTS,
           icon: <ChevronRight size={16} />,
         },
         {
-          label: "New Project",
+          label: 'New Project',
           path: `${ROUTES.DASHBOARD.PROJECTS}/new`,
           icon: <ChevronRight size={16} />,
         },
       ],
     },
     {
-      label: "Certificates",
+      label: 'Certificates',
       path: ROUTES.DASHBOARD.CERTIFICATES,
       icon: <Award size={18} />,
       children: [
         {
-          label: "All Certificates",
+          label: 'All Certificates',
           path: ROUTES.DASHBOARD.CERTIFICATES,
           icon: <ChevronRight size={16} />,
         },
         {
-          label: "New Certificate",
+          label: 'New Certificate',
           path: `${ROUTES.DASHBOARD.CERTIFICATES}/new`,
           icon: <ChevronRight size={16} />,
         },
       ],
     },
     {
-      label: "Profile",
+      label: 'Profile',
       path: ROUTES.DASHBOARD.PROFILE,
       icon: <User size={18} />,
     },
     {
-      label: "Settings",
+      label: 'Settings',
       path: ROUTES.DASHBOARD.SETTINGS,
       icon: <Settings size={18} />,
     },
@@ -114,22 +114,22 @@ export const Sidebar = ({ isAdmin = false }: SidebarProps) => {
 
   const adminNavItems: NavItem[] = [
     {
-      label: "Admin Dashboard",
+      label: 'Admin Dashboard',
       path: ROUTES.DASHBOARD.ADMIN.ROOT,
       icon: <BarChart size={18} />,
     },
     {
-      label: "User Management",
+      label: 'User Management',
       path: ROUTES.DASHBOARD.ADMIN.USERS,
       icon: <Users size={18} />,
     },
     {
-      label: "Project Management",
+      label: 'Project Management',
       path: ROUTES.DASHBOARD.ADMIN.PROJECTS,
       icon: <Briefcase size={18} />,
     },
     {
-      label: "Certificate Management",
+      label: 'Certificate Management',
       path: ROUTES.DASHBOARD.ADMIN.CERTIFICATES,
       icon: <Award size={18} />,
     },
@@ -144,8 +144,8 @@ export const Sidebar = ({ isAdmin = false }: SidebarProps) => {
               onClick={() => toggleExpand(item.label)}
               className={`w-full flex items-center justify-between px-4 py-2 rounded-md text-sm transition-colors ${
                 isActive(item.path)
-                  ? "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200"
-                  : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+                  ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200'
+                  : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
               }`}
             >
               <div className="flex items-center">
@@ -161,7 +161,7 @@ export const Sidebar = ({ isAdmin = false }: SidebarProps) => {
             {expandedItems.includes(item.label) && (
               <motion.div
                 initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
+                animate={{ height: 'auto', opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
                 transition={{ duration: 0.2 }}
                 className="pl-8 mt-1 space-y-1"
@@ -172,8 +172,8 @@ export const Sidebar = ({ isAdmin = false }: SidebarProps) => {
                     href={child.path}
                     className={`flex items-center px-4 py-2 rounded-md text-sm transition-colors ${
                       isActive(child.path)
-                        ? "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200"
-                        : "text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
+                        ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200'
+                        : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700'
                     }`}
                   >
                     <span className="mr-3">{child.icon}</span>
@@ -188,8 +188,8 @@ export const Sidebar = ({ isAdmin = false }: SidebarProps) => {
             href={item.path}
             className={`flex items-center px-4 py-2 rounded-md text-sm transition-colors ${
               isActive(item.path)
-                ? "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200"
-                : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+                ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200'
+                : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
             }`}
           >
             <span className="mr-3">{item.icon}</span>
@@ -206,14 +206,14 @@ export const Sidebar = ({ isAdmin = false }: SidebarProps) => {
       <div className="p-4 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center">
           <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold">
-            {user?.name?.charAt(0) || "U"}
+            {user?.name?.charAt(0) || 'U'}
           </div>
           <div className="ml-3">
             <p className="text-sm font-medium text-gray-900 dark:text-white">
-              {user?.name || "User"}
+              {user?.name || 'User'}
             </p>
             <p className="text-xs text-gray-500 dark:text-gray-400">
-              {isAdmin ? "Administrator" : "User"}
+              {isAdmin ? 'Administrator' : 'User'}
             </p>
           </div>
         </div>

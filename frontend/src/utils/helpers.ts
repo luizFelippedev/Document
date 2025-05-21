@@ -1,11 +1,11 @@
 // frontend/src/utils/helpers.ts
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from '@/hooks/useAuth';
 
 /**
  * Debounce function to limit how often a function can be called
  * Used throughout the application for input fields, search, etc.
  */
-export function debounce<T extends (...args: any[]) => any>(
+export function debounce<T extends (...args: any[]) => unknown>(
   func: T,
   wait: number = 300,
 ): (...args: Parameters<T>) => void {
@@ -28,7 +28,7 @@ export function debounce<T extends (...args: any[]) => any>(
  * Throttle function to limit how often a function can be called
  * Useful for scroll events, window resizing, etc.
  */
-export function throttle<T extends (...args: any[]) => any>(
+export function throttle<T extends (...args: any[]) => unknown>(
   func: T,
   limit: number = 300,
 ): (...args: Parameters<T>) => void {
@@ -50,8 +50,8 @@ export function throttle<T extends (...args: any[]) => any>(
  */
 export function generateId(length: number = 10): string {
   const chars =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let result = "";
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
 
   for (let i = 0; i < length; i++) {
     result += chars.charAt(Math.floor(Math.random() * chars.length));
@@ -65,9 +65,9 @@ export function generateId(length: number = 10): string {
  */
 export function getInitials(name: string): string {
   return name
-    .split(" ")
+    .split(' ')
     .map((part) => part[0])
-    .join("")
+    .join('')
     .toUpperCase()
     .substring(0, 2);
 }
@@ -81,10 +81,10 @@ export function stringToColor(str: string): string {
     hash = str.charCodeAt(i) + ((hash << 5) - hash);
   }
 
-  let color = "#";
+  let color = '#';
   for (let i = 0; i < 3; i++) {
     const value = (hash >> (i * 8)) & 0xff;
-    color += ("00" + value.toString(16)).substr(-2);
+    color += ('00' + value.toString(16)).substr(-2);
   }
 
   return color;
@@ -112,7 +112,7 @@ export function hasRole(role: string): boolean {
 /**
  * Group an array of objects by a key
  */
-export function groupBy<T extends Record<string, any>>(
+export function groupBy<T extends Record<string, unknown>>(
   array: T[],
   key: keyof T,
 ): Record<string, T[]> {
@@ -131,7 +131,7 @@ export function groupBy<T extends Record<string, any>>(
  * Download a file from a URL
  */
 export function downloadFile(url: string, filename: string): void {
-  const link = document.createElement("a");
+  const link = document.createElement('a');
   link.href = url;
   link.download = filename;
   document.body.appendChild(link);
@@ -147,7 +147,7 @@ export async function copyToClipboard(text: string): Promise<boolean> {
     await navigator.clipboard.writeText(text);
     return true;
   } catch (error) {
-    console.error("Failed to copy: ", error);
+    console.error('Failed to copy: ', error);
     return false;
   }
 }
@@ -162,53 +162,53 @@ export function deepClone<T>(obj: T): T {
 /**
  * Check if an object is empty
  */
-export function isEmptyObject(obj: Record<string, any>): boolean {
+export function isEmptyObject(obj: Record<string, unknown>): boolean {
   return Object.keys(obj).length === 0;
 }
 
 /**
  * Format query parameters for URL
  */
-export function formatQueryParams(params: Record<string, any>): string {
+export function formatQueryParams(params: Record<string, unknown>): string {
   return Object.entries(params)
     .filter(
-      ([_, value]) => value !== undefined && value !== null && value !== "",
+      ([_, value]) => value !== undefined && value !== null && value !== '',
     )
     .map(([key, value]) => {
       // Handle arrays
       if (Array.isArray(value)) {
         return value
           .map((v) => `${encodeURIComponent(key)}[]=${encodeURIComponent(v)}`)
-          .join("&");
+          .join('&');
       }
       // Handle objects
-      if (typeof value === "object") {
+      if (typeof value === 'object') {
         return `${encodeURIComponent(key)}=${encodeURIComponent(JSON.stringify(value))}`;
       }
       // Handle primitives
       return `${encodeURIComponent(key)}=${encodeURIComponent(value)}`;
     })
-    .join("&");
+    .join('&');
 }
 
 /**
  * Utility to handle API error messages
  */
 export function getErrorMessage(error: unknown): string {
-  if (typeof error === "string") {
+  if (typeof error === 'string') {
     return error;
   }
 
   if (
     error &&
-    typeof error === "object" &&
-    "message" in error &&
-    typeof error.message === "string"
+    typeof error === 'object' &&
+    'message' in error &&
+    typeof error.message === 'string'
   ) {
     return error.message;
   }
 
-  return "An unexpected error occurred";
+  return 'An unexpected error occurred';
 }
 
 /**
@@ -226,8 +226,8 @@ export function createCancelableRequest<T>(requestFn: () => Promise<T>): {
     requestFn().then(resolve).catch(reject);
 
     // Listen for abort
-    signal.addEventListener("abort", () => {
-      reject(new Error("Request was canceled"));
+    signal.addEventListener('abort', () => {
+      reject(new Error('Request was canceled'));
     });
   });
 
