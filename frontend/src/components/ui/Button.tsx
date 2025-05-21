@@ -1,106 +1,105 @@
 // frontend/src/components/ui/Button.tsx
 'use client';
 
-import React, { forwardRef } from 'react';
-import { Spinner } from './Spinner';
-import { cva, type VariantProps } from 'class-variance-authority';
+import React, { forwardRef, ReactNode } from 'react';
 import { cn } from '@/utils/cn';
+import { Slot } from '@radix-ui/react-slot';
+import { Loader2 } from 'lucide-react';
 
-const buttonVariants = cva(
-  'relative inline-flex items-center justify-center font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-900 disabled:opacity-70 disabled:cursor-not-allowed',
-  {
-    variants: {
-      variant: {
-        primary: 'bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-500',
-        secondary: 'bg-green-600 hover:bg-green-700 text-white focus:ring-green-500',
-        danger: 'bg-red-600 hover:bg-red-700 text-white focus:ring-red-500',
-        warning: 'bg-amber-600 hover:bg-amber-700 text-white focus:ring-amber-500',
-        outline: 'border border-gray-300 dark:border-gray-600 bg-transparent text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 focus:ring-gray-500',
-        ghost: 'bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 focus:ring-gray-500',
-        link: 'bg-transparent text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 p-0 focus:ring-0 underline-offset-4 hover:underline',
-      },
-      size: {
-        xs: 'text-xs px-2 py-1 rounded',
-        sm: 'text-sm px-3 py-1.5 rounded',
-        md: 'text-sm px-4 py-2 rounded-md',
-        lg: 'text-base px-5 py-2.5 rounded-md',
-        xl: 'text-lg px-6 py-3 rounded-lg',
-        icon: 'p-2 rounded-full',
-      },
-      fullWidth: {
-        true: 'w-full',
-      },
-      rounded: {
-        none: 'rounded-none',
-        sm: 'rounded',
-        md: 'rounded-md',
-        lg: 'rounded-lg',
-        full: 'rounded-full',
-      },
-    },
-    defaultVariants: {
-      variant: 'primary',
-      size: 'md',
-      fullWidth: false,
-    },
-  }
-);
-
-export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  /** The variant style of the button */
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'link' | 'danger' | 'success' | 'warning';
+  /** The size of the button */
+  size?: 'sm' | 'md' | 'lg' | 'icon';
+  /** Whether the button takes the full width of its container */
+  fullWidth?: boolean;
+  /** Whether the button is in a loading state */
   loading?: boolean;
+  /** Text to show when loading */
   loadingText?: string;
-  leftIcon?: React.ReactNode;
-  rightIcon?: React.ReactNode;
+  /** Icon to show on the left side of the button */
+  leftIcon?: ReactNode;
+  /** Icon to show on the right side of the button */
+  rightIcon?: ReactNode;
+  /** Whether to render an element without a wrapping button */
   asChild?: boolean;
+  /** Additional class names */
+  className?: string;
 }
 
+/**
+ * A flexible button component with multiple variants, sizes, and states
+ */
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  (
-    {
-      className,
-      variant,
-      size,
-      fullWidth,
-      rounded,
-      disabled,
-      loading,
-      loadingText,
-      leftIcon,
-      rightIcon,
-      children,
-      ...props
-    },
-    ref
-  ) => {
+  ({
+    variant = 'primary',
+    size = 'md',
+    fullWidth = false,
+    loading = false,
+    loadingText,
+    leftIcon,
+    rightIcon,
+    asChild = false,
+    className,
+    children,
+    disabled,
+    ...props
+  }, ref) => {
+    // When in loading state, button should be disabled
+    const isDisabled = disabled || loading;
+    
+    // Determine base styles based on variant
+    const variantStyles = {
+      primary: 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500',
+      secondary: 'bg-gray-200 text-gray-900 hover:bg-gray-300 focus:ring-gray-500 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600',
+      outline: 'border border-gray-300 dark:border-gray-600 bg-transparent hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300',
+      ghost: 'bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
+      link: 'bg-transparent text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 hover:underline p-0 h-auto',
+      danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500',
+      success: 'bg-green-600 text-white hover:bg-green-700 focus:ring-green-500',
+      warning: 'bg-amber-500 text-white hover:bg-amber-600 focus:ring-amber-400',
+    };
+    
+    // Determine size styles
+    const sizeStyles = {
+      sm: 'h-8 px-3 text-xs',
+      md: 'h-10 px-4 text-sm',
+      lg: 'h-12 px-6 text-base',
+      icon: 'h-10 w-10 p-2.5',
+    };
+    
+    // Create class names based on props
+    const buttonClasses = cn(
+      'relative inline-flex items-center justify-center font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background disabled:opacity-50 disabled:pointer-events-none',
+      variantStyles[variant],
+      sizeStyles[size],
+      fullWidth && 'w-full',
+      className
+    );
+    
+    // If asChild is true, use Slot component to render children's elements
+    const Component = asChild ? Slot : 'button';
+    
     return (
-      <button
-        className={cn(buttonVariants({ variant, size, fullWidth, rounded, className }))}
+      <Component
+        className={buttonClasses}
         ref={ref}
-        disabled={disabled || loading}
+        disabled={isDisabled}
         {...props}
       >
         {loading ? (
           <>
-            <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-              <Spinner 
-                size={size === 'xs' || size === 'sm' ? 'small' : 'medium'} 
-                variant={variant === 'outline' || variant === 'ghost' || variant === 'link' ? 'primary' : 'white'} 
-              />
-            </span>
-            <span className="opacity-0">
-              {loadingText || children}
-            </span>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            {loadingText || children}
           </>
         ) : (
           <>
-            {leftIcon && <span className="mr-2">{leftIcon}</span>}
+            {leftIcon && <span className={cn('mr-2', size === 'sm' ? 'text-xs' : '')}>{leftIcon}</span>}
             {children}
-            {rightIcon && <span className="ml-2">{rightIcon}</span>}
+            {rightIcon && <span className={cn('ml-2', size === 'sm' ? 'text-xs' : '')}>{rightIcon}</span>}
           </>
         )}
-      </button>
+      </Component>
     );
   }
 );

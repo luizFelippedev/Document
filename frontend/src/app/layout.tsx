@@ -1,44 +1,40 @@
-// frontend/src/app/layout.tsx
-'use client';
-
+// src/app/layout.tsx
+import { ReactNode } from 'react';
 import { Inter } from 'next/font/google';
 import { Toaster } from 'react-hot-toast';
-import { ThemeProvider } from '@/contexts/ThemeContext';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { ThemeProvider } from '@/contexts/ThemeContext';
 import { NotificationProvider } from '@/contexts/NotificationContext';
-import '@/styles/globals.css';
+import { NOTIFICATION_SETTINGS } from '@/config/constants';
 
-const inter = Inter({ 
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-inter',
-});
+// Import global styles
+import './globals.css';
+
+const inter = Inter({ subsets: ['latin'] });
 
 interface RootLayoutProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }
+
+export const metadata = {
+  title: 'DevFolio',
+  description: 'Showcase your projects and certificates',
+};
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="theme-color" content="#ffffff" />
-        <link rel="icon" href="/favicon.ico" sizes="any" />
-      </head>
-      <body className={`${inter.variable} font-sans antialiased`}>
+      <body className={inter.className}>
         <ThemeProvider>
           <AuthProvider>
-            <NotificationProvider>
+            <NotificationProvider maxStoredNotifications={NOTIFICATION_SETTINGS.maxStored}>
               {children}
               <Toaster 
                 position="top-right"
                 toastOptions={{
-                  duration: 4000,
-                  style: {
-                    background: 'var(--background-color)',
-                    color: 'var(--text-color)',
-                    border: '1px solid var(--border-color)',
+                  duration: NOTIFICATION_SETTINGS.defaultDuration,
+                  error: {
+                    duration: NOTIFICATION_SETTINGS.errorDuration,
                   },
                 }}
               />

@@ -1,188 +1,207 @@
 // frontend/src/components/ui/Switch.tsx
 'use client';
 
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { cn } from '@/utils/cn';
-import { Switch as HeadlessSwitch } from '@headlessui/react';
 import { motion } from 'framer-motion';
 
-interface SwitchProps {
+export interface SwitchProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange'> {
+  /** Whether the switch is checked */
   checked: boolean;
+  /** Called when the switch is toggled */
   onChange: (checked: boolean) => void;
-  label?: string;
-  description?: string;
-  disabled?: boolean;
+  /** The size of the switch */
   size?: 'sm' | 'md' | 'lg';
-  color?: 'primary' | 'success' | 'danger' | 'warning';
+  /** The variant of the switch */
+  variant?: 'primary' | 'secondary' | 'success' | 'danger' | 'warning' | 'info';
+  /** The switch label */
+  label?: string;
+  /** The position of the label */
+  labelPosition?: 'left' | 'right';
+  /** Additional description text */
+  description?: string;
+  /** Additional class name */
   className?: string;
-  labelClassName?: string;
-  switchClassName?: string;
-  id?: string;
+  /** Whether the switch is disabled */
+  disabled?: boolean;
+  /** Whether the switch is required */
+  required?: boolean;
+  /** Whether the switch is loading */
+  loading?: boolean;
 }
 
-export const Switch = ({
-  checked,
-  onChange,
-  label,
-  description,
-  disabled = false,
-  size = 'md',
-  color = 'primary',
-  className,
-  labelClassName,
-  switchClassName,
-  id,
-}: SwitchProps) => {
-  // Size classes
-  const sizeMap = {
-    sm: {
-      container: 'h-4 w-7',
-      circle: 'h-3 w-3',
-      translate: 'translate-x-3',
-      labelText: 'text-sm',
-      descriptionText: 'text-xs',
-    },
-    md: {
-      container: 'h-5 w-9',
-      circle: 'h-4 w-4',
-      translate: 'translate-x-4',
-      labelText: 'text-base',
-      descriptionText: 'text-sm',
-    },
-    lg: {
-      container: 'h-6 w-11',
-      circle: 'h-5 w-5',
-      translate: 'translate-x-5',
-      labelText: 'text-lg',
-      descriptionText: 'text-base',
-    },
-  };
-  
-  // Color classes
-  const colorMap = {
-    primary: {
-      bg: 'bg-blue-600 dark:bg-blue-600',
-      border: 'focus:ring-blue-500 dark:focus:ring-blue-500',
-    },
-    success: {
-      bg: 'bg-green-600 dark:bg-green-600',
-      border: 'focus:ring-green-500 dark:focus:ring-green-500',
-    },
-    danger: {
-      bg: 'bg-red-600 dark:bg-red-600',
-      border: 'focus:ring-red-500 dark:focus:ring-red-500',
-    },
-    warning: {
-      bg: 'bg-yellow-600 dark:bg-yellow-600',
-      border: 'focus:ring-yellow-500 dark:focus:ring-yellow-500',
-    },
-  };
-  
-  return (
-    <div className={cn("flex items-center", className)}>
-      <HeadlessSwitch
-        checked={checked}
-        onChange={onChange}
-        disabled={disabled}
-        id={id}
-        className={cn(
-          'relative inline-flex shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out',
-          'focus:outline-none focus:ring-2 focus:ring-offset-2',
-          sizeMap[size].container,
-          disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer',
-          checked ? colorMap[color].bg : 'bg-gray-200 dark:bg-gray-700',
-          colorMap[color].border,
-          switchClassName
-        )}
-      >
-        <span className="sr-only">{label || 'Toggle'}</span>
-        <motion.span
-          className={cn(
-            'pointer-events-none inline-block rounded-full bg-white shadow transform ring-0',
-            sizeMap[size].circle
-          )}
-          animate={{
-            x: checked ? parseInt(sizeMap[size].translate.split('-x-')[1]) : 0,
-          }}
-          transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-        />
-      </HeadlessSwitch>
+/**
+ * A switch component for toggling between two states
+ */
+export const Switch = forwardRef<HTMLInputElement, SwitchProps>(
+  ({
+    checked,
+    onChange,
+    size = 'md',
+    variant = 'primary',
+    label,
+    labelPosition = 'right',
+    description,
+    className,
+    disabled = false,
+    required = false,
+    loading = false,
+    id,
+    ...props
+  }, ref) => {
+    // Generate a unique ID if none is provided
+    const uniqueId = id || `switch-${Math.random().toString(36).substring(2, 10)}`;
+    
+    // Size styles
+    const getSizeStyles = () => {
+      switch (size) {
+        case 'sm':
+          return {
+            track: 'h-4 w-7',
+            thumb: 'h-3 w-3',
+            offset: 'translate-x-3',
+            text: 'text-sm',
+          };
+        case 'lg':
+          return {
+            track: 'h-7 w-14',
+            thumb: 'h-6 w-6',
+            offset: 'translate-x-7',
+            text: 'text-base',
+          };
+        default:
+          return {
+            track: 'h-6 w-11',
+            thumb: 'h-5 w-5',
+            offset: 'translate-x-5',
+            text: 'text-base',
+          };
+      }
+    };
+    
+    // Variant styles
+    const getVariantStyles = () => {
+      switch (variant) {
+        case 'secondary':
+          return 'bg-gray-200 dark:bg-gray-700 checked:bg-gray-600 dark:checked:bg-gray-500';
+        case 'success':
+          return 'bg-gray-200 dark:bg-gray-700 checked:bg-green-600 dark:checked:bg-green-500';
+        case 'danger':
+          return 'bg-gray-200 dark:bg-gray-700 checked:bg-red-600 dark:checked:bg-red-500';
+        case 'warning':
+          return 'bg-gray-200 dark:bg-gray-700 checked:bg-amber-600 dark:checked:bg-amber-500';
+        case 'info':
+          return 'bg-gray-200 dark:bg-gray-700 checked:bg-blue-600 dark:checked:bg-blue-500';
+        default:
+          return 'bg-gray-200 dark:bg-gray-700 checked:bg-blue-600 dark:checked:bg-blue-500';
+      }
+    };
+    
+    const sizeStyles = getSizeStyles();
+    
+    // Handle the change event
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (!disabled && !loading) {
+        onChange(e.target.checked);
+      }
+    };
+    
+    // Switch track/background
+    const trackClasses = cn(
+      'relative inline-flex flex-shrink-0 rounded-full transition-colors ease-in-out duration-200',
+      sizeStyles.track,
+      getVariantStyles(),
+      disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer',
+      loading ? 'animate-pulse' : '',
+      className
+    );
+    
+    // Switch thumb/handle
+    const thumbClasses = cn(
+      'absolute left-0.5 top-0.5 pointer-events-none inline-block rounded-full bg-white shadow transform transition ease-in-out duration-200',
+      sizeStyles.thumb,
+      loading ? 'animate-pulse' : ''
+    );
+    
+    // Render label and switch in the correct order
+    const renderSwitchWithLabel = () => {
+      const switchElement = (
+        <div className="relative inline-block align-middle">
+          <input
+            ref={ref}
+            type="checkbox"
+            id={uniqueId}
+            className="sr-only"
+            checked={checked}
+            onChange={handleChange}
+            disabled={disabled || loading}
+            required={required}
+            aria-labelledby={label ? `${uniqueId}-label` : undefined}
+            aria-describedby={description ? `${uniqueId}-description` : undefined}
+            {...props}
+          />
+          <span
+            aria-hidden="true"
+            className={trackClasses}
+          >
+            <motion.span
+              className={thumbClasses}
+              animate={{
+                translateX: checked ? sizeStyles.offset.split('-')[1] : '0rem',
+              }}
+              transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+            />
+          </span>
+        </div>
+      );
       
-      {(label || description) && (
-        <div className="ml-3">
-          {label && (
-            <label
-              htmlFor={id}
-              className={cn(
-                "font-medium text-gray-700 dark:text-gray-300",
-                sizeMap[size].labelText,
-                disabled && "opacity-50",
-                labelClassName
-              )}
-            >
-              {label}
-            </label>
-          )}
+      if (!label) return switchElement;
+      
+      const labelElement = (
+        <div className="flex flex-col">
+          <label
+            id={`${uniqueId}-label`}
+            htmlFor={uniqueId}
+            className={cn(
+              'font-medium text-gray-900 dark:text-white',
+              sizeStyles.text,
+              disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+            )}
+          >
+            {label}
+            {required && <span className="ml-1 text-red-500">*</span>}
+          </label>
+          
           {description && (
-            <p className={cn(
-              "text-gray-500 dark:text-gray-400",
-              sizeMap[size].descriptionText,
-              disabled && "opacity-50"
-            )}>
+            <span
+              id={`${uniqueId}-description`}
+              className="mt-0.5 text-sm text-gray-500 dark:text-gray-400"
+            >
               {description}
-            </p>
+            </span>
           )}
         </div>
-      )}
-    </div>
-  );
-};
+      );
+      
+      return (
+        <div className="flex items-start">
+          {labelPosition === 'left' ? (
+            <>
+              <div className="mr-3">{labelElement}</div>
+              {switchElement}
+            </>
+          ) : (
+            <>
+              {switchElement}
+              <div className="ml-3">{labelElement}</div>
+            </>
+          )}
+        </div>
+      );
+    };
+    
+    return renderSwitchWithLabel();
+  }
+);
 
-// Toggle group component for multiple related switches
-interface ToggleGroupProps {
-  items: {
-    id: string;
-    label: string;
-    description?: string;
-    checked: boolean;
-  }[];
-  onChange: (id: string, checked: boolean) => void;
-  title?: string;
-  disabled?: boolean;
-  size?: 'sm' | 'md' | 'lg';
-  color?: 'primary' | 'success' | 'danger' | 'warning';
-  className?: string;
-}
-
-export const ToggleGroup = ({
-  items,
-  onChange,
-  title,
-  disabled,
-  size = 'md',
-  color = 'primary',
-  className,
-}: ToggleGroupProps) => {
-  return (
-    <div className={cn("space-y-3", className)}>
-      {title && (
-        <h3 className="text-base font-medium text-gray-700 dark:text-gray-300">{title}</h3>
-      )}
-      <div className="space-y-4">
-        {items.map((item) => (
-          <Switch
-            key={item.id}
-            id={item.id}
-            checked={item.checked}
-            onChange={(checked) => onChange(item.id, checked)}
-            label={item.label}
-            description={item.description}
-            disabled={disabled}
-            size={size}
-            color={color}
-          />
-        ))}
-      </div>
-    </div>
-  );
-};
+Switch.displayName = 'Switch';

@@ -1,4 +1,4 @@
-// frontend/src/services/user.service.ts
+// src/services/user.service.ts
 import { api } from '@/lib/axios';
 import { User } from '@/types/user';
 

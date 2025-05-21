@@ -1,12 +1,24 @@
-// frontend/src/services/auth.service.ts
+// src/services/auth.service.ts
 import { api } from '@/lib/axios';
+import { saveToStorage, removeFromStorage } from '@/utils/storage';
+import { socketService } from '@/lib/socket';
 
 export const authService = {
   /**
    * Login user
    */
-  async login(email: string, password: string) {
-    const response = await api.post('/auth/login', { email, password });
+  async login(email: string, password: string, rememberMe: boolean = false) {
+    const response = await api.post('/auth/login', { email, password, rememberMe });
+    
+    // Set token in storage based on remember me preference
+    if (response.data.token) {
+      const storageMethod = rememberMe ? saveToStorage : (key: string, value: string) => sessionStorage.setItem(key, value);
+      storageMethod('@App:token', response.data.token);
+      
+      // Reconnect socket with new token
+      socketService.reconnectWithToken(response.data.token);
+    }
+    
     return response.data;
   },
   
@@ -30,8 +42,25 @@ export const authService = {
    * Logout user
    */
   async logout() {
-    const response = await api.post('/auth/logout');
-    return response.data;
+    try {
+      const response = await api.post('/auth/logout');
+      
+      // Clean up regardless of API response
+      removeFromStorage('@App:token');
+      sessionStorage.removeItem('@App:token');
+      
+      // Disconnect socket
+      socketService.disconnect();
+      
+      return response.data;
+    } catch (error) {
+      // Clean up even on error
+      removeFromStorage('@App:token');
+      sessionStorage.removeItem('@App:token');
+      socketService.disconnect();
+      console.error('Logout error:', error);
+      throw error;
+    }
   },
   
   /**
@@ -79,6 +108,17 @@ export const authService = {
    */
   async verifyTwoFactorCode(code: string) {
     const response = await api.post('/auth/verify-2fa', { code });
+    
+    // Update token if verification was successful
+    if (response.data.token) {
+      const currentToken = sessionStorage.getItem('@App:token');
+      const storageMethod = currentToken ? sessionStorage.setItem : saveToStorage;
+      storageMethod('@App:token', response.data.token);
+      
+      // Reconnect socket with new token
+      socketService.reconnectWithToken(response.data.token);
+    }
+    
     return response.data;
   },
   

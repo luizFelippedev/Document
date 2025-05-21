@@ -1,415 +1,300 @@
 // frontend/src/components/ui/Editor.tsx
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
-import { useTheme } from '@/contexts/ThemeContext';
+import { useRef, useState, useEffect, forwardRef } from 'react';
 import { cn } from '@/utils/cn';
-import { 
-  Bold, Italic, Underline, List, ListOrdered, Link, Code, Image,
-  AlignLeft, AlignCenter, AlignRight, Quote, Heading1, Heading2, Heading3,
-  Type, Strikethrough, ChevronDown, X
-} from 'lucide-react';
 
-interface EditorProps {
-  value: string;
-  onChange: (value: string) => void;
+export interface EditorProps {
+  /** Initial content value */
+  value?: string;
+  /** Called when the content changes */
+  onChange?: (value: string) => void;
+  /** Placeholder text when the editor is empty */
   placeholder?: string;
+  /** Minimum height of the editor */
   minHeight?: string;
+  /** Maximum height of the editor */
+  maxHeight?: string;
+  /** Whether the editor is read-only */
   readOnly?: boolean;
+  /** Whether the editor has an error */
   error?: string;
+  /** Whether the editor is disabled */
+  disabled?: boolean;
+  /** Whether to auto-focus the editor on mount */
+  autoFocus?: boolean;
+  /** Additional class name */
   className?: string;
-  toolbarClassName?: string;
-  editorClassName?: string;
+  /** Whether to allow markdown formatting */
+  markdown?: boolean;
+  /** Whether to show a toolbar */
+  toolbar?: boolean;
+  /** Sanitize HTML content before setting it */
+  sanitize?: boolean;
 }
 
-export const Editor = ({
-  value,
-  onChange,
-  placeholder = 'Start writing...',
-  minHeight = '200px',
-  readOnly = false,
-  error,
-  className,
-  toolbarClassName,
-  editorClassName,
-}: EditorProps) => {
-  const { resolvedTheme } = useTheme();
-  const editorRef = useRef<HTMLDivElement>(null);
-  const [showLinkInput, setShowLinkInput] = useState(false);
-  const [showImageInput, setShowImageInput] = useState(false);
-  const [linkUrl, setLinkUrl] = useState('');
-  const [linkText, setLinkText] = useState('');
-  const [imageUrl, setImageUrl] = useState('');
-  const [imageAlt, setImageAlt] = useState('');
-  const [showHeadingDropdown, setShowHeadingDropdown] = useState(false);
-  
-  // Initialize the editor with the initial value
-  useEffect(() => {
-    if (editorRef.current && value) {
-      editorRef.current.innerHTML = value;
-    }
-  }, []);
-  
-  // Handle content changes
-  const handleContentChange = () => {
-    if (editorRef.current) {
-      onChange(editorRef.current.innerHTML);
-    }
-  };
-  
-  // Focus editor
-  const focusEditor = () => {
-    if (editorRef.current) {
-      editorRef.current.focus();
-    }
-  };
-  
-  // Execute command on the document
-  const execCommand = (command: string, value?: string) => {
-    if (readOnly) return;
+/**
+ * Rich text editor component for content editing
+ */
+export const Editor = forwardRef<HTMLDivElement, EditorProps>(
+  ({
+    value = '',
+    onChange,
+    placeholder = 'Start typing...',
+    minHeight = '150px',
+    maxHeight = '500px',
+    readOnly = false,
+    error,
+    disabled = false,
+    autoFocus = false,
+    className,
+    markdown = false,
+    toolbar = true,
+    sanitize = true,
+    ...props
+  }, ref) => {
+    const editorRef = useRef<HTMLDivElement | null>(null);
+    const [isFocused, setIsFocused] = useState(false);
     
-    document.execCommand(command, false, value);
-    handleContentChange();
-    focusEditor();
-  };
-  
-  // Handle button click for commands
-  const handleButtonClick = (command: string, value?: string) => {
-    execCommand(command, value);
-  };
-  
-  // Handle link insertion
-  const handleAddLink = () => {
-    if (!linkUrl) return;
+    // Sanitize HTML content
+    const sanitizeContent = (html: string) => {
+      if (!sanitize) return html;
+      
+      const doc = new DOMParser().parseFromString(html, 'text/html');
+      const allowedTags = ['p', 'div', 'span', 'br', 'b', 'i', 'strong', 'em', 'u', 'a', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'pre', 'code'];
+      const allowedAttrs = ['href', 'target', 'rel', 'style', 'class'];
+      
+      // Recursive function to sanitize nodes
+      const sanitizeNode = (node: Element) => {
+        // Remove disallowed tags
+        if (!allowedTags.includes(node.tagName.toLowerCase())) {
+          const fragment = document.createDocumentFragment();
+          while (node.firstChild) {
+            fragment.appendChild(node.firstChild);
+          }
+          node.parentNode?.replaceChild(fragment, node);
+          return;
+        }
+        
+        // Remove disallowed attributes
+        Array.from(node.attributes).forEach(attr => {
+          if (!allowedAttrs.includes(attr.name)) {
+            node.removeAttribute(attr.name);
+          }
+        });
+        
+        // Process children recursively
+        Array.from(node.children).forEach(sanitizeNode);
+      };
+      
+      Array.from(doc.body.children).forEach(sanitizeNode);
+      return doc.body.innerHTML;
+    };
     
-    const selectedText = window.getSelection()?.toString();
-    const text = linkText || selectedText || linkUrl;
+    // Initialize editor content
+    useEffect(() => {
+      if (editorRef.current && value !== editorRef.current.innerHTML) {
+        editorRef.current.innerHTML = value;
+      }
+    }, [value]);
     
-    execCommand('insertHTML', `<a href="${linkUrl}" target="_blank" rel="noopener noreferrer">${text}</a>`);
+    // Auto-focus handling
+    useEffect(() => {
+      if (autoFocus && editorRef.current && !readOnly && !disabled) {
+        editorRef.current.focus();
+        
+        // Place cursor at the end
+        const range = document.createRange();
+        const selection = window.getSelection();
+        
+        if (editorRef.current.childNodes.length > 0) {
+          const lastNode = editorRef.current.childNodes[editorRef.current.childNodes.length - 1];
+          range.selectNodeContents(lastNode);
+          range.collapse(false);
+        } else {
+          range.selectNodeContents(editorRef.current);
+          range.collapse(false);
+        }
+        
+        selection?.removeAllRanges();
+        selection?.addRange(range);
+      }
+    }, [autoFocus, readOnly, disabled]);
     
-    setLinkUrl('');
-    setLinkText('');
-    setShowLinkInput(false);
-  };
-  
-  // Handle image insertion
-  const handleAddImage = () => {
-    if (!imageUrl) return;
+    // Handle content changes
+    const handleInput = () => {
+      if (onChange && editorRef.current) {
+        const content = sanitizeContent(editorRef.current.innerHTML);
+        onChange(content);
+      }
+    };
     
-    execCommand('insertHTML', `<img src="${imageUrl}" alt="${imageAlt}" style="max-width: 100%; height: auto;" />`);
+    // Handle toolbar actions
+    const handleFormat = (command: string, value?: string) => {
+      if (readOnly || disabled) return;
+      
+      document.execCommand(command, false, value);
+      handleInput();
+      editorRef.current?.focus();
+    };
     
-    setImageUrl('');
-    setImageAlt('');
-    setShowImageInput(false);
-  };
-  
-  // Button group for common text formatting
-  const textFormatButtons = [
-    { icon: <Bold size={16} />, command: 'bold', title: 'Bold (Ctrl+B)' },
-    { icon: <Italic size={16} />, command: 'italic', title: 'Italic (Ctrl+I)' },
-    { icon: <Underline size={16} />, command: 'underline', title: 'Underline (Ctrl+U)' },
-    { icon: <Strikethrough size={16} />, command: 'strikeThrough', title: 'Strikethrough' },
-  ];
-  
-  // Button group for alignment
-  const alignmentButtons = [
-    { icon: <AlignLeft size={16} />, command: 'justifyLeft', title: 'Align Left' },
-    { icon: <AlignCenter size={16} />, command: 'justifyCenter', title: 'Align Center' },
-    { icon: <AlignRight size={16} />, command: 'justifyRight', title: 'Align Right' },
-  ];
-  
-  // Button group for lists
-  const listButtons = [
-    { icon: <List size={16} />, command: 'insertUnorderedList', title: 'Bullet List' },
-    { icon: <ListOrdered size={16} />, command: 'insertOrderedList', title: 'Numbered List' },
-  ];
-  
-  // Heading options
-  const headingOptions = [
-    { label: 'Normal Text', command: 'formatBlock', value: 'p' },
-    { label: 'Heading 1', command: 'formatBlock', value: 'h1', icon: <Heading1 size={16} /> },
-    { label: 'Heading 2', command: 'formatBlock', value: 'h2', icon: <Heading2 size={16} /> },
-    { label: 'Heading 3', command: 'formatBlock', value: 'h3', icon: <Heading3 size={16} /> },
-  ];
-  
-  return (
-    <div className={cn(
-      'border rounded-md overflow-hidden',
-      error 
-        ? 'border-red-500 dark:border-red-500 focus-within:ring-2 focus-within:ring-red-500/20 dark:focus-within:ring-red-500/20' 
-        : 'border-gray-300 dark:border-gray-600 focus-within:border-blue-500 dark:focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 dark:focus-within:ring-blue-500/20',
+    // Handle paste to strip formatting if needed
+    const handlePaste = (e: React.ClipboardEvent) => {
+      if (readOnly || disabled) return;
+      
+      // Get text representation of clipboard
+      const text = e.clipboardData.getData('text/plain');
+      
+      if (!markdown) {
+        // Prevent the default paste behavior
+        e.preventDefault();
+        
+        // Insert text manually
+        document.execCommand('insertText', false, text);
+      }
+      
+      handleInput();
+    };
+    
+    // Generate class names
+    const editorClasses = cn(
+      'prose prose-sm dark:prose-invert max-w-none p-3 outline-none transition-colors',
+      'border rounded-md',
+      'focus:ring-2 focus:ring-offset-1',
+      {
+        'border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500 dark:focus:border-blue-400 dark:focus:ring-blue-400': !error && !disabled,
+        'border-red-300 focus:border-red-500 focus:ring-red-500 dark:border-red-600 dark:focus:border-red-500': !!error,
+        'bg-gray-100 dark:bg-gray-800 cursor-not-allowed opacity-70': disabled,
+        'border-blue-500 dark:border-blue-400': isFocused && !error && !disabled,
+      },
       className
-    )}>
-      {/* Toolbar */}
-      <div className={cn(
-        'flex flex-wrap items-center gap-1 p-2 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800',
-        readOnly && 'hidden',
-        toolbarClassName
-      )}>
-        {/* Format dropdown button */}
-        <div className="relative mr-1">
-          <button
-            type="button"
-            className={cn(
-              'flex items-center h-8 px-2 rounded',
-              'text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700',
-              showHeadingDropdown && 'bg-gray-200 dark:bg-gray-700'
-            )}
-            onClick={() => setShowHeadingDropdown(!showHeadingDropdown)}
-          >
-            <Type size={16} className="mr-1" />
-            <span className="text-sm">Text</span>
-            <ChevronDown size={14} className="ml-1" />
-          </button>
-          
-          {showHeadingDropdown && (
-            <div className="absolute z-10 mt-1 w-48 py-1 bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700">
-              {headingOptions.map((option, index) => (
-                <button
-                  key={index}
-                  type="button"
-                  className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center"
-                  onClick={() => {
-                    handleButtonClick(option.command, option.value);
-                    setShowHeadingDropdown(false);
-                  }}
-                >
-                  {option.icon || <Type size={16} />}
-                  <span className="ml-2">{option.label}</span>
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-        
-        {/* Text formatting */}
-        <div className="flex items-center border-r border-gray-300 dark:border-gray-600 pr-1 mr-1">
-          {textFormatButtons.map((button, index) => (
+    );
+    
+    return (
+      <div className="space-y-2">
+        {/* Toolbar */}
+        {toolbar && !readOnly && !disabled && (
+          <div className="flex flex-wrap items-center gap-1 p-1 border border-gray-200 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-800">
             <button
-              key={index}
               type="button"
-              className="p-1.5 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
-              onClick={() => handleButtonClick(button.command)}
-              title={button.title}
+              className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
+              onClick={() => handleFormat('bold')}
+              title="Bold"
             >
-              {button.icon}
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
             </button>
-          ))}
-        </div>
-        
-        {/* Lists */}
-        <div className="flex items-center border-r border-gray-300 dark:border-gray-600 pr-1 mr-1">
-          {listButtons.map((button, index) => (
+            
             <button
-              key={index}
               type="button"
-              className="p-1.5 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
-              onClick={() => handleButtonClick(button.command)}
-              title={button.title}
+              className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
+              onClick={() => handleFormat('italic')}
+              title="Italic"
             >
-              {button.icon}
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+              </svg>
             </button>
-          ))}
-        </div>
-        
-        {/* Alignment */}
-        <div className="flex items-center border-r border-gray-300 dark:border-gray-600 pr-1 mr-1">
-          {alignmentButtons.map((button, index) => (
+            
             <button
-              key={index}
               type="button"
-              className="p-1.5 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
-              onClick={() => handleButtonClick(button.command)}
-              title={button.title}
+              className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
+              onClick={() => handleFormat('underline')}
+              title="Underline"
             >
-              {button.icon}
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
+              </svg>
             </button>
-          ))}
-        </div>
-        
-        {/* Special tools */}
-        <div className="flex items-center">
-          {/* Quote button */}
-          <button
-            type="button"
-            className="p-1.5 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
-            onClick={() => handleButtonClick('formatBlock', 'blockquote')}
-            title="Quote"
-          >
-            <Quote size={16} />
-          </button>
-          
-          {/* Code button */}
-          <button
-            type="button"
-            className="p-1.5 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
-            onClick={() => handleButtonClick('formatBlock', 'pre')}
-            title="Code Block"
-          >
-            <Code size={16} />
-          </button>
-          
-          {/* Link button */}
-          <div className="relative">
+            
+            <div className="h-4 w-px mx-1 bg-gray-300 dark:bg-gray-600" />
+            
             <button
               type="button"
-              className={cn(
-                'p-1.5 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 rounded',
-                showLinkInput && 'bg-gray-200 dark:bg-gray-700'
-              )}
-              onClick={() => setShowLinkInput(!showLinkInput)}
+              className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
+              onClick={() => handleFormat('insertOrderedList')}
+              title="Numbered List"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+            
+            <button
+              type="button"
+              className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
+              onClick={() => handleFormat('insertUnorderedList')}
+              title="Bullet List"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+              </svg>
+            </button>
+            
+            <div className="h-4 w-px mx-1 bg-gray-300 dark:bg-gray-600" />
+            
+            <button
+              type="button"
+              className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
+              onClick={() => {
+                const url = prompt('Enter URL:');
+                if (url) handleFormat('createLink', url);
+              }}
               title="Insert Link"
             >
-              <Link size={16} />
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.172 13.828a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.102 1.101" />
+              </svg>
             </button>
             
-            {showLinkInput && (
-              <div className="absolute z-10 mt-1 w-72 p-3 bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">Insert Link</h3>
-                  <button
-                    type="button"
-                    className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-                    onClick={() => setShowLinkInput(false)}
-                  >
-                    <X size={14} />
-                  </button>
-                </div>
-                
-                <div className="space-y-2">
-                  <div>
-                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">URL</label>
-                    <input
-                      type="url"
-                      value={linkUrl}
-                      onChange={(e) => setLinkUrl(e.target.value)}
-                      className="w-full px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                      placeholder="https://example.com"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Text (optional)</label>
-                    <input
-                      type="text"
-                      value={linkText}
-                      onChange={(e) => setLinkText(e.target.value)}
-                      className="w-full px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                      placeholder="Link text"
-                    />
-                  </div>
-                  
-                  <div className="flex justify-end mt-3">
-                    <button
-                      type="button"
-                      className="px-3 py-1.5 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded-md"
-                      onClick={handleAddLink}
-                    >
-                      Insert Link
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-          
-          {/* Image button */}
-          <div className="relative">
             <button
               type="button"
-              className={cn(
-                'p-1.5 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 rounded',
-                showImageInput && 'bg-gray-200 dark:bg-gray-700'
-              )}
-              onClick={() => setShowImageInput(!showImageInput)}
-              title="Insert Image"
+              className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
+              onClick={() => handleFormat('removeFormat')}
+              title="Clear Formatting"
             >
-              <Image size={16} />
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
             </button>
-            
-            {showImageInput && (
-              <div className="absolute z-10 mt-1 w-72 p-3 bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">Insert Image</h3>
-                  <button
-                    type="button"
-                    className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-                    onClick={() => setShowImageInput(false)}
-                  >
-                    <X size={14} />
-                  </button>
-                </div>
-                
-                <div className="space-y-2">
-                  <div>
-                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Image URL</label>
-                    <input
-                      type="url"
-                      value={imageUrl}
-                      onChange={(e) => setImageUrl(e.target.value)}
-                      className="w-full px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                      placeholder="https://example.com/image.jpg"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Alt Text</label>
-                    <input
-                      type="text"
-                      value={imageAlt}
-                      onChange={(e) => setImageAlt(e.target.value)}
-                      className="w-full px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                      placeholder="Image description"
-                    />
-                  </div>
-                  
-                  <div className="flex justify-end mt-3">
-                    <button
-                      type="button"
-                      className="px-3 py-1.5 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded-md"
-                      onClick={handleAddImage}
-                    >
-                      Insert Image
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
-        </div>
-      </div>
-      
-      {/* Editor content area */}
-      <div
-        ref={editorRef}
-        contentEditable={!readOnly}
-        className={cn(
-          'p-3 outline-none overflow-auto',
-          'prose dark:prose-invert prose-sm max-w-none',
-          'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100',
-          editorClassName
         )}
-        style={{ minHeight }}
-        placeholder={placeholder}
-        onInput={handleContentChange}
-        onBlur={handleContentChange}
-        dangerouslySetInnerHTML={{ __html: value }}
-      ></div>
-      
-      {/* Error message */}
-      {error && (
-        <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-          {error}
-        </p>
-      )}
-      
-      <style jsx global>{`
-        [contenteditable=true]:empty:before {
-          content: attr(placeholder);
-          color: ${resolvedTheme === 'dark' ? '#9ca3af' : '#9ca3af'};
-          font-style: italic;
-        }
-      `}</style>
-    </div>
-  );
-};
+        
+        {/* Editor */}
+        <div
+          ref={(element) => {
+            // Combine refs
+            editorRef.current = element;
+            if (typeof ref === 'function') {
+              ref(element);
+            } else if (ref) {
+              ref.current = element;
+            }
+          }}
+          className={editorClasses}
+          contentEditable={!readOnly && !disabled}
+          onInput={handleInput}
+          onPaste={handlePaste}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
+          data-placeholder={placeholder}
+          style={{ 
+            minHeight, 
+            maxHeight,
+            overflowY: 'auto',
+          }}
+          {...props}
+        />
+        
+        {/* Error message */}
+        {error && (
+          <p className="mt-1 text-sm text-red-600 dark:text-red-400">{error}</p>
+        )}
+      </div>
+    );
+  }
+);
+
+Editor.displayName = 'Editor';

@@ -1,162 +1,247 @@
 // frontend/src/components/ui/AnimatedLogo.tsx
 'use client';
 
-import React, { useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
-import { APP_NAME } from '@/config/constants';
+import { useEffect, useRef } from 'react';
+import { motion, useAnimation, AnimatePresence } from 'framer-motion';
 import { cn } from '@/utils/cn';
-import { useTheme } from '@/contexts/ThemeContext';
 
 interface AnimatedLogoProps {
+  /** Additional class name for the logo */
   className?: string;
-  animated?: boolean;
-  size?: 'sm' | 'md' | 'lg';
+  /** Whether to animate the logo on mount */
+  animate?: boolean;
+  /** Whether to animate the logo continuously */
+  continuous?: boolean;
+  /** The color of the logo */
+  color?: string;
+  /** The size of the logo */
+  size?: 'sm' | 'md' | 'lg' | 'xl' | number;
+  /** Whether to show a hover effect */
+  hoverEffect?: boolean;
+  /** Whether to show a click effect */
+  clickEffect?: boolean;
+  /** Called when the logo is clicked */
+  onClick?: () => void;
 }
 
-export const AnimatedLogo = ({ 
-  className, 
-  animated = true,
-  size = 'md' 
+/**
+ * Animated SVG logo component
+ */
+export const AnimatedLogo = ({
+  className,
+  animate = true,
+  continuous = false,
+  color,
+  size = 'md',
+  hoverEffect = true,
+  clickEffect = true,
+  onClick,
 }: AnimatedLogoProps) => {
-  const { resolvedTheme } = useTheme();
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const pathControls = useAnimation();
+  const circleControls = useAnimation();
+  const containerControls = useAnimation();
+  const animationRef = useRef<any>(null);
   
-  const sizeMap = {
-    sm: 'h-8 w-8',
-    md: 'h-12 w-12',
-    lg: 'h-16 w-16',
+  // Define animation sequences
+  const animateLogo = async () => {
+    // Reset animations
+    await Promise.all([
+      pathControls.set({ pathLength: 0, opacity: 0 }),
+      circleControls.set({ scale: 0, opacity: 0 }),
+    ]);
+    
+    // Animate path drawing
+    await pathControls.start({
+      pathLength: 1,
+      opacity: 1,
+      transition: { duration: 1.2, ease: 'easeInOut' }
+    });
+    
+    // Animate circles
+    await circleControls.start({
+      scale: 1,
+      opacity: 1,
+      transition: { duration: 0.8, ease: 'backOut' }
+    });
+    
+    // If continuous, loop the animation
+    if (continuous) {
+      // Add a pause between animations
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      
+      // Animate out
+      await Promise.all([
+        pathControls.start({
+          opacity: 0,
+          transition: { duration: 0.5 }
+        }),
+        circleControls.start({
+          scale: 0,
+          opacity: 0,
+          transition: { duration: 0.5 }
+        }),
+      ]);
+      
+      // Start again
+      animateLogo();
+    }
   };
   
-  // Draw animated particles if animated is true
+  // Start animation on mount
   useEffect(() => {
-    if (!animated || !canvasRef.current) return;
-    
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    
-    if (!ctx) return;
-    
-    // Set canvas dimensions
-    const setCanvasDimensions = () => {
-      const rect = canvas.getBoundingClientRect();
-      canvas.width = rect.width;
-      canvas.height = rect.height;
-    };
-    
-    setCanvasDimensions();
-    window.addEventListener('resize', setCanvasDimensions);
-    
-    // Particle class
-    class Particle {
-      x: number;
-      y: number;
-      size: number;
-      speedX: number;
-      speedY: number;
-      color: string;
-      
-      constructor(canvas: HTMLCanvasElement) {
-        this.x = Math.random() * canvas.width;
-        this.y = Math.random() * canvas.height;
-        this.size = Math.random() * 3 + 1;
-        this.speedX = Math.random() * 1 - 0.5;
-        this.speedY = Math.random() * 1 - 0.5;
-        
-        // Use theme-based colors
-        const colors = resolvedTheme === 'dark' 
-          ? ['#60a5fa', '#818cf8', '#c084fc'] // Blue to purple
-          : ['#3b82f6', '#6366f1', '#8b5cf6']; // Blue to purple
-          
-        this.color = colors[Math.floor(Math.random() * colors.length)];
-      }
-      
-      update() {
-        this.x += this.speedX;
-        this.y += this.speedY;
-        
-        // Bounce off edges
-        if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
-        if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
-      }
-      
-      draw(ctx: CanvasRenderingContext2D) {
-        ctx.fillStyle = this.color;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fill();
-      }
+    if (animate) {
+      animationRef.current = animateLogo();
     }
-    
-    // Initialize particles
-    const particlesArray: Particle[] = [];
-    const particleCount = 20; // Adjust based on size
-    
-    for (let i = 0; i < particleCount; i++) {
-      particlesArray.push(new Particle(canvas));
-    }
-    
-    // Animation loop
-    const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
-      // Draw circle background
-      ctx.fillStyle = resolvedTheme === 'dark' ? '#1e40af' : '#3b82f6';
-      ctx.beginPath();
-      ctx.arc(canvas.width / 2, canvas.height / 2, canvas.width / 2, 0, Math.PI * 2);
-      ctx.fill();
-      
-      // Draw letter
-      ctx.fillStyle = '#ffffff';
-      ctx.font = `bold ${canvas.width * 0.5}px sans-serif`;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(APP_NAME.charAt(0), canvas.width / 2, canvas.height / 2 + 2);
-      
-      // Update and draw particles
-      for (const particle of particlesArray) {
-        particle.update();
-        particle.draw(ctx);
-      }
-      
-      animationId = requestAnimationFrame(animate);
-    };
-    
-    let animationId = requestAnimationFrame(animate);
     
     return () => {
-      cancelAnimationFrame(animationId);
-      window.removeEventListener('resize', setCanvasDimensions);
+      // Cancel animations on unmount
+      if (animationRef.current) {
+        animationRef.current.stop();
+      }
     };
-  }, [animated, resolvedTheme]);
+  }, [animate, continuous]);
   
-  if (animated) {
-    return (
-      <motion.div
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 0.5, type: 'spring' }}
-        className={cn("rounded-lg overflow-hidden", sizeMap[size], className)}
-      >
-        <canvas 
-          ref={canvasRef} 
-          className="w-full h-full"
-          aria-label={`${APP_NAME} logo`}
-        />
-      </motion.div>
-    );
-  }
+  // Get size based on prop
+  const getSize = () => {
+    if (typeof size === 'number') return size;
+    
+    const sizeMap = {
+      sm: 32,
+      md: 48,
+      lg: 64,
+      xl: 96,
+    };
+    
+    return sizeMap[size] || 48;
+  };
   
-  // Static logo (no animation)
+  // Get color based on prop
+  const getColor = () => {
+    if (color) return color;
+    return 'currentColor';
+  };
+  
+  // Handle click animation
+  const handleClick = () => {
+    if (clickEffect) {
+      containerControls.start({
+        scale: 0.95,
+        transition: { duration: 0.1 }
+      }).then(() => {
+        containerControls.start({
+          scale: 1,
+          transition: { duration: 0.2, type: 'spring', stiffness: 400, damping: 10 }
+        });
+      });
+    }
+    
+    if (onClick) {
+      onClick();
+    }
+  };
+  
   return (
-    <div 
+    <motion.div
       className={cn(
-        "flex items-center justify-center bg-blue-600 text-white font-bold rounded-lg",
-        sizeMap[size],
+        'inline-flex items-center justify-center',
+        hoverEffect && 'cursor-pointer',
         className
       )}
-      aria-label={`${APP_NAME} logo`}
+      animate={containerControls}
+      whileHover={hoverEffect ? { scale: 1.05 } : undefined}
+      onClick={handleClick}
     >
-      {APP_NAME.charAt(0)}
-    </div>
+      <svg
+        width={getSize()}
+        height={getSize()}
+        viewBox="0 0 100 100"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        {/* Logo background */}
+        <rect
+          width="100"
+          height="100"
+          rx="20"
+          fill="currentColor"
+          fillOpacity="0.1"
+        />
+        
+        {/* Animated path */}
+        <motion.path
+          d="M30 70L40 30H60L70 70"
+          stroke={getColor()}
+          strokeWidth="6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          initial={{ pathLength: animate ? 0 : 1, opacity: animate ? 0 : 1 }}
+          animate={pathControls}
+        />
+        
+        <motion.path
+          d="M25 50H75"
+          stroke={getColor()}
+          strokeWidth="6"
+          strokeLinecap="round"
+          initial={{ pathLength: animate ? 0 : 1, opacity: animate ? 0 : 1 }}
+          animate={pathControls}
+        />
+        
+        {/* Animated circles */}
+        <motion.circle
+          cx="25"
+          cy="50"
+          r="5"
+          fill={getColor()}
+          initial={{ scale: animate ? 0 : 1, opacity: animate ? 0 : 1 }}
+          animate={circleControls}
+        />
+        
+        <motion.circle
+          cx="75"
+          cy="50"
+          r="5"
+          fill={getColor()}
+          initial={{ scale: animate ? 0 : 1, opacity: animate ? 0 : 1 }}
+          animate={circleControls}
+        />
+        
+        <motion.circle
+          cx="40"
+          cy="30"
+          r="5"
+          fill={getColor()}
+          initial={{ scale: animate ? 0 : 1, opacity: animate ? 0 : 1 }}
+          animate={circleControls}
+        />
+        
+        <motion.circle
+          cx="60"
+          cy="30"
+          r="5"
+          fill={getColor()}
+          initial={{ scale: animate ? 0 : 1, opacity: animate ? 0 : 1 }}
+          animate={circleControls}
+        />
+        
+        <motion.circle
+          cx="30"
+          cy="70"
+          r="5"
+          fill={getColor()}
+          initial={{ scale: animate ? 0 : 1, opacity: animate ? 0 : 1 }}
+          animate={circleControls}
+        />
+        
+        <motion.circle
+          cx="70"
+          cy="70"
+          r="5"
+          fill={getColor()}
+          initial={{ scale: animate ? 0 : 1, opacity: animate ? 0 : 1 }}
+          animate={circleControls}
+        />
+      </svg>
+    </motion.div>
   );
 };

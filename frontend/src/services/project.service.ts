@@ -1,13 +1,29 @@
-// frontend/src/services/project.service.ts
+// src/services/project.service.ts
 import { api } from '@/lib/axios';
-import { Project } from '@/types/project';
+import { Project, ProjectFilter } from '@/types/project';
+import { socketEvents } from '@/lib/socket';
 
 export const projectService = {
   /**
    * Get all projects
    */
-  async getProjects() {
-    const response = await api.get('/projects');
+  async getProjects(page = 1, itemsPerPage = 10, filter?: ProjectFilter, userId?: string) {
+    // Create params
+    const params: Record<string, any> = { page, itemsPerPage };
+    
+    // Add filter parameters
+    if (filter) {
+      if (filter.search) params.search = filter.search;
+      if (filter.skills) params.skills = filter.skills.join(',');
+      if (filter.completed !== undefined) params.completed = filter.completed;
+      if (filter.category) params.category = filter.category;
+      if (filter.sortBy) params.sortBy = filter.sortBy;
+    }
+    
+    // Add userId if provided
+    if (userId) params.userId = userId;
+    
+    const response = await api.get('/projects', { params });
     return response.data.projects;
   },
   
@@ -28,6 +44,11 @@ export const projectService = {
         'Content-Type': 'multipart/form-data',
       },
     });
+    
+    // Emit socket event for real-time updates
+    // Include socketService.emit call if you want to immediately update other connected clients
+    // socketService.emit(socketEvents.projects.created, response.data.project);
+    
     return response.data.project;
   },
   
@@ -40,6 +61,10 @@ export const projectService = {
         'Content-Type': 'multipart/form-data',
       },
     });
+    
+    // Emit socket event for real-time updates
+    // socketService.emit(socketEvents.projects.updated, response.data.project);
+    
     return response.data.project;
   },
   
@@ -48,6 +73,10 @@ export const projectService = {
    */
   async deleteProject(id: string) {
     const response = await api.delete(`/projects/${id}`);
+    
+    // Emit socket event for real-time updates
+    // socketService.emit(socketEvents.projects.deleted, { id });
+    
     return response.data;
   },
   
