@@ -1,1 +1,0 @@
-const nextConfig = { reactStrictMode: true, images: { domains: ["localhost", "example.com"], formats: ["image/webp"], }, i18n: { locales: ["en-US", "pt-BR", "es"], defaultLocale: "en-US", }, experimental: { serverActions: true, }, }; module.exports = nextConfig;
