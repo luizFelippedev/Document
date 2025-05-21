@@ -1,5 +1,5 @@
 // frontend/src/components/auth/RegisterForm.tsx
-'use client';
+"use client";
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -28,27 +28,24 @@ const registerSchema = z
       .min(8, "Password must be at least 8 characters")
       .refine(
         (password) => /[A-Z]/.test(password),
-        "Password must contain at least one uppercase letter"
+        "Password must contain at least one uppercase letter",
       )
       .refine(
         (password) => /[a-z]/.test(password),
-        "Password must contain at least one lowercase letter"
+        "Password must contain at least one lowercase letter",
       )
       .refine(
         (password) => /[0-9]/.test(password),
-        "Password must contain at least one number"
+        "Password must contain at least one number",
       )
       .refine(
         (password) => /[^A-Za-z0-9]/.test(password),
-        "Password must contain at least one special character"
+        "Password must contain at least one special character",
       ),
-    confirmPassword: z
-      .string(),
-    acceptTerms: z
-      .boolean()
-      .refine((value) => value === true, {
-        message: "You must accept the terms and conditions",
-      }),
+    confirmPassword: z.string(),
+    acceptTerms: z.boolean().refine((value) => value === true, {
+      message: "You must accept the terms and conditions",
+    }),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",
@@ -68,7 +65,7 @@ export const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState(0);
   const { register: registerUser } = useAuth();
-  
+
   const {
     register,
     handleSubmit,
@@ -84,68 +81,68 @@ export const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
       acceptTerms: false,
     },
   });
-  
+
   const password = watch("password");
-  
+
   // Calculate password strength
   useState(() => {
     if (!password) {
       setPasswordStrength(0);
       return;
     }
-    
+
     let strength = 0;
-    
+
     // Length
     if (password.length >= 8) strength += 1;
     if (password.length >= 12) strength += 1;
-    
+
     // Character types
     if (/[A-Z]/.test(password)) strength += 1;
     if (/[a-z]/.test(password)) strength += 1;
     if (/[0-9]/.test(password)) strength += 1;
     if (/[^A-Za-z0-9]/.test(password)) strength += 1;
-    
+
     // Normalize to 0-100
     setPasswordStrength(Math.min(100, (strength / 6) * 100));
   });
-  
+
   const getStrengthColor = () => {
     if (passwordStrength < 30) return "bg-red-500";
     if (passwordStrength < 60) return "bg-yellow-500";
     return "bg-green-500";
   };
-  
+
   const getStrengthText = () => {
     if (passwordStrength < 30) return "Weak";
     if (passwordStrength < 60) return "Moderate";
     if (passwordStrength < 80) return "Strong";
     return "Very Strong";
   };
-  
+
   const onSubmit = async (data: RegisterFormValues) => {
     try {
       setIsSubmitting(true);
       setError(null);
-      
+
       // Simulate API call
       await registerUser({
         name: data.name,
         email: data.email,
         password: data.password,
       });
-      
+
       onSuccess();
     } catch (err: any) {
       setError(
-        err.response?.data?.message || 
-        "Failed to create account. Please try again."
+        err.response?.data?.message ||
+          "Failed to create account. Please try again.",
       );
     } finally {
       setIsSubmitting(false);
     }
   };
-  
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <AnimatePresence>
@@ -159,9 +156,9 @@ export const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
           </motion.div>
         )}
       </AnimatePresence>
-      
+
       <div>
-        <label 
+        <label
           htmlFor="name"
           className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
         >
@@ -176,9 +173,9 @@ export const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
           {...register("name")}
         />
       </div>
-      
+
       <div>
-        <label 
+        <label
           htmlFor="email"
           className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
         >
@@ -193,9 +190,9 @@ export const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
           {...register("email")}
         />
       </div>
-      
+
       <div>
-        <label 
+        <label
           htmlFor="password"
           className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
         >
@@ -219,22 +216,22 @@ export const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
           }
           {...register("password")}
         />
-        
+
         {password && (
           <div className="mt-2">
             <div className="flex items-center justify-between mb-1">
               <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
                 Password strength:
               </span>
-              <span 
-                className="text-xs font-medium" 
-                style={{ color: getStrengthColor().replace('bg-', 'text-') }}
+              <span
+                className="text-xs font-medium"
+                style={{ color: getStrengthColor().replace("bg-", "text-") }}
               >
                 {getStrengthText()}
               </span>
             </div>
             <div className="w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-              <div 
+              <div
                 className={`h-full transition-all duration-300 ${getStrengthColor()}`}
                 style={{ width: `${passwordStrength}%` }}
               ></div>
@@ -242,9 +239,9 @@ export const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
           </div>
         )}
       </div>
-      
+
       <div>
-        <label 
+        <label
           htmlFor="confirmPassword"
           className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
         >
@@ -269,7 +266,7 @@ export const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
           {...register("confirmPassword")}
         />
       </div>
-      
+
       <div className="flex items-start">
         <div className="flex items-center h-5">
           <input
@@ -279,20 +276,20 @@ export const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
             {...register("acceptTerms")}
           />
         </div>
-        <label 
-          htmlFor="acceptTerms" 
+        <label
+          htmlFor="acceptTerms"
           className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
         >
           I agree to the{" "}
-          <a 
-            href="/terms" 
+          <a
+            href="/terms"
             className="text-blue-600 hover:text-blue-500 dark:text-blue-400"
           >
             Terms of Service
           </a>{" "}
           and{" "}
-          <a 
-            href="/privacy" 
+          <a
+            href="/privacy"
             className="text-blue-600 hover:text-blue-500 dark:text-blue-400"
           >
             Privacy Policy
@@ -304,7 +301,7 @@ export const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
           {errors.acceptTerms.message}
         </p>
       )}
-      
+
       <div className="pt-2">
         <Button
           type="submit"

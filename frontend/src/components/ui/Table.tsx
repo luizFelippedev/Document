@@ -1,28 +1,28 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect, useRef } from 'react';
-import { cn } from '@/utils/cn';
-import { AnimatePresence, motion } from 'framer-motion';
-import { 
-  ChevronDown, 
-  ChevronUp, 
-  SortAsc, 
-  SortDesc, 
-  ChevronLeft, 
-  ChevronRight, 
-  Search, 
-  Filter, 
-  Download, 
+import React, { useState, useEffect, useRef } from "react";
+import { cn } from "@/utils/cn";
+import { AnimatePresence, motion } from "framer-motion";
+import {
+  ChevronDown,
+  ChevronUp,
+  SortAsc,
+  SortDesc,
+  ChevronLeft,
+  ChevronRight,
+  Search,
+  Filter,
+  Download,
   Loader2,
   X,
   ChevronDownSquare,
-  ChevronRightSquare
-} from 'lucide-react';
-import { Skeleton } from './Skeleton';
-import { Input } from './Input';
-import { Button } from './Button';
-import { Select } from './Select';
-import { Badge } from './Badge';
+  ChevronRightSquare,
+} from "lucide-react";
+import { Skeleton } from "./Skeleton";
+import { Input } from "./Input";
+import { Button } from "./Button";
+import { Select } from "./Select";
+import { Badge } from "./Badge";
 
 interface Column<T> {
   id: string;
@@ -34,7 +34,7 @@ interface Column<T> {
   width?: string | number;
   minWidth?: string | number;
   maxWidth?: string | number;
-  align?: 'left' | 'center' | 'right';
+  align?: "left" | "center" | "right";
   className?: string;
   headerClassName?: string;
   cellClassName?: string;
@@ -76,9 +76,9 @@ export interface TableProps<T extends Record<string, any>> {
   /** Current sort field */
   sortField?: string;
   /** Current sort direction */
-  sortDirection?: 'asc' | 'desc';
+  sortDirection?: "asc" | "desc";
   /** Called when sort changes */
-  onSortChange?: (field: string, direction: 'asc' | 'desc') => void;
+  onSortChange?: (field: string, direction: "asc" | "desc") => void;
   /** Whether the table is searchable */
   searchable?: boolean;
   /** Current search query */
@@ -150,12 +150,12 @@ export function Table<T extends Record<string, any>>({
   totalItems,
   sortable = true,
   sortField,
-  sortDirection = 'asc',
+  sortDirection = "asc",
   onSortChange,
   searchable = false,
-  searchQuery = '',
+  searchQuery = "",
   onSearchChange,
-  searchPlaceholder = 'Search...',
+  searchPlaceholder = "Search...",
   filterable = false,
   filters = {},
   onFiltersChange,
@@ -181,39 +181,47 @@ export function Table<T extends Record<string, any>>({
   // Local state for controlled props when uncontrolled
   const [internalPage, setInternalPage] = useState(page);
   const [internalSortField, setInternalSortField] = useState(sortField);
-  const [internalSortDirection, setInternalSortDirection] = useState(sortDirection);
+  const [internalSortDirection, setInternalSortDirection] =
+    useState(sortDirection);
   const [internalSearchQuery, setInternalSearchQuery] = useState(searchQuery);
   const [internalFilters, setInternalFilters] = useState(filters);
-  const [internalExpandedRows, setInternalExpandedRows] = useState<number[]>([]);
-  const [internalSelectedRows, setInternalSelectedRows] = useState<number[]>([]);
+  const [internalExpandedRows, setInternalExpandedRows] = useState<number[]>(
+    [],
+  );
+  const [internalSelectedRows, setInternalSelectedRows] = useState<number[]>(
+    [],
+  );
   const [searchInputValue, setSearchInputValue] = useState(searchQuery);
-  
+
   // Calculate the total number of pages
   const calculatedTotalItems = totalItems || data.length;
-  const totalPages = Math.max(1, Math.ceil(calculatedTotalItems / itemsPerPage));
-  
+  const totalPages = Math.max(
+    1,
+    Math.ceil(calculatedTotalItems / itemsPerPage),
+  );
+
   // Update local state when props change
   useEffect(() => {
     setInternalPage(page);
   }, [page]);
-  
+
   useEffect(() => {
     setInternalSortField(sortField);
   }, [sortField]);
-  
+
   useEffect(() => {
     setInternalSortDirection(sortDirection);
   }, [sortDirection]);
-  
+
   useEffect(() => {
     setInternalSearchQuery(searchQuery);
     setSearchInputValue(searchQuery);
   }, [searchQuery]);
-  
+
   useEffect(() => {
     setInternalFilters(filters);
   }, [filters]);
-  
+
   // Handle pagination
   const handlePageChange = (newPage: number) => {
     setInternalPage(newPage);
@@ -221,83 +229,83 @@ export function Table<T extends Record<string, any>>({
       onPageChange(newPage);
     }
   };
-  
+
   // Handle sort
   const handleSort = (field: string) => {
-    let newDirection: 'asc' | 'desc' = 'asc';
-    
+    let newDirection: "asc" | "desc" = "asc";
+
     if (internalSortField === field) {
-      newDirection = internalSortDirection === 'asc' ? 'desc' : 'asc';
+      newDirection = internalSortDirection === "asc" ? "desc" : "asc";
     }
-    
+
     setInternalSortField(field);
     setInternalSortDirection(newDirection);
-    
+
     if (onSortChange) {
       onSortChange(field, newDirection);
     }
   };
-  
+
   // Handle search
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     setInternalSearchQuery(searchInputValue);
-    
+
     if (onSearchChange) {
       onSearchChange(searchInputValue);
     }
-    
+
     // Reset to first page when searching
     handlePageChange(1);
   };
-  
+
   // Handle search input change
   const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchInputValue(e.target.value);
-    
+
     // If no explicit search button, search on input change
     if (!onSearchChange) {
       setInternalSearchQuery(e.target.value);
       handlePageChange(1);
     }
   };
-  
+
   // Handle clear search
   const handleClearSearch = () => {
-    setSearchInputValue('');
-    setInternalSearchQuery('');
-    
+    setSearchInputValue("");
+    setInternalSearchQuery("");
+
     if (onSearchChange) {
-      onSearchChange('');
+      onSearchChange("");
     }
-    
+
     // Reset to first page when clearing search
     handlePageChange(1);
   };
-  
+
   // Handle row expansion
   const toggleRowExpansion = (index: number) => {
-    setInternalExpandedRows(prev => {
+    setInternalExpandedRows((prev) => {
       if (prev.includes(index)) {
-        return prev.filter(i => i !== index);
+        return prev.filter((i) => i !== index);
       } else {
         return [...prev, index];
       }
     });
   };
-  
+
   // Handle row selection
   const toggleRowSelection = (index: number) => {
-    setInternalSelectedRows(prev => {
+    setInternalSelectedRows((prev) => {
       if (prev.includes(index)) {
-        return prev.filter(i => i !== index);
+        return prev.filter((i) => i !== index);
       } else {
         return [...prev, index];
       }
     });
   };
-  
+
   // Handle select all rows
   const toggleSelectAll = () => {
     if (internalSelectedRows.length === data.length) {
@@ -306,107 +314,122 @@ export function Table<T extends Record<string, any>>({
       setInternalSelectedRows(data.map((_, i) => i));
     }
   };
-  
+
   // Update selection when internalSelectedRows changes
   useEffect(() => {
     if (onSelectionChange) {
-      const selectedData = internalSelectedRows.map(index => data[index]);
+      const selectedData = internalSelectedRows.map((index) => data[index]);
       onSelectionChange(selectedData);
     }
   }, [internalSelectedRows, data, onSelectionChange]);
-  
+
   // Calculate visible data for the current page
   const visibleData = pagination
     ? data.slice((internalPage - 1) * itemsPerPage, internalPage * itemsPerPage)
     : data;
-  
+
   // Generate table class names
   const tableClasses = cn(
-    'w-full text-sm',
+    "w-full text-sm",
     {
-      'border-collapse': !bordered,
-      'border-separate border-spacing-0': bordered,
-      'border border-gray-200 dark:border-gray-700': bordered,
+      "border-collapse": !bordered,
+      "border-separate border-spacing-0": bordered,
+      "border border-gray-200 dark:border-gray-700": bordered,
     },
-    className
+    className,
   );
-  
+
   const headerClasses = cn(
-    'bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-medium',
+    "bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-medium",
     {
-      'sticky top-0 z-10': stickyHeader,
+      "sticky top-0 z-10": stickyHeader,
     },
-    headerClassName
+    headerClassName,
   );
-  
-  const bodyClasses = cn(
-    'text-gray-700 dark:text-gray-300',
-    bodyClassName
-  );
-  
+
+  const bodyClasses = cn("text-gray-700 dark:text-gray-300", bodyClassName);
+
   const footerClasses = cn(
-    'bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300',
-    footerClassName
+    "bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300",
+    footerClassName,
   );
-  
-  const cellClasses = (column: Column<T>) => cn(
-    'px-4 py-2 border-b border-gray-200 dark:border-gray-700',
-    {
-      'text-left': column.align === 'left' || !column.align,
-      'text-center': column.align === 'center',
-      'text-right': column.align === 'right',
-      'p-0': column.disablePadding,
-      'sticky left-0 z-20 bg-white dark:bg-gray-900': column.sticky || (stickyFirstColumn && columns.indexOf(column) === 0),
-    },
-    column.cellClassName
-  );
-  
-  const headerCellClasses = (column: Column<T>) => cn(
-    'px-4 py-3 border-b border-gray-200 dark:border-gray-700',
-    {
-      'text-left': column.align === 'left' || !column.align,
-      'text-center': column.align === 'center',
-      'text-right': column.align === 'right',
-      'p-0': column.disablePadding,
-      'sticky left-0 z-30 bg-gray-50 dark:bg-gray-800': column.sticky || (stickyFirstColumn && columns.indexOf(column) === 0),
-    },
-    column.headerClassName
-  );
-  
-  const rowClasses = (row: T, index: number) => cn(
-    {
-      'bg-gray-50 dark:bg-gray-800/50': striped && index % 2 === 1,
-      'hover:bg-gray-100 dark:hover:bg-gray-700/50': hoverable,
-      'cursor-pointer': hoverable || expandable || onRowClick,
-    },
-    getRowClassName?.(row, index)
-  );
-  
+
+  const cellClasses = (column: Column<T>) =>
+    cn(
+      "px-4 py-2 border-b border-gray-200 dark:border-gray-700",
+      {
+        "text-left": column.align === "left" || !column.align,
+        "text-center": column.align === "center",
+        "text-right": column.align === "right",
+        "p-0": column.disablePadding,
+        "sticky left-0 z-20 bg-white dark:bg-gray-900":
+          column.sticky || (stickyFirstColumn && columns.indexOf(column) === 0),
+      },
+      column.cellClassName,
+    );
+
+  const headerCellClasses = (column: Column<T>) =>
+    cn(
+      "px-4 py-3 border-b border-gray-200 dark:border-gray-700",
+      {
+        "text-left": column.align === "left" || !column.align,
+        "text-center": column.align === "center",
+        "text-right": column.align === "right",
+        "p-0": column.disablePadding,
+        "sticky left-0 z-30 bg-gray-50 dark:bg-gray-800":
+          column.sticky || (stickyFirstColumn && columns.indexOf(column) === 0),
+      },
+      column.headerClassName,
+    );
+
+  const rowClasses = (row: T, index: number) =>
+    cn(
+      {
+        "bg-gray-50 dark:bg-gray-800/50": striped && index % 2 === 1,
+        "hover:bg-gray-100 dark:hover:bg-gray-700/50": hoverable,
+        "cursor-pointer": hoverable || expandable || onRowClick,
+      },
+      getRowClassName?.(row, index),
+    );
+
   // Empty state content
   const renderEmptyState = () => {
     if (emptyState) return emptyState;
-    
+
     return (
       <div className="p-8 text-center">
         <div className="mx-auto mb-4 h-16 w-16 text-gray-400 dark:text-gray-500 flex items-center justify-center border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-full">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
           </svg>
         </div>
-        <h3 className="text-lg font-medium text-gray-900 dark:text-white">No data found</h3>
+        <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+          No data found
+        </h3>
         <p className="mt-2 text-gray-500 dark:text-gray-400">
-          {searchQuery 
-            ? 'No results match your search criteria. Try adjusting your search or filters.'
-            : 'There is no data available to display.'}
+          {searchQuery
+            ? "No results match your search criteria. Try adjusting your search or filters."
+            : "There is no data available to display."}
         </p>
       </div>
     );
   };
-  
+
   // Loading overlay
   const renderLoadingOverlay = () => {
     if (!loadingOverlay) return null;
-    
+
     return (
       <div className="absolute inset-0 bg-white/75 dark:bg-gray-900/75 flex items-center justify-center z-50">
         <div className="text-center">
@@ -416,11 +439,11 @@ export function Table<T extends Record<string, any>>({
       </div>
     );
   };
-  
+
   // Loading state
   if (loading && data.length === 0) {
     return (
-      <div className={cn('space-y-4', className)}>
+      <div className={cn("space-y-4", className)}>
         {searchable && (
           <div className="flex space-x-2">
             <div className="w-full max-w-md">
@@ -429,29 +452,37 @@ export function Table<T extends Record<string, any>>({
             <Skeleton className="h-10 w-20" />
           </div>
         )}
-        
+
         <div className="relative rounded-md border border-gray-200 dark:border-gray-700 overflow-hidden">
           <div className="overflow-x-auto">
             <table className={tableClasses}>
               <thead className={headerClasses}>
                 <tr>
-                  {expandable && <th className="w-10 px-4 py-3 border-b border-gray-200 dark:border-gray-700"></th>}
-                  {selectable && <th className="w-10 px-4 py-3 border-b border-gray-200 dark:border-gray-700"></th>}
-                  {showIndices && <th className="w-10 px-4 py-3 border-b border-gray-200 dark:border-gray-700"></th>}
-                  
-                  {columns.filter(col => !col.hidden).map((column, index) => (
-                    <th
-                      key={column.id}
-                      className={headerCellClasses(column)}
-                      style={{
-                        width: column.width,
-                        minWidth: column.minWidth,
-                        maxWidth: column.maxWidth,
-                      }}
-                    >
-                      <Skeleton className="h-6 w-24" />
-                    </th>
-                  ))}
+                  {expandable && (
+                    <th className="w-10 px-4 py-3 border-b border-gray-200 dark:border-gray-700"></th>
+                  )}
+                  {selectable && (
+                    <th className="w-10 px-4 py-3 border-b border-gray-200 dark:border-gray-700"></th>
+                  )}
+                  {showIndices && (
+                    <th className="w-10 px-4 py-3 border-b border-gray-200 dark:border-gray-700"></th>
+                  )}
+
+                  {columns
+                    .filter((col) => !col.hidden)
+                    .map((column, index) => (
+                      <th
+                        key={column.id}
+                        className={headerCellClasses(column)}
+                        style={{
+                          width: column.width,
+                          minWidth: column.minWidth,
+                          maxWidth: column.maxWidth,
+                        }}
+                      >
+                        <Skeleton className="h-6 w-24" />
+                      </th>
+                    ))}
                 </tr>
               </thead>
               <tbody className={bodyClasses}>
@@ -462,34 +493,36 @@ export function Table<T extends Record<string, any>>({
                         <Skeleton className="h-5 w-5" />
                       </td>
                     )}
-                    
+
                     {selectable && (
                       <td className="w-10 px-4 py-3 border-b border-gray-200 dark:border-gray-700">
                         <Skeleton className="h-5 w-5" />
                       </td>
                     )}
-                    
+
                     {showIndices && (
                       <td className="w-10 px-4 py-3 border-b border-gray-200 dark:border-gray-700">
                         <Skeleton className="h-5 w-5" />
                       </td>
                     )}
-                    
-                    {columns.filter(col => !col.hidden).map((column, colIndex) => (
-                      <td
-                        key={column.id + colIndex}
-                        className={cellClasses(column)}
-                      >
-                        <Skeleton className="h-5 w-full" />
-                      </td>
-                    ))}
+
+                    {columns
+                      .filter((col) => !col.hidden)
+                      .map((column, colIndex) => (
+                        <td
+                          key={column.id + colIndex}
+                          className={cellClasses(column)}
+                        >
+                          <Skeleton className="h-5 w-full" />
+                        </td>
+                      ))}
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
         </div>
-        
+
         {pagination && (
           <div className="flex items-center justify-between">
             <div>
@@ -503,9 +536,9 @@ export function Table<T extends Record<string, any>>({
       </div>
     );
   }
-  
+
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn("space-y-4", className)}>
       {/* Table actions */}
       {(searchable || filterable || downloadable) && (
         <div className="flex flex-wrap gap-3 mb-4">
@@ -542,12 +575,12 @@ export function Table<T extends Record<string, any>>({
               </form>
             </div>
           )}
-          
+
           {/* Filters */}
           {filterable && (
             <div>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="sm"
                 leftIcon={<Filter size={16} />}
               >
@@ -555,12 +588,12 @@ export function Table<T extends Record<string, any>>({
               </Button>
             </div>
           )}
-          
+
           {/* Download */}
           {downloadable && (
             <div>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="sm"
                 leftIcon={<Download size={16} />}
                 onClick={onDownload}
@@ -571,12 +604,12 @@ export function Table<T extends Record<string, any>>({
           )}
         </div>
       )}
-      
+
       {/* Table container */}
       <div className="relative rounded-md border border-gray-200 dark:border-gray-700 overflow-hidden">
         {/* Loading overlay */}
         {loading && loadingOverlay && renderLoadingOverlay()}
-        
+
         {/* Table */}
         <div className="overflow-x-auto" style={{ height }}>
           <table className={tableClasses}>
@@ -586,69 +619,77 @@ export function Table<T extends Record<string, any>>({
                 {expandable && (
                   <th className="w-10 px-4 py-3 border-b border-gray-200 dark:border-gray-700"></th>
                 )}
-                
+
                 {/* Select column */}
                 {selectable && (
                   <th className="w-10 px-4 py-3 border-b border-gray-200 dark:border-gray-700">
                     <input
                       type="checkbox"
                       className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                      checked={internalSelectedRows.length === data.length && data.length > 0}
+                      checked={
+                        internalSelectedRows.length === data.length &&
+                        data.length > 0
+                      }
                       onChange={toggleSelectAll}
                     />
                   </th>
                 )}
-                
+
                 {/* Index column */}
                 {showIndices && (
                   <th className="w-10 px-4 py-3 border-b border-gray-200 dark:border-gray-700 text-gray-500 font-medium">
                     #
                   </th>
                 )}
-                
+
                 {/* Column headers */}
-                {columns.filter(col => !col.hidden).map((column, index) => (
-                  <th
-                    key={column.id}
-                    className={headerCellClasses(column)}
-                    style={{
-                      width: column.width,
-                      minWidth: column.minWidth,
-                      maxWidth: column.maxWidth,
-                    }}
-                  >
-                    {sortable && column.sortable !== false ? (
-                      <button
-                        className="flex items-center space-x-1 font-medium w-full"
-                        onClick={() => handleSort(column.id)}
-                      >
-                        <span>{column.header}</span>
-                        <span className="flex items-center ml-1">
-                          {internalSortField === column.id ? (
-                            internalSortDirection === 'asc' ? (
-                              <SortAsc size={16} className="text-blue-500" />
+                {columns
+                  .filter((col) => !col.hidden)
+                  .map((column, index) => (
+                    <th
+                      key={column.id}
+                      className={headerCellClasses(column)}
+                      style={{
+                        width: column.width,
+                        minWidth: column.minWidth,
+                        maxWidth: column.maxWidth,
+                      }}
+                    >
+                      {sortable && column.sortable !== false ? (
+                        <button
+                          className="flex items-center space-x-1 font-medium w-full"
+                          onClick={() => handleSort(column.id)}
+                        >
+                          <span>{column.header}</span>
+                          <span className="flex items-center ml-1">
+                            {internalSortField === column.id ? (
+                              internalSortDirection === "asc" ? (
+                                <SortAsc size={16} className="text-blue-500" />
+                              ) : (
+                                <SortDesc size={16} className="text-blue-500" />
+                              )
                             ) : (
-                              <SortDesc size={16} className="text-blue-500" />
-                            )
-                          ) : (
-                            <SortAsc size={16} className="text-gray-300 dark:text-gray-600" />
-                          )}
-                        </span>
-                      </button>
-                    ) : (
-                      column.header
-                    )}
-                  </th>
-                ))}
+                              <SortAsc
+                                size={16}
+                                className="text-gray-300 dark:text-gray-600"
+                              />
+                            )}
+                          </span>
+                        </button>
+                      ) : (
+                        column.header
+                      )}
+                    </th>
+                  ))}
               </tr>
             </thead>
-            
+
             <tbody className={bodyClasses}>
               {visibleData.length === 0 ? (
                 <tr>
                   <td
                     colSpan={
-                      columns.filter(col => !col.hidden).length +
+                      columns.filter((col) => !col.hidden).length +
                       (expandable ? 1 : 0) +
                       (selectable ? 1 : 0) +
                       (showIndices ? 1 : 0)
@@ -660,10 +701,12 @@ export function Table<T extends Record<string, any>>({
                 </tr>
               ) : (
                 visibleData.map((row, rowIndex) => {
-                  const actualIndex = pagination ? (internalPage - 1) * itemsPerPage + rowIndex : rowIndex;
+                  const actualIndex = pagination
+                    ? (internalPage - 1) * itemsPerPage + rowIndex
+                    : rowIndex;
                   const isExpanded = internalExpandedRows.includes(actualIndex);
                   const isSelected = internalSelectedRows.includes(actualIndex);
-                  
+
                   return (
                     <React.Fragment key={actualIndex}>
                       <tr
@@ -693,7 +736,7 @@ export function Table<T extends Record<string, any>>({
                             </button>
                           </td>
                         )}
-                        
+
                         {/* Select checkbox */}
                         {selectable && (
                           <td className="w-10 px-4 py-2 border-b border-gray-200 dark:border-gray-700">
@@ -709,48 +752,50 @@ export function Table<T extends Record<string, any>>({
                             />
                           </td>
                         )}
-                        
+
                         {/* Row index */}
                         {showIndices && (
                           <td className="w-10 px-4 py-2 border-b border-gray-200 dark:border-gray-700 text-gray-500">
                             {actualIndex + 1}
                           </td>
                         )}
-                        
+
                         {/* Row cells */}
-                        {columns.filter(col => !col.hidden).map((column) => {
-                          let cellContent: React.ReactNode;
-                          
-                          if (column.cell) {
-                            cellContent = column.cell(row, actualIndex);
-                          } else if (column.accessor) {
-                            cellContent = row[column.accessor];
-                          } else {
-                            cellContent = null;
-                          }
-                          
-                          return (
-                            <td
-                              key={column.id}
-                              className={cellClasses(column)}
-                              style={{
-                                width: column.width,
-                                minWidth: column.minWidth,
-                                maxWidth: column.maxWidth,
-                              }}
-                            >
-                              {cellContent}
-                            </td>
-                          );
-                        })}
+                        {columns
+                          .filter((col) => !col.hidden)
+                          .map((column) => {
+                            let cellContent: React.ReactNode;
+
+                            if (column.cell) {
+                              cellContent = column.cell(row, actualIndex);
+                            } else if (column.accessor) {
+                              cellContent = row[column.accessor];
+                            } else {
+                              cellContent = null;
+                            }
+
+                            return (
+                              <td
+                                key={column.id}
+                                className={cellClasses(column)}
+                                style={{
+                                  width: column.width,
+                                  minWidth: column.minWidth,
+                                  maxWidth: column.maxWidth,
+                                }}
+                              >
+                                {cellContent}
+                              </td>
+                            );
+                          })}
                       </tr>
-                      
+
                       {/* Expanded row content */}
                       {expandable && isExpanded && onExpand && (
                         <tr>
                           <td
                             colSpan={
-                              columns.filter(col => !col.hidden).length +
+                              columns.filter((col) => !col.hidden).length +
                               (expandable ? 1 : 0) +
                               (selectable ? 1 : 0) +
                               (showIndices ? 1 : 0)
@@ -760,7 +805,7 @@ export function Table<T extends Record<string, any>>({
                             <AnimatePresence>
                               <motion.div
                                 initial={{ opacity: 0, height: 0 }}
-                                animate={{ opacity: 1, height: 'auto' }}
+                                animate={{ opacity: 1, height: "auto" }}
                                 exit={{ opacity: 0, height: 0 }}
                                 transition={{ duration: 0.2 }}
                               >
@@ -775,66 +820,77 @@ export function Table<T extends Record<string, any>>({
                 })
               )}
             </tbody>
-            
+
             {/* Footer */}
-            {columns.some(col => col.footer) && (
+            {columns.some((col) => col.footer) && (
               <tfoot className={footerClasses}>
                 <tr>
-                  {expandable && <td className="px-4 py-2 border-t border-gray-200 dark:border-gray-700"></td>}
-                  {selectable && <td className="px-4 py-2 border-t border-gray-200 dark:border-gray-700"></td>}
-                  {showIndices && <td className="px-4 py-2 border-t border-gray-200 dark:border-gray-700"></td>}
-                  
-                  {columns.filter(col => !col.hidden).map((column) => {
-                    let footerContent: React.ReactNode;
-                    
-                    if (typeof column.footer === 'function') {
-                      footerContent = column.footer(data);
-                    } else {
-                      footerContent = column.footer;
-                    }
-                    
-                    return (
-                      <td
-                        key={column.id}
-                        className={cn(
-                          'px-4 py-2 border-t border-gray-200 dark:border-gray-700',
-                          {
-                            'text-left': column.align === 'left' || !column.align,
-                            'text-center': column.align === 'center',
-                            'text-right': column.align === 'right',
-                          }
-                        )}
-                        style={{
-                          width: column.width,
-                          minWidth: column.minWidth,
-                          maxWidth: column.maxWidth,
-                        }}
-                      >
-                        {footerContent}
-                      </td>
-                    );
-                  })}
+                  {expandable && (
+                    <td className="px-4 py-2 border-t border-gray-200 dark:border-gray-700"></td>
+                  )}
+                  {selectable && (
+                    <td className="px-4 py-2 border-t border-gray-200 dark:border-gray-700"></td>
+                  )}
+                  {showIndices && (
+                    <td className="px-4 py-2 border-t border-gray-200 dark:border-gray-700"></td>
+                  )}
+
+                  {columns
+                    .filter((col) => !col.hidden)
+                    .map((column) => {
+                      let footerContent: React.ReactNode;
+
+                      if (typeof column.footer === "function") {
+                        footerContent = column.footer(data);
+                      } else {
+                        footerContent = column.footer;
+                      }
+
+                      return (
+                        <td
+                          key={column.id}
+                          className={cn(
+                            "px-4 py-2 border-t border-gray-200 dark:border-gray-700",
+                            {
+                              "text-left":
+                                column.align === "left" || !column.align,
+                              "text-center": column.align === "center",
+                              "text-right": column.align === "right",
+                            },
+                          )}
+                          style={{
+                            width: column.width,
+                            minWidth: column.minWidth,
+                            maxWidth: column.maxWidth,
+                          }}
+                        >
+                          {footerContent}
+                        </td>
+                      );
+                    })}
                 </tr>
               </tfoot>
             )}
           </table>
         </div>
       </div>
-      
+
       {/* Pagination */}
       {pagination && totalPages > 1 && (
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="text-sm text-gray-700 dark:text-gray-300">
-            Showing {(internalPage - 1) * itemsPerPage + 1} to{' '}
-            {Math.min(internalPage * itemsPerPage, calculatedTotalItems)} of{' '}
+            Showing {(internalPage - 1) * itemsPerPage + 1} to{" "}
+            {Math.min(internalPage * itemsPerPage, calculatedTotalItems)} of{" "}
             {calculatedTotalItems} entries
           </div>
-          
+
           <div className="flex items-center space-x-2">
             {/* Page size selector */}
             {onItemsPerPageChange && (
               <div className="flex items-center space-x-2 mr-4">
-                <span className="text-sm text-gray-500 dark:text-gray-400">Rows per page:</span>
+                <span className="text-sm text-gray-500 dark:text-gray-400">
+                  Rows per page:
+                </span>
                 <Select
                   value={itemsPerPage.toString()}
                   onChange={(e) => {
@@ -842,9 +898,11 @@ export function Table<T extends Record<string, any>>({
                     if (onItemsPerPageChange) {
                       onItemsPerPageChange(newItemsPerPage);
                     }
-                    
+
                     // Adjust current page if needed
-                    const newTotalPages = Math.ceil(calculatedTotalItems / newItemsPerPage);
+                    const newTotalPages = Math.ceil(
+                      calculatedTotalItems / newItemsPerPage,
+                    );
                     if (internalPage > newTotalPages) {
                       handlePageChange(newTotalPages);
                     }
@@ -859,13 +917,15 @@ export function Table<T extends Record<string, any>>({
                 </Select>
               </div>
             )}
-            
+
             {/* Pagination controls */}
             <nav className="flex items-center space-x-1">
               <Button
                 size="sm"
                 variant="outline"
-                className={cn("px-2", { "opacity-50 cursor-not-allowed": internalPage === 1 })}
+                className={cn("px-2", {
+                  "opacity-50 cursor-not-allowed": internalPage === 1,
+                })}
                 onClick={() => handlePageChange(1)}
                 disabled={internalPage === 1}
               >
@@ -875,22 +935,24 @@ export function Table<T extends Record<string, any>>({
                   <ChevronLeft size={14} className="-ml-1" />
                 </span>
               </Button>
-              
+
               <Button
                 size="sm"
                 variant="outline"
-                className={cn("px-2", { "opacity-50 cursor-not-allowed": internalPage === 1 })}
+                className={cn("px-2", {
+                  "opacity-50 cursor-not-allowed": internalPage === 1,
+                })}
                 onClick={() => handlePageChange(internalPage - 1)}
                 disabled={internalPage === 1}
               >
                 <span className="sr-only">Previous Page</span>
                 <ChevronLeft size={16} />
               </Button>
-              
+
               {/* Page buttons - show max 5 page buttons */}
               {Array.from({ length: Math.min(5, totalPages) }).map((_, idx) => {
                 let pageNum: number;
-                
+
                 // Different logic based on current page to keep it centered when possible
                 if (totalPages <= 5) {
                   pageNum = idx + 1;
@@ -901,7 +963,7 @@ export function Table<T extends Record<string, any>>({
                 } else {
                   pageNum = internalPage - 2 + idx;
                 }
-                
+
                 return (
                   <Button
                     key={pageNum}
@@ -914,22 +976,26 @@ export function Table<T extends Record<string, any>>({
                   </Button>
                 );
               })}
-              
+
               <Button
                 size="sm"
                 variant="outline"
-                className={cn("px-2", { "opacity-50 cursor-not-allowed": internalPage === totalPages })}
+                className={cn("px-2", {
+                  "opacity-50 cursor-not-allowed": internalPage === totalPages,
+                })}
                 onClick={() => handlePageChange(internalPage + 1)}
                 disabled={internalPage === totalPages}
               >
                 <span className="sr-only">Next Page</span>
                 <ChevronRight size={16} />
               </Button>
-              
+
               <Button
                 size="sm"
                 variant="outline"
-                className={cn("px-2", { "opacity-50 cursor-not-allowed": internalPage === totalPages })}
+                className={cn("px-2", {
+                  "opacity-50 cursor-not-allowed": internalPage === totalPages,
+                })}
                 onClick={() => handlePageChange(totalPages)}
                 disabled={internalPage === totalPages}
               >

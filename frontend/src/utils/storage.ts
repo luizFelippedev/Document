@@ -5,8 +5,8 @@
  */
 export const saveToStorage = <T>(key: string, data: T): void => {
   try {
-    if (typeof window === 'undefined') return;
-    
+    if (typeof window === "undefined") return;
+
     const serializedData = JSON.stringify(data);
     localStorage.setItem(key, serializedData);
   } catch (error) {
@@ -19,12 +19,12 @@ export const saveToStorage = <T>(key: string, data: T): void => {
  */
 export const getFromStorage = <T>(key: string): T | null => {
   try {
-    if (typeof window === 'undefined') return null;
-    
+    if (typeof window === "undefined") return null;
+
     const serializedData = localStorage.getItem(key);
-    
+
     if (!serializedData) return null;
-    
+
     return JSON.parse(serializedData) as T;
   } catch (error) {
     console.error(`Error getting from localStorage: ${error}`);
@@ -37,8 +37,8 @@ export const getFromStorage = <T>(key: string): T | null => {
  */
 export const removeFromStorage = (key: string): void => {
   try {
-    if (typeof window === 'undefined') return;
-    
+    if (typeof window === "undefined") return;
+
     localStorage.removeItem(key);
   } catch (error) {
     console.error(`Error removing from localStorage: ${error}`);
@@ -50,8 +50,8 @@ export const removeFromStorage = (key: string): void => {
  */
 export const clearStorage = (): void => {
   try {
-    if (typeof window === 'undefined') return;
-    
+    if (typeof window === "undefined") return;
+
     localStorage.clear();
   } catch (error) {
     console.error(`Error clearing localStorage: ${error}`);
@@ -63,8 +63,8 @@ export const clearStorage = (): void => {
  */
 export const saveToSessionStorage = <T>(key: string, data: T): void => {
   try {
-    if (typeof window === 'undefined') return;
-    
+    if (typeof window === "undefined") return;
+
     const serializedData = JSON.stringify(data);
     sessionStorage.setItem(key, serializedData);
   } catch (error) {
@@ -77,12 +77,12 @@ export const saveToSessionStorage = <T>(key: string, data: T): void => {
  */
 export const getFromSessionStorage = <T>(key: string): T | null => {
   try {
-    if (typeof window === 'undefined') return null;
-    
+    if (typeof window === "undefined") return null;
+
     const serializedData = sessionStorage.getItem(key);
-    
+
     if (!serializedData) return null;
-    
+
     return JSON.parse(serializedData) as T;
   } catch (error) {
     console.error(`Error getting from sessionStorage: ${error}`);
@@ -95,8 +95,8 @@ export const getFromSessionStorage = <T>(key: string): T | null => {
  */
 export const removeFromSessionStorage = (key: string): void => {
   try {
-    if (typeof window === 'undefined') return;
-    
+    if (typeof window === "undefined") return;
+
     sessionStorage.removeItem(key);
   } catch (error) {
     console.error(`Error removing from sessionStorage: ${error}`);
@@ -108,8 +108,8 @@ export const removeFromSessionStorage = (key: string): void => {
  */
 export const clearSessionStorage = (): void => {
   try {
-    if (typeof window === 'undefined') return;
-    
+    if (typeof window === "undefined") return;
+
     sessionStorage.clear();
   } catch (error) {
     console.error(`Error clearing sessionStorage: ${error}`);

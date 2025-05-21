@@ -1,22 +1,22 @@
 // frontend/src/app/(auth)/login/page.tsx
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { LoginForm } from '@/components/auth/LoginForm';
-import { TwoFactorForm } from '@/components/auth/TwoFactorForm';
-import { Button } from '@/components/ui/Button';
-import { ROUTES } from '@/config/routes';
-import { Card } from '@/components/ui/Card';
-import { ThemeToggle } from '@/components/ui/ThemeToggle';
-import { APP_NAME } from '@/config/constants';
-import { AnimatedLogo } from '@/components/ui/AnimatedLogo';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { LoginForm } from "@/components/auth/LoginForm";
+import { TwoFactorForm } from "@/components/auth/TwoFactorForm";
+import { Button } from "@/components/ui/Button";
+import { ROUTES } from "@/config/routes";
+import { Card } from "@/components/ui/Card";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { APP_NAME } from "@/config/constants";
+import { AnimatedLogo } from "@/components/ui/AnimatedLogo";
 
 export default function LoginPage() {
   const [showTwoFactor, setShowTwoFactor] = useState(false);
   const router = useRouter();
-  
+
   const handleLoginSuccess = (requiresTwoFactor: boolean) => {
     if (requiresTwoFactor) {
       setShowTwoFactor(true);
@@ -24,31 +24,35 @@ export default function LoginPage() {
       router.push(ROUTES.DASHBOARD.ROOT);
     }
   };
-  
+
   const handleTwoFactorSuccess = () => {
     router.push(ROUTES.DASHBOARD.ROOT);
   };
-  
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-indigo-950 p-4">
       <div className="absolute top-4 right-4">
         <ThemeToggle />
       </div>
-      
+
       <Card>
         <div className="w-full max-w-md p-8">
           <div className="text-center mb-8">
             <AnimatedLogo className="h-16 w-16 mx-auto mb-4" />
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{APP_NAME}</h1>
-            <p className="text-gray-600 dark:text-gray-400">Sign in to your account</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+              {APP_NAME}
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400">
+              Sign in to your account
+            </p>
           </div>
-          
+
           {showTwoFactor ? (
             <TwoFactorForm onSuccess={handleTwoFactorSuccess} />
           ) : (
             <>
               <LoginForm onSuccess={handleLoginSuccess} />
-              
+
               <div className="mt-6">
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
@@ -60,12 +64,14 @@ export default function LoginPage() {
                     </span>
                   </div>
                 </div>
-                
+
                 <div className="mt-6 grid grid-cols-2 gap-3">
                   <Button
                     variant="outline"
                     className="w-full flex items-center justify-center"
-                    onClick={() => {/* Implement OAuth */}}
+                    onClick={() => {
+                      /* Implement OAuth */
+                    }}
                   >
                     <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24">
                       <path
@@ -78,7 +84,9 @@ export default function LoginPage() {
                   <Button
                     variant="outline"
                     className="w-full flex items-center justify-center"
-                    onClick={() => {/* Implement OAuth */}}
+                    onClick={() => {
+                      /* Implement OAuth */
+                    }}
                   >
                     <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24">
                       <path
@@ -90,17 +98,23 @@ export default function LoginPage() {
                   </Button>
                 </div>
               </div>
-              
+
               <div className="mt-6 text-center">
-                <Link href={ROUTES.AUTH.FORGOT_PASSWORD} className="text-sm text-blue-600 hover:text-blue-500 dark:text-blue-400">
+                <Link
+                  href={ROUTES.AUTH.FORGOT_PASSWORD}
+                  className="text-sm text-blue-600 hover:text-blue-500 dark:text-blue-400"
+                >
                   Forgot your password?
                 </Link>
               </div>
-              
+
               <div className="mt-6 text-center">
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Don't have an account?{' '}
-                  <Link href={ROUTES.AUTH.REGISTER} className="text-blue-600 hover:text-blue-500 dark:text-blue-400">
+                  Don't have an account?{" "}
+                  <Link
+                    href={ROUTES.AUTH.REGISTER}
+                    className="text-blue-600 hover:text-blue-500 dark:text-blue-400"
+                  >
                     Sign up
                   </Link>
                 </p>

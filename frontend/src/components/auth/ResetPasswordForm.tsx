@@ -1,5 +1,5 @@
 // frontend/src/components/auth/ResetPasswordForm.tsx
-'use client';
+"use client";
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -19,22 +19,21 @@ const resetPasswordSchema = z
       .min(8, "Password must be at least 8 characters")
       .refine(
         (password) => /[A-Z]/.test(password),
-        "Password must contain at least one uppercase letter"
+        "Password must contain at least one uppercase letter",
       )
       .refine(
         (password) => /[a-z]/.test(password),
-        "Password must contain at least one lowercase letter"
+        "Password must contain at least one lowercase letter",
       )
       .refine(
         (password) => /[0-9]/.test(password),
-        "Password must contain at least one number"
+        "Password must contain at least one number",
       )
       .refine(
         (password) => /[^A-Za-z0-9]/.test(password),
-        "Password must contain at least one special character"
+        "Password must contain at least one special character",
       ),
-    confirmPassword: z
-      .string(),
+    confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",
@@ -48,13 +47,16 @@ interface ResetPasswordFormProps {
   onSuccess: () => void;
 }
 
-export const ResetPasswordForm = ({ token, onSuccess }: ResetPasswordFormProps) => {
+export const ResetPasswordForm = ({
+  token,
+  onSuccess,
+}: ResetPasswordFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState(0);
-  
+
   const {
     register,
     handleSubmit,
@@ -67,45 +69,45 @@ export const ResetPasswordForm = ({ token, onSuccess }: ResetPasswordFormProps) 
       confirmPassword: "",
     },
   });
-  
+
   const password = watch("password");
-  
+
   // Calculate password strength
   useState(() => {
     if (!password) {
       setPasswordStrength(0);
       return;
     }
-    
+
     let strength = 0;
-    
+
     // Length
     if (password.length >= 8) strength += 1;
     if (password.length >= 12) strength += 1;
-    
+
     // Character types
     if (/[A-Z]/.test(password)) strength += 1;
     if (/[a-z]/.test(password)) strength += 1;
     if (/[0-9]/.test(password)) strength += 1;
     if (/[^A-Za-z0-9]/.test(password)) strength += 1;
-    
+
     // Normalize to 0-100
     setPasswordStrength(Math.min(100, (strength / 6) * 100));
   });
-  
+
   const getStrengthColor = () => {
     if (passwordStrength < 30) return "bg-red-500";
     if (passwordStrength < 60) return "bg-yellow-500";
     return "bg-green-500";
   };
-  
+
   const getStrengthText = () => {
     if (passwordStrength < 30) return "Weak";
     if (passwordStrength < 60) return "Moderate";
     if (passwordStrength < 80) return "Strong";
     return "Very Strong";
   };
-  
+
   const onSubmit = async (data: ResetPasswordFormValues) => {
     try {
       setIsSubmitting(true);
@@ -114,14 +116,14 @@ export const ResetPasswordForm = ({ token, onSuccess }: ResetPasswordFormProps) 
       onSuccess();
     } catch (err: any) {
       setError(
-        err.response?.data?.message || 
-        "Failed to reset password. Please try again."
+        err.response?.data?.message ||
+          "Failed to reset password. Please try again.",
       );
     } finally {
       setIsSubmitting(false);
     }
   };
-  
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <AnimatePresence>
@@ -135,10 +137,10 @@ export const ResetPasswordForm = ({ token, onSuccess }: ResetPasswordFormProps) 
           </motion.div>
         )}
       </AnimatePresence>
-      
+
       <div>
-        <label 
-          htmlFor="password" 
+        <label
+          htmlFor="password"
           className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
         >
           New Password
@@ -161,24 +163,24 @@ export const ResetPasswordForm = ({ token, onSuccess }: ResetPasswordFormProps) 
           }
           {...register("password")}
         />
-        
+
         {password && (
           <div className="mt-2">
             <div className="flex items-center justify-between mb-1">
               <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
                 Password strength:
               </span>
-              <span 
-                className="text-xs font-medium" 
-                style={{ 
-                  color: getStrengthColor().replace('bg-', 'text-') 
+              <span
+                className="text-xs font-medium"
+                style={{
+                  color: getStrengthColor().replace("bg-", "text-"),
                 }}
               >
                 {getStrengthText()}
               </span>
             </div>
             <div className="w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-              <div 
+              <div
                 className={`h-full transition-all duration-300 ${getStrengthColor()}`}
                 style={{ width: `${passwordStrength}%` }}
               ></div>
@@ -186,10 +188,10 @@ export const ResetPasswordForm = ({ token, onSuccess }: ResetPasswordFormProps) 
           </div>
         )}
       </div>
-      
+
       <div>
-        <label 
-          htmlFor="confirmPassword" 
+        <label
+          htmlFor="confirmPassword"
           className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
         >
           Confirm Password
@@ -213,7 +215,7 @@ export const ResetPasswordForm = ({ token, onSuccess }: ResetPasswordFormProps) 
           {...register("confirmPassword")}
         />
       </div>
-      
+
       <div className="pt-2">
         <Button
           type="submit"
@@ -225,7 +227,7 @@ export const ResetPasswordForm = ({ token, onSuccess }: ResetPasswordFormProps) 
           Reset Password
         </Button>
       </div>
-      
+
       <div className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
         <p>
           Make sure to use a strong password that you haven't used elsewhere.

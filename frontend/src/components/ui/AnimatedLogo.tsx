@@ -1,9 +1,9 @@
 // frontend/src/components/ui/AnimatedLogo.tsx
-'use client';
+"use client";
 
-import { useEffect, useRef } from 'react';
-import { motion, useAnimation, AnimatePresence } from 'framer-motion';
-import { cn } from '@/utils/cn';
+import { useEffect, useRef } from "react";
+import { motion, useAnimation, AnimatePresence } from "framer-motion";
+import { cn } from "@/utils/cn";
 
 interface AnimatedLogoProps {
   /** Additional class name for the logo */
@@ -15,7 +15,7 @@ interface AnimatedLogoProps {
   /** The color of the logo */
   color?: string;
   /** The size of the logo */
-  size?: 'sm' | 'md' | 'lg' | 'xl' | number;
+  size?: "sm" | "md" | "lg" | "xl" | number;
   /** Whether to show a hover effect */
   hoverEffect?: boolean;
   /** Whether to show a click effect */
@@ -32,7 +32,7 @@ export const AnimatedLogo = ({
   animate = true,
   continuous = false,
   color,
-  size = 'md',
+  size = "md",
   hoverEffect = true,
   clickEffect = true,
   onClick,
@@ -41,7 +41,7 @@ export const AnimatedLogo = ({
   const circleControls = useAnimation();
   const containerControls = useAnimation();
   const animationRef = useRef<any>(null);
-  
+
   // Define animation sequences
   const animateLogo = async () => {
     // Reset animations
@@ -49,50 +49,50 @@ export const AnimatedLogo = ({
       pathControls.set({ pathLength: 0, opacity: 0 }),
       circleControls.set({ scale: 0, opacity: 0 }),
     ]);
-    
+
     // Animate path drawing
     await pathControls.start({
       pathLength: 1,
       opacity: 1,
-      transition: { duration: 1.2, ease: 'easeInOut' }
+      transition: { duration: 1.2, ease: "easeInOut" },
     });
-    
+
     // Animate circles
     await circleControls.start({
       scale: 1,
       opacity: 1,
-      transition: { duration: 0.8, ease: 'backOut' }
+      transition: { duration: 0.8, ease: "backOut" },
     });
-    
+
     // If continuous, loop the animation
     if (continuous) {
       // Add a pause between animations
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+
       // Animate out
       await Promise.all([
         pathControls.start({
           opacity: 0,
-          transition: { duration: 0.5 }
+          transition: { duration: 0.5 },
         }),
         circleControls.start({
           scale: 0,
           opacity: 0,
-          transition: { duration: 0.5 }
+          transition: { duration: 0.5 },
         }),
       ]);
-      
+
       // Start again
       animateLogo();
     }
   };
-  
+
   // Start animation on mount
   useEffect(() => {
     if (animate) {
       animationRef.current = animateLogo();
     }
-    
+
     return () => {
       // Cancel animations on unmount
       if (animationRef.current) {
@@ -100,52 +100,59 @@ export const AnimatedLogo = ({
       }
     };
   }, [animate, continuous]);
-  
+
   // Get size based on prop
   const getSize = () => {
-    if (typeof size === 'number') return size;
-    
+    if (typeof size === "number") return size;
+
     const sizeMap = {
       sm: 32,
       md: 48,
       lg: 64,
       xl: 96,
     };
-    
+
     return sizeMap[size] || 48;
   };
-  
+
   // Get color based on prop
   const getColor = () => {
     if (color) return color;
-    return 'currentColor';
+    return "currentColor";
   };
-  
+
   // Handle click animation
   const handleClick = () => {
     if (clickEffect) {
-      containerControls.start({
-        scale: 0.95,
-        transition: { duration: 0.1 }
-      }).then(() => {
-        containerControls.start({
-          scale: 1,
-          transition: { duration: 0.2, type: 'spring', stiffness: 400, damping: 10 }
+      containerControls
+        .start({
+          scale: 0.95,
+          transition: { duration: 0.1 },
+        })
+        .then(() => {
+          containerControls.start({
+            scale: 1,
+            transition: {
+              duration: 0.2,
+              type: "spring",
+              stiffness: 400,
+              damping: 10,
+            },
+          });
         });
-      });
     }
-    
+
     if (onClick) {
       onClick();
     }
   };
-  
+
   return (
     <motion.div
       className={cn(
-        'inline-flex items-center justify-center',
-        hoverEffect && 'cursor-pointer',
-        className
+        "inline-flex items-center justify-center",
+        hoverEffect && "cursor-pointer",
+        className,
       )}
       animate={containerControls}
       whileHover={hoverEffect ? { scale: 1.05 } : undefined}
@@ -166,7 +173,7 @@ export const AnimatedLogo = ({
           fill="currentColor"
           fillOpacity="0.1"
         />
-        
+
         {/* Animated path */}
         <motion.path
           d="M30 70L40 30H60L70 70"
@@ -177,7 +184,7 @@ export const AnimatedLogo = ({
           initial={{ pathLength: animate ? 0 : 1, opacity: animate ? 0 : 1 }}
           animate={pathControls}
         />
-        
+
         <motion.path
           d="M25 50H75"
           stroke={getColor()}
@@ -186,7 +193,7 @@ export const AnimatedLogo = ({
           initial={{ pathLength: animate ? 0 : 1, opacity: animate ? 0 : 1 }}
           animate={pathControls}
         />
-        
+
         {/* Animated circles */}
         <motion.circle
           cx="25"
@@ -196,7 +203,7 @@ export const AnimatedLogo = ({
           initial={{ scale: animate ? 0 : 1, opacity: animate ? 0 : 1 }}
           animate={circleControls}
         />
-        
+
         <motion.circle
           cx="75"
           cy="50"
@@ -205,7 +212,7 @@ export const AnimatedLogo = ({
           initial={{ scale: animate ? 0 : 1, opacity: animate ? 0 : 1 }}
           animate={circleControls}
         />
-        
+
         <motion.circle
           cx="40"
           cy="30"
@@ -214,7 +221,7 @@ export const AnimatedLogo = ({
           initial={{ scale: animate ? 0 : 1, opacity: animate ? 0 : 1 }}
           animate={circleControls}
         />
-        
+
         <motion.circle
           cx="60"
           cy="30"
@@ -223,7 +230,7 @@ export const AnimatedLogo = ({
           initial={{ scale: animate ? 0 : 1, opacity: animate ? 0 : 1 }}
           animate={circleControls}
         />
-        
+
         <motion.circle
           cx="30"
           cy="70"
@@ -232,7 +239,7 @@ export const AnimatedLogo = ({
           initial={{ scale: animate ? 0 : 1, opacity: animate ? 0 : 1 }}
           animate={circleControls}
         />
-        
+
         <motion.circle
           cx="70"
           cy="70"

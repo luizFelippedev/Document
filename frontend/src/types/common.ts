@@ -1,9 +1,9 @@
 // frontend/src/types/common.ts
 // Common types used throughout the application
 
-export type ThemeMode = 'light' | 'dark' | 'system';
+export type ThemeMode = "light" | "dark" | "system";
 
-export type SortDirection = 'asc' | 'desc';
+export type SortDirection = "asc" | "desc";
 
 export type SortBy<T extends string> = {
   field: T;
@@ -81,12 +81,21 @@ export interface MenuItem {
   divider?: boolean;
 }
 
-export type Status = 'idle' | 'loading' | 'success' | 'error';
+export type Status = "idle" | "loading" | "success" | "error";
 
-export type ResponseStatus = 'success' | 'error' | 'warning' | 'info';
+export type ResponseStatus = "success" | "error" | "warning" | "info";
 
-export type Size = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+export type Size = "xs" | "sm" | "md" | "lg" | "xl";
 
-export type Alignment = 'left' | 'center' | 'right';
+export type Alignment = "left" | "center" | "right";
 
-export type Variant = 'primary' | 'secondary' | 'success' | 'danger' | 'warning' | 'info' | 'default' | 'outline' | 'ghost';
+export type Variant =
+  | "primary"
+  | "secondary"
+  | "success"
+  | "danger"
+  | "warning"
+  | "info"
+  | "default"
+  | "outline"
+  | "ghost";

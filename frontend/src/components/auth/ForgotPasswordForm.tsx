@@ -1,5 +1,5 @@
 // frontend/src/components/auth/ForgotPasswordForm.tsx
-'use client';
+"use client";
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -28,7 +28,7 @@ interface ForgotPasswordFormProps {
 export const ForgotPasswordForm = ({ onSuccess }: ForgotPasswordFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   const {
     register,
     handleSubmit,
@@ -39,7 +39,7 @@ export const ForgotPasswordForm = ({ onSuccess }: ForgotPasswordFormProps) => {
       email: "",
     },
   });
-  
+
   const onSubmit = async (data: ForgotPasswordFormValues) => {
     try {
       setIsSubmitting(true);
@@ -48,14 +48,14 @@ export const ForgotPasswordForm = ({ onSuccess }: ForgotPasswordFormProps) => {
       onSuccess(data.email);
     } catch (err: any) {
       setError(
-        err.response?.data?.message || 
-        "Failed to send reset link. Please try again."
+        err.response?.data?.message ||
+          "Failed to send reset link. Please try again.",
       );
     } finally {
       setIsSubmitting(false);
     }
   };
-  
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <AnimatePresence>
@@ -69,9 +69,9 @@ export const ForgotPasswordForm = ({ onSuccess }: ForgotPasswordFormProps) => {
           </motion.div>
         )}
       </AnimatePresence>
-      
+
       <div>
-        <label 
+        <label
           htmlFor="email"
           className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
         >
@@ -90,7 +90,7 @@ export const ForgotPasswordForm = ({ onSuccess }: ForgotPasswordFormProps) => {
           </p>
         )}
       </div>
-      
+
       <div className="pt-2">
         <Button
           type="submit"
@@ -108,11 +108,9 @@ export const ForgotPasswordForm = ({ onSuccess }: ForgotPasswordFormProps) => {
           )}
         </Button>
       </div>
-      
+
       <div className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
-        <p>
-          We'll email you a link to reset your password.
-        </p>
+        <p>We'll email you a link to reset your password.</p>
       </div>
     </form>
   );

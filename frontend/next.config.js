@@ -1,22 +1,19 @@
-import { NextConfig } from 'next';
-
+/** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
 
   images: {
-    domains: ['localhost', 'example.com', 'cdn.example.com'], // ajuste os domínios conforme necessário
+    domains: ['localhost', 'example.com', 'cdn.example.com'],
     formats: ['image/webp', 'image/avif'],
     dangerouslyAllowSVG: false,
-    // contentSecurityPolicy NÃO é opção válida no Next.js images
   },
 
   i18n: {
     locales: ['en-US', 'pt-BR', 'es'],
     defaultLocale: 'en-US',
-    localeDetection: true,
+    // ⚠️ `localeDetection: true` não é válido em Next.js 14 — REMOVIDO
   },
 
-  // Remover console.log no prod (Next.js >=13.3 suporta isso via compiler)
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
   },
@@ -40,12 +37,12 @@ const nextConfig = {
     ];
   },
 
-  output: 'standalone',
-  trailingSlash: false,
+  output: 'standalone', // Ideal para Docker, Vercel ou hospedagem customizada
+  trailingSlash: false, // URLs sem barra no final
 
   experimental: {
-    // Aqui você pode ativar flags experimentais se quiser, ou deixar vazio
+    // Ative opções experimentais aqui se necessário
   },
 };
 
-export default nextConfig;
+module.exports = nextConfig;

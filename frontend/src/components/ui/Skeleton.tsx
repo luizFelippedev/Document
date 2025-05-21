@@ -1,7 +1,7 @@
 // frontend/src/components/ui/Skeleton.tsx
-'use client';
+"use client";
 
-import { cn } from '@/utils/cn';
+import { cn } from "@/utils/cn";
 
 interface SkeletonProps {
   /** Width of the skeleton */
@@ -36,11 +36,11 @@ export const Skeleton = ({
   return (
     <div
       className={cn(
-        'bg-gray-200 dark:bg-gray-700',
-        rounded && !circle && 'rounded',
-        circle && 'rounded-full',
-        animate && 'animate-pulse',
-        className
+        "bg-gray-200 dark:bg-gray-700",
+        rounded && !circle && "rounded",
+        circle && "rounded-full",
+        animate && "animate-pulse",
+        className,
       )}
       style={{
         width,
@@ -59,35 +59,35 @@ export const Skeleton = ({
  */
 export const SkeletonText = ({
   lines = 3,
-  lastLineWidth = '67%',
+  lastLineWidth = "67%",
   animate = true,
-  spacing = 'normal',
+  spacing = "normal",
   className,
 }: {
   lines?: number;
   lastLineWidth?: string | number;
   animate?: boolean;
-  spacing?: 'tight' | 'normal' | 'relaxed';
+  spacing?: "tight" | "normal" | "relaxed";
   className?: string;
 }) => {
   const getSpacing = () => {
     switch (spacing) {
-      case 'tight':
-        return 'space-y-1';
-      case 'relaxed':
-        return 'space-y-3';
+      case "tight":
+        return "space-y-1";
+      case "relaxed":
+        return "space-y-3";
       default:
-        return 'space-y-2';
+        return "space-y-2";
     }
   };
-  
+
   return (
     <div className={cn(getSpacing(), className)}>
       {Array.from({ length: lines }).map((_, i) => (
         <Skeleton
           key={i}
           height={12}
-          width={i === lines - 1 && lastLineWidth ? lastLineWidth : '100%'}
+          width={i === lines - 1 && lastLineWidth ? lastLineWidth : "100%"}
           rounded
           animate={animate}
         />
@@ -100,21 +100,21 @@ export const SkeletonText = ({
  * Skeleton for an avatar or profile picture
  */
 export const SkeletonAvatar = ({
-  size = 'md',
+  size = "md",
   animate = true,
   className,
 }: {
-  size?: 'sm' | 'md' | 'lg' | 'xl';
+  size?: "sm" | "md" | "lg" | "xl";
   animate?: boolean;
   className?: string;
 }) => {
   const sizeMap = {
-    sm: '2rem',
-    md: '3rem',
-    lg: '4rem',
-    xl: '6rem',
+    sm: "2rem",
+    md: "3rem",
+    lg: "4rem",
+    xl: "6rem",
   };
-  
+
   return (
     <Skeleton
       width={sizeMap[size]}
@@ -129,8 +129,8 @@ export const SkeletonAvatar = ({
  * Skeleton for a button
  */
 export const SkeletonButton = ({
-  width = '6rem',
-  height = '2.5rem',
+  width = "6rem",
+  height = "2.5rem",
   animate = true,
   className,
 }: {
@@ -167,7 +167,12 @@ export const SkeletonCard = ({
   className?: string;
 }) => {
   return (
-    <div className={cn('border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden', className)}>
+    <div
+      className={cn(
+        "border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden",
+        className,
+      )}
+    >
       {header && (
         <div className="p-4 border-b border-gray-200 dark:border-gray-700">
           <Skeleton height={24} width="40%" animate={animate} />

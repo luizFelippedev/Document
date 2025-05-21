@@ -1,5 +1,5 @@
 // frontend/src/components/auth/LoginForm.tsx
-'use client';
+"use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -19,13 +19,8 @@ const loginSchema = z.object({
     .string()
     .email("Please enter a valid email address")
     .min(1, "Email is required"),
-  password: z
-    .string()
-    .min(1, "Password is required"),
-  rememberMe: z
-    .boolean()
-    .optional()
-    .default(false)
+  password: z.string().min(1, "Password is required"),
+  rememberMe: z.boolean().optional().default(false),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
@@ -40,7 +35,7 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const { login } = useAuth();
   const router = useRouter();
-  
+
   const {
     register,
     handleSubmit,
@@ -50,32 +45,32 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
     defaultValues: {
       email: "",
       password: "",
-      rememberMe: false
+      rememberMe: false,
     },
   });
-  
+
   const onSubmit = async (data: LoginFormValues) => {
     try {
       setIsSubmitting(true);
       setError(null);
-      
+
       // Simulate the login API call with potential 2FA requirement
       const response = await login(data.email, data.password, data.rememberMe);
-      
+
       // Check if 2FA is required based on the API response
       const requiresTwoFactor = response?.requiresTwoFactor || false;
-      
+
       onSuccess(requiresTwoFactor);
     } catch (err: any) {
       setError(
-        err.response?.data?.message || 
-        "Failed to login. Please check your credentials and try again."
+        err.response?.data?.message ||
+          "Failed to login. Please check your credentials and try again.",
       );
     } finally {
       setIsSubmitting(false);
     }
   };
-  
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <AnimatePresence>
@@ -89,9 +84,9 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
           </motion.div>
         )}
       </AnimatePresence>
-      
+
       <div>
-        <label 
+        <label
           htmlFor="email"
           className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
         >
@@ -106,10 +101,10 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
           {...register("email")}
         />
       </div>
-      
+
       <div>
         <div className="flex items-center justify-between mb-1">
-          <label 
+          <label
             htmlFor="password"
             className="block text-sm font-medium text-gray-700 dark:text-gray-300"
           >
@@ -135,7 +130,7 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
           {...register("password")}
         />
       </div>
-      
+
       <div className="flex items-center justify-between">
         <div className="flex items-center">
           <input
@@ -144,15 +139,15 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
             className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600"
             {...register("rememberMe")}
           />
-          <label 
-            htmlFor="rememberMe" 
+          <label
+            htmlFor="rememberMe"
             className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
           >
             Remember me
           </label>
         </div>
       </div>
-      
+
       <div className="pt-2">
         <Button
           type="submit"

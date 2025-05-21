@@ -1,5 +1,5 @@
 // frontend/src/components/auth/TwoFactorForm.tsx
-'use client';
+"use client";
 
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
@@ -14,24 +14,31 @@ interface TwoFactorFormProps {
 }
 
 export const TwoFactorForm = ({ onSuccess }: TwoFactorFormProps) => {
-  const [verificationCode, setVerificationCode] = useState(['', '', '', '', '', '']);
+  const [verificationCode, setVerificationCode] = useState([
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+  ]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [countdown, setCountdown] = useState(30);
   const [canResend, setCanResend] = useState(false);
-  
+
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const { verifyTwoFactorCode, resendTwoFactorCode } = useAuth();
-  
+
   useEffect(() => {
     // Focus the first input field on mount
     if (inputRefs.current[0]) {
       inputRefs.current[0].focus();
     }
-    
+
     // Start countdown for resend option
     const timer = setInterval(() => {
-      setCountdown(prev => {
+      setCountdown((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
           setCanResend(true);
@@ -40,43 +47,49 @@ export const TwoFactorForm = ({ onSuccess }: TwoFactorFormProps) => {
         return prev - 1;
       });
     }, 1000);
-    
+
     return () => clearInterval(timer);
   }, []);
-  
+
   const handleChange = (index: number, value: string) => {
     // Only allow numbers
     if (value && !/^\d*$/.test(value)) return;
-    
+
     // Update the code array
     const newCode = [...verificationCode];
     newCode[index] = value;
     setVerificationCode(newCode);
-    
+
     // Auto-focus next input if this one is filled
     if (value && index < 5 && inputRefs.current[index + 1]) {
       inputRefs.current[index + 1].focus();
     }
   };
-  
-  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+
+  const handleKeyDown = (
+    index: number,
+    e: React.KeyboardEvent<HTMLInputElement>,
+  ) => {
     // Navigate between inputs with arrow keys
-    if (e.key === 'ArrowLeft' && index > 0) {
+    if (e.key === "ArrowLeft" && index > 0) {
       inputRefs.current[index - 1].focus();
-    } else if (e.key === 'ArrowRight' && index < 5) {
+    } else if (e.key === "ArrowRight" && index < 5) {
       inputRefs.current[index + 1].focus();
     }
-    
+
     // Move to previous input on backspace if current input is empty
-    if (e.key === 'Backspace' && !verificationCode[index] && index > 0) {
+    if (e.key === "Backspace" && !verificationCode[index] && index > 0) {
       inputRefs.current[index - 1].focus();
     }
   };
-  
+
   const handlePaste = (e: React.ClipboardEvent) => {
     e.preventDefault();
-    const pastedData = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
-    
+    const pastedData = e.clipboardData
+      .getData("text")
+      .replace(/\D/g, "")
+      .slice(0, 6);
+
     if (pastedData) {
       const newCode = [...verificationCode];
       for (let i = 0; i < pastedData.length; i++) {
@@ -85,7 +98,7 @@ export const TwoFactorForm = ({ onSuccess }: TwoFactorFormProps) => {
         }
       }
       setVerificationCode(newCode);
-      
+
       // Focus the last filled input
       const lastIndex = Math.min(pastedData.length - 1, 5);
       if (lastIndex >= 0 && inputRefs.current[lastIndex]) {
@@ -93,30 +106,30 @@ export const TwoFactorForm = ({ onSuccess }: TwoFactorFormProps) => {
       }
     }
   };
-  
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    const code = verificationCode.join('');
+
+    const code = verificationCode.join("");
     if (code.length !== 6) {
       setError("Please enter a valid 6-digit verification code");
       return;
     }
-    
+
     try {
       setIsSubmitting(true);
       setError(null);
-      
+
       await verifyTwoFactorCode(code);
       onSuccess();
     } catch (err: any) {
       setError(
-        err.response?.data?.message || 
-        "Invalid verification code. Please try again."
+        err.response?.data?.message ||
+          "Invalid verification code. Please try again.",
       );
-      
+
       // Reset the code fields on error
-      setVerificationCode(['', '', '', '', '', '']);
+      setVerificationCode(["", "", "", "", "", ""]);
       if (inputRefs.current[0]) {
         inputRefs.current[0].focus();
       }
@@ -124,18 +137,18 @@ export const TwoFactorForm = ({ onSuccess }: TwoFactorFormProps) => {
       setIsSubmitting(false);
     }
   };
-  
+
   const handleResendCode = async () => {
     if (!canResend) return;
-    
+
     try {
       await resendTwoFactorCode();
       setCanResend(false);
       setCountdown(30);
-      
+
       // Restart countdown
       const timer = setInterval(() => {
-        setCountdown(prev => {
+        setCountdown((prev) => {
           if (prev <= 1) {
             clearInterval(timer);
             setCanResend(true);
@@ -146,12 +159,12 @@ export const TwoFactorForm = ({ onSuccess }: TwoFactorFormProps) => {
       }, 1000);
     } catch (err: any) {
       setError(
-        err.response?.data?.message || 
-        "Failed to resend verification code. Please try again."
+        err.response?.data?.message ||
+          "Failed to resend verification code. Please try again.",
       );
     }
   };
-  
+
   return (
     <div>
       <div className="mb-6">
@@ -167,7 +180,7 @@ export const TwoFactorForm = ({ onSuccess }: TwoFactorFormProps) => {
           Enter the 6-digit code sent to your email or authentication app
         </p>
       </div>
-      
+
       <AnimatePresence>
         {error && (
           <motion.div
@@ -180,7 +193,7 @@ export const TwoFactorForm = ({ onSuccess }: TwoFactorFormProps) => {
           </motion.div>
         )}
       </AnimatePresence>
-      
+
       <form onSubmit={handleSubmit}>
         <div className="flex justify-center gap-2 mb-6" onPaste={handlePaste}>
           {verificationCode.map((digit, index) => (
@@ -193,24 +206,24 @@ export const TwoFactorForm = ({ onSuccess }: TwoFactorFormProps) => {
               onKeyDown={(e) => handleKeyDown(index, e)}
               ref={(el) => (inputRefs.current[index] = el)}
               className="w-12 h-12 text-center text-xl"
-              state={error ? 'error' : 'default'}
+              state={error ? "error" : "default"}
               variant="filled"
             />
           ))}
         </div>
-        
+
         <Button
           type="submit"
           variant="primary"
           fullWidth
           loading={isSubmitting}
           loadingText="Verifying..."
-          disabled={verificationCode.join('').length !== 6 || isSubmitting}
+          disabled={verificationCode.join("").length !== 6 || isSubmitting}
         >
           Verify
         </Button>
       </form>
-      
+
       <div className="mt-6 text-center">
         <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
           Didn't receive the code?
@@ -221,8 +234,8 @@ export const TwoFactorForm = ({ onSuccess }: TwoFactorFormProps) => {
           disabled={!canResend}
           className={`text-sm flex items-center justify-center mx-auto ${
             canResend
-              ? 'text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300'
-              : 'text-gray-400 dark:text-gray-600 cursor-not-allowed'
+              ? "text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+              : "text-gray-400 dark:text-gray-600 cursor-not-allowed"
           }`}
         >
           <RefreshCw size={14} className="mr-1" />

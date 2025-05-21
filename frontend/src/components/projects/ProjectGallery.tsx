@@ -1,34 +1,34 @@
 // frontend/src/components/projects/ProjectGallery.tsx
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
-import { MainLayout } from '@/components/layout/MainLayout';
-import { Card } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
-import { Badge } from '@/components/ui/Badge';
-import { Modal } from '@/components/ui/Modal';
-import { projectService } from '@/services/project.service';
-import { useNotification } from '@/hooks/useNotification';
-import { ROUTES } from '@/config/routes';
-import { Project } from '@/types/project';
-import { 
-  ArrowLeft, 
-  Edit, 
-  Trash2, 
-  ChevronLeft, 
-  ChevronRight, 
-  Globe, 
-  GitHub, 
-  Share2, 
-  AlertCircle, 
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
+import { MainLayout } from "@/components/layout/MainLayout";
+import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
+import { Badge } from "@/components/ui/Badge";
+import { Modal } from "@/components/ui/Modal";
+import { projectService } from "@/services/project.service";
+import { useNotification } from "@/hooks/useNotification";
+import { ROUTES } from "@/config/routes";
+import { Project } from "@/types/project";
+import {
+  ArrowLeft,
+  Edit,
+  Trash2,
+  ChevronLeft,
+  ChevronRight,
+  Globe,
+  GitHub,
+  Share2,
+  AlertCircle,
   Calendar,
   CheckCircle,
-  Clock
-} from 'lucide-react';
-import { cn } from '@/utils/cn';
-import { formatDate } from '@/utils/date';
+  Clock,
+} from "lucide-react";
+import { cn } from "@/utils/cn";
+import { formatDate } from "@/utils/date";
 
 interface ProjectGalleryProps {
   id: string;
@@ -41,10 +41,10 @@ export const ProjectGallery: React.FC<ProjectGalleryProps> = ({ id }) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [showImagesModal, setShowImagesModal] = useState(false);
-  
+
   const router = useRouter();
   const { showToast } = useNotification();
-  
+
   // Fetch project data
   useEffect(() => {
     const fetchProject = async () => {
@@ -53,87 +53,95 @@ export const ProjectGallery: React.FC<ProjectGalleryProps> = ({ id }) => {
         const data = await projectService.getProject(id);
         setProject(data);
       } catch (err: any) {
-        setError(err.response?.data?.message || 'Failed to load project');
+        setError(err.response?.data?.message || "Failed to load project");
       } finally {
         setLoading(false);
       }
     };
-    
+
     fetchProject();
   }, [id]);
-  
+
   // Handle project deletion
   const handleDelete = async () => {
     try {
       await projectService.deleteProject(id);
-      showToast('success', 'Project deleted successfully');
+      showToast("success", "Project deleted successfully");
       router.push(ROUTES.DASHBOARD.PROJECTS);
     } catch (err: any) {
-      showToast('error', err.response?.data?.message || 'Failed to delete project');
+      showToast(
+        "error",
+        err.response?.data?.message || "Failed to delete project",
+      );
     }
     setShowDeleteModal(false);
   };
-  
+
   // Navigation between gallery images
   const goToPreviousImage = () => {
-    setActiveImageIndex((prev) => 
-      prev === 0 ? (project?.images?.length || 1) - 1 : prev - 1
+    setActiveImageIndex((prev) =>
+      prev === 0 ? (project?.images?.length || 1) - 1 : prev - 1,
     );
   };
-  
+
   const goToNextImage = () => {
-    setActiveImageIndex((prev) => 
-      prev === (project?.images?.length || 1) - 1 ? 0 : prev + 1
+    setActiveImageIndex((prev) =>
+      prev === (project?.images?.length || 1) - 1 ? 0 : prev + 1,
     );
   };
-  
+
   // Select a specific image
   const selectImage = (index: number) => {
     setActiveImageIndex(index);
   };
-  
+
   // Share project
   const shareProject = () => {
     const url = window.location.href;
-    
+
     // Use navigator.share if available (mobile devices)
     if (navigator.share) {
-      navigator.share({
-        title: project?.title || 'Check out my project',
-        text: project?.description?.substring(0, 100) || 'Take a look at my project',
-        url
-      }).catch(err => {
-        console.error('Error sharing:', err);
-      });
+      navigator
+        .share({
+          title: project?.title || "Check out my project",
+          text:
+            project?.description?.substring(0, 100) ||
+            "Take a look at my project",
+          url,
+        })
+        .catch((err) => {
+          console.error("Error sharing:", err);
+        });
     } else {
       // Fallback to copying the URL to clipboard
-      navigator.clipboard.writeText(url)
+      navigator.clipboard
+        .writeText(url)
         .then(() => {
-          showToast('success', 'Link copied to clipboard');
+          showToast("success", "Link copied to clipboard");
         })
-        .catch(err => {
-          showToast('error', 'Failed to copy link');
+        .catch((err) => {
+          showToast("error", "Failed to copy link");
         });
     }
   };
-  
+
   // Get all gallery images (thumbnail + project images)
   const getAllImages = () => {
     const images = [];
-    
+
     if (project?.thumbnail) {
       images.push(project.thumbnail);
     }
-    
+
     if (project?.images && project.images.length > 0) {
       images.push(...project.images);
     }
-    
+
     return images;
   };
-  
+
   const allImages = getAllImages();
-  
+
   // Render the project details
   const renderProjectContent = () => {
     if (loading) {
@@ -141,12 +149,14 @@ export const ProjectGallery: React.FC<ProjectGalleryProps> = ({ id }) => {
         <Card className="p-8 flex justify-center">
           <div className="flex flex-col items-center">
             <div className="h-12 w-12 rounded-full border-4 border-t-blue-500 border-b-blue-500 border-l-transparent border-r-transparent animate-spin"></div>
-            <p className="mt-4 text-gray-600 dark:text-gray-400">Loading project details...</p>
+            <p className="mt-4 text-gray-600 dark:text-gray-400">
+              Loading project details...
+            </p>
           </div>
         </Card>
       );
     }
-    
+
     if (error || !project) {
       return (
         <Card className="p-8">
@@ -154,11 +164,14 @@ export const ProjectGallery: React.FC<ProjectGalleryProps> = ({ id }) => {
             <div className="rounded-full bg-red-100 dark:bg-red-900 p-3 w-16 h-16 flex items-center justify-center mb-4">
               <AlertCircle className="h-8 w-8 text-red-600 dark:text-red-400" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Project Not Found</h2>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+              Project Not Found
+            </h2>
             <p className="text-gray-600 dark:text-gray-400 mb-8 text-center max-w-md">
-              {error || "We couldn't find the project you're looking for. It may have been deleted or you may not have permission to view it."}
+              {error ||
+                "We couldn't find the project you're looking for. It may have been deleted or you may not have permission to view it."}
             </p>
-            <Button 
+            <Button
               onClick={() => router.push(ROUTES.DASHBOARD.PROJECTS)}
               leftIcon={<ArrowLeft size={16} />}
             >
@@ -168,7 +181,7 @@ export const ProjectGallery: React.FC<ProjectGalleryProps> = ({ id }) => {
         </Card>
       );
     }
-    
+
     return (
       <>
         {/* Gallery Section */}
@@ -176,14 +189,14 @@ export const ProjectGallery: React.FC<ProjectGalleryProps> = ({ id }) => {
           {/* Main Image */}
           <div className="lg:col-span-8">
             <Card className="overflow-hidden">
-              <div 
+              <div
                 className="aspect-video w-full bg-gray-100 dark:bg-gray-800 overflow-hidden cursor-pointer relative group"
                 onClick={() => setShowImagesModal(true)}
               >
                 {allImages.length > 0 ? (
-                  <img 
-                    src={allImages[activeImageIndex]} 
-                    alt={project.title} 
+                  <img
+                    src={allImages[activeImageIndex]}
+                    alt={project.title}
                     className="w-full h-full object-contain"
                   />
                 ) : (
@@ -194,11 +207,11 @@ export const ProjectGallery: React.FC<ProjectGalleryProps> = ({ id }) => {
                     </div>
                   </div>
                 )}
-                
+
                 {/* Navigation buttons */}
                 {allImages.length > 1 && (
                   <>
-                    <button 
+                    <button
                       className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                       onClick={(e) => {
                         e.stopPropagation();
@@ -207,8 +220,8 @@ export const ProjectGallery: React.FC<ProjectGalleryProps> = ({ id }) => {
                     >
                       <ChevronLeft size={20} />
                     </button>
-                    
-                    <button 
+
+                    <button
                       className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                       onClick={(e) => {
                         e.stopPropagation();
@@ -217,7 +230,7 @@ export const ProjectGallery: React.FC<ProjectGalleryProps> = ({ id }) => {
                     >
                       <ChevronRight size={20} />
                     </button>
-                    
+
                     <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
                       <div className="bg-black/50 rounded-full px-3 py-1.5 text-white text-xs">
                         {activeImageIndex + 1} / {allImages.length}
@@ -226,7 +239,7 @@ export const ProjectGallery: React.FC<ProjectGalleryProps> = ({ id }) => {
                   </>
                 )}
               </div>
-              
+
               {/* Thumbnail Gallery */}
               {allImages.length > 1 && (
                 <div className="p-2 border-t border-gray-200 dark:border-gray-700 overflow-x-auto">
@@ -236,13 +249,14 @@ export const ProjectGallery: React.FC<ProjectGalleryProps> = ({ id }) => {
                         key={index}
                         className={cn(
                           "h-16 w-16 flex-shrink-0 rounded overflow-hidden cursor-pointer",
-                          activeImageIndex === index && "ring-2 ring-blue-500 dark:ring-blue-400"
+                          activeImageIndex === index &&
+                            "ring-2 ring-blue-500 dark:ring-blue-400",
                         )}
                         onClick={() => selectImage(index)}
                       >
-                        <img 
-                          src={image} 
-                          alt={`Thumbnail ${index + 1}`} 
+                        <img
+                          src={image}
+                          alt={`Thumbnail ${index + 1}`}
                           className="h-full w-full object-cover"
                         />
                       </div>
@@ -252,7 +266,7 @@ export const ProjectGallery: React.FC<ProjectGalleryProps> = ({ id }) => {
               )}
             </Card>
           </div>
-          
+
           {/* Project Info */}
           <div className="lg:col-span-4">
             <Card className="h-full flex flex-col">
@@ -271,7 +285,7 @@ export const ProjectGallery: React.FC<ProjectGalleryProps> = ({ id }) => {
                       </span>
                     )}
                   </div>
-                  
+
                   <div className="flex space-x-1">
                     <button
                       className="p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
@@ -280,15 +294,17 @@ export const ProjectGallery: React.FC<ProjectGalleryProps> = ({ id }) => {
                     >
                       <Share2 size={18} />
                     </button>
-                    
+
                     <button
                       className="p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
-                      onClick={() => router.push(`${ROUTES.DASHBOARD.PROJECTS}/edit/${id}`)}
+                      onClick={() =>
+                        router.push(`${ROUTES.DASHBOARD.PROJECTS}/edit/${id}`)
+                      }
                       title="Edit Project"
                     >
                       <Edit size={18} />
                     </button>
-                    
+
                     <button
                       className="p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
                       onClick={() => setShowDeleteModal(true)}
@@ -298,25 +314,32 @@ export const ProjectGallery: React.FC<ProjectGalleryProps> = ({ id }) => {
                     </button>
                   </div>
                 </div>
-                
+
                 <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
                   {project.title}
                 </h1>
-                
+
                 {project.category && (
                   <div className="mb-4">
                     <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                      {project.category.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                      {project.category
+                        .replace(/-/g, " ")
+                        .replace(/\b\w/g, (l) => l.toUpperCase())}
                     </span>
                   </div>
                 )}
-                
+
                 <div className="space-y-4">
                   {/* Timeline */}
                   <div>
-                    <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Timeline</h3>
+                    <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
+                      Timeline
+                    </h3>
                     <div className="flex items-center">
-                      <Calendar size={16} className="text-gray-500 dark:text-gray-400 mr-2" />
+                      <Calendar
+                        size={16}
+                        className="text-gray-500 dark:text-gray-400 mr-2"
+                      />
                       {project.startDate ? (
                         <div className="text-sm">
                           {formatDate(project.startDate)}
@@ -327,14 +350,18 @@ export const ProjectGallery: React.FC<ProjectGalleryProps> = ({ id }) => {
                           )}
                         </div>
                       ) : (
-                        <span className="text-sm text-gray-500 dark:text-gray-400">No timeline specified</span>
+                        <span className="text-sm text-gray-500 dark:text-gray-400">
+                          No timeline specified
+                        </span>
                       )}
                     </div>
                   </div>
-                  
+
                   {/* Skills */}
                   <div>
-                    <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Skills</h3>
+                    <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
+                      Skills
+                    </h3>
                     <div className="flex flex-wrap gap-2">
                       {project.skills.map((skill) => (
                         <Badge
@@ -346,10 +373,12 @@ export const ProjectGallery: React.FC<ProjectGalleryProps> = ({ id }) => {
                       ))}
                     </div>
                   </div>
-                  
+
                   {/* Links */}
                   <div>
-                    <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Links</h3>
+                    <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
+                      Links
+                    </h3>
                     <div className="flex flex-col space-y-2">
                       {project.demoUrl && (
                         <a
@@ -362,7 +391,7 @@ export const ProjectGallery: React.FC<ProjectGalleryProps> = ({ id }) => {
                           View Demo
                         </a>
                       )}
-                      
+
                       {project.repoUrl && (
                         <a
                           href={project.repoUrl}
@@ -374,15 +403,17 @@ export const ProjectGallery: React.FC<ProjectGalleryProps> = ({ id }) => {
                           View Source Code
                         </a>
                       )}
-                      
+
                       {!project.demoUrl && !project.repoUrl && (
-                        <span className="text-sm text-gray-500 dark:text-gray-400">No links available</span>
+                        <span className="text-sm text-gray-500 dark:text-gray-400">
+                          No links available
+                        </span>
                       )}
                     </div>
                   </div>
                 </div>
               </div>
-              
+
               <div className="p-6 border-t border-gray-200 dark:border-gray-700">
                 <Button
                   variant="outline"
@@ -396,30 +427,30 @@ export const ProjectGallery: React.FC<ProjectGalleryProps> = ({ id }) => {
             </Card>
           </div>
         </div>
-        
+
         {/* Project Description */}
         <Card className="mb-8">
           <div className="p-6">
             <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
               Project Description
             </h2>
-            
-            <div 
+
+            <div
               className="prose dark:prose-invert max-w-none"
               dangerouslySetInnerHTML={{ __html: project.description }}
             />
           </div>
         </Card>
-        
+
         {/* Related projects section could go here */}
       </>
     );
   };
-  
+
   return (
     <MainLayout>
       {renderProjectContent()}
-      
+
       {/* Delete confirmation modal */}
       <Modal
         isOpen={showDeleteModal}
@@ -431,29 +462,26 @@ export const ProjectGallery: React.FC<ProjectGalleryProps> = ({ id }) => {
             <div className="rounded-full bg-red-100 dark:bg-red-900 p-3 w-16 h-16 flex items-center justify-center mb-4">
               <AlertCircle className="h-8 w-8 text-red-600 dark:text-red-400" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Delete Project?</h3>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+              Delete Project?
+            </h3>
             <p className="text-gray-600 dark:text-gray-400 mb-4">
-              Are you sure you want to delete this project? This action cannot be undone.
+              Are you sure you want to delete this project? This action cannot
+              be undone.
             </p>
           </div>
-          
+
           <div className="flex justify-end space-x-3">
-            <Button
-              variant="outline"
-              onClick={() => setShowDeleteModal(false)}
-            >
+            <Button variant="outline" onClick={() => setShowDeleteModal(false)}>
               Cancel
             </Button>
-            <Button
-              variant="danger"
-              onClick={handleDelete}
-            >
+            <Button variant="danger" onClick={handleDelete}>
               Delete
             </Button>
           </div>
         </div>
       </Modal>
-      
+
       {/* Images fullscreen modal */}
       <Modal
         isOpen={showImagesModal}
@@ -474,7 +502,7 @@ export const ProjectGallery: React.FC<ProjectGalleryProps> = ({ id }) => {
                 No images available
               </div>
             )}
-            
+
             {/* Navigation buttons */}
             {allImages.length > 1 && (
               <>
@@ -484,7 +512,7 @@ export const ProjectGallery: React.FC<ProjectGalleryProps> = ({ id }) => {
                 >
                   <ChevronLeft size={24} />
                 </button>
-                
+
                 <button
                   className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full"
                   onClick={goToNextImage}
@@ -493,7 +521,7 @@ export const ProjectGallery: React.FC<ProjectGalleryProps> = ({ id }) => {
                 </button>
               </>
             )}
-            
+
             {/* Image counter */}
             {allImages.length > 1 && (
               <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
@@ -503,7 +531,7 @@ export const ProjectGallery: React.FC<ProjectGalleryProps> = ({ id }) => {
               </div>
             )}
           </div>
-          
+
           {/* Thumbnails */}
           {allImages.length > 1 && (
             <div className="absolute bottom-0 left-0 right-0 bg-black/80 p-2 overflow-x-auto">
@@ -513,7 +541,9 @@ export const ProjectGallery: React.FC<ProjectGalleryProps> = ({ id }) => {
                     key={index}
                     className={cn(
                       "h-16 w-16 flex-shrink-0 rounded overflow-hidden cursor-pointer transition-opacity",
-                      activeImageIndex === index ? "opacity-100 ring-2 ring-blue-500" : "opacity-60 hover:opacity-100"
+                      activeImageIndex === index
+                        ? "opacity-100 ring-2 ring-blue-500"
+                        : "opacity-60 hover:opacity-100",
                     )}
                     onClick={() => selectImage(index)}
                   >

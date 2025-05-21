@@ -13,7 +13,7 @@ export interface LoginResponse {
     id: string;
     name: string;
     email: string;
-    role: 'user' | 'admin';
+    role: "user" | "admin";
     avatar?: string | null;
   };
   requiresTwoFactor: boolean;
@@ -61,7 +61,7 @@ export interface AuthState {
     id: string;
     name: string;
     email: string;
-    role: 'user' | 'admin';
+    role: "user" | "admin";
     avatar?: string | null;
   } | null;
   token: string | null;
@@ -73,7 +73,7 @@ export interface AuthState {
 export interface JWTPayload {
   userId: string;
   email: string;
-  role: 'user' | 'admin';
+  role: "user" | "admin";
   iat: number;
   exp: number;
 }

@@ -1,5 +1,17 @@
 // src/utils/api.ts
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
+import axios, {
+  AxiosInstance,
+  AxiosRequestConfig,
+  AxiosResponse,
+  AxiosError,
+} from "axios";
+import {
+  debounce,
+  throttle,
+  formatQueryParams,
+  getErrorMessage,
+  createCancelableRequest,
+} from "./helpers";
 
 // Types
 export interface ApiResponse<T = any> {
@@ -41,11 +53,11 @@ export interface ApiConfig {
 
 // Default configuration
 const DEFAULT_CONFIG: ApiConfig = {
-  baseURL: process.env.NEXT_PUBLIC_API_URL || '/api',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "/api",
   timeout: 30000,
   headers: {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
+    "Content-Type": "application/json",
+    Accept: "application/json",
   },
   withCredentials: true,
 };
@@ -56,15 +68,17 @@ const instanceCache = new Map<string, AxiosInstance>();
 /**
  * Creates an API instance with the given configuration
  */
-export function createApiInstance(config: ApiConfig = DEFAULT_CONFIG): AxiosInstance {
+export function createApiInstance(
+  config: ApiConfig = DEFAULT_CONFIG,
+): AxiosInstance {
   // Create a cache key from the config
   const cacheKey = JSON.stringify(config);
-  
+
   // Check if we already have an instance with this config
   if (instanceCache.has(cacheKey)) {
     return instanceCache.get(cacheKey)!;
   }
-  
+
   // Create a new instance
   const instance = axios.create({
     baseURL: config.baseURL,
@@ -72,7 +86,7 @@ export function createApiInstance(config: ApiConfig = DEFAULT_CONFIG): AxiosInst
     headers: config.headers,
     withCredentials: config.withCredentials,
   });
-  
+
   // Request interceptor for auth token
   instance.interceptors.request.use(
     (config) => {
@@ -82,9 +96,9 @@ export function createApiInstance(config: ApiConfig = DEFAULT_CONFIG): AxiosInst
       }
       return config;
     },
-    (error) => Promise.reject(error)
+    (error) => Promise.reject(error),
   );
-  
+
   // Response interceptor for error handling
   instance.interceptors.response.use(
     (response) => response,
@@ -92,7 +106,7 @@ export function createApiInstance(config: ApiConfig = DEFAULT_CONFIG): AxiosInst
       // Handle authentication errors
       if (error.response?.status === 401) {
         // Redirect to login or refresh token
-        if (typeof window !== 'undefined') {
+        if (typeof window !== "undefined") {
           // Refresh token or redirect to login
           const refreshToken = getRefreshToken();
           if (refreshToken) {
@@ -120,24 +134,27 @@ export function createApiInstance(config: ApiConfig = DEFAULT_CONFIG): AxiosInst
           }
         }
       }
-      
+
       // Transform error to standardized format
       const apiError: ApiError = {
-        message: error.response?.data?.message || error.message || 'An unexpected error occurred',
+        message:
+          error.response?.data?.message ||
+          error.message ||
+          "An unexpected error occurred",
         status: error.response?.status || 500,
         code: error.response?.data?.code,
         errors: error.response?.data?.errors,
         timestamp: error.response?.data?.timestamp,
         path: error.response?.data?.path,
       };
-      
+
       return Promise.reject(apiError);
-    }
+    },
   );
-  
+
   // Cache the instance
   instanceCache.set(cacheKey, instance);
-  
+
   return instance;
 }
 
@@ -150,7 +167,7 @@ export const api = createApiInstance();
 export async function get<T = any>(
   url: string,
   params?: RequestParams,
-  config?: AxiosRequestConfig
+  config?: AxiosRequestConfig,
 ): Promise<ApiResponse<T>> {
   try {
     const response = await api.get<T>(url, { params, ...config });
@@ -171,7 +188,7 @@ export async function get<T = any>(
 export async function post<T = any, D = any>(
   url: string,
   data?: D,
-  config?: AxiosRequestConfig
+  config?: AxiosRequestConfig,
 ): Promise<ApiResponse<T>> {
   try {
     const response = await api.post<T>(url, data, config);
@@ -192,7 +209,7 @@ export async function post<T = any, D = any>(
 export async function put<T = any, D = any>(
   url: string,
   data?: D,
-  config?: AxiosRequestConfig
+  config?: AxiosRequestConfig,
 ): Promise<ApiResponse<T>> {
   try {
     const response = await api.put<T>(url, data, config);
@@ -213,7 +230,7 @@ export async function put<T = any, D = any>(
 export async function patch<T = any, D = any>(
   url: string,
   data?: D,
-  config?: AxiosRequestConfig
+  config?: AxiosRequestConfig,
 ): Promise<ApiResponse<T>> {
   try {
     const response = await api.patch<T>(url, data, config);
@@ -233,7 +250,7 @@ export async function patch<T = any, D = any>(
  */
 export async function del<T = any>(
   url: string,
-  config?: AxiosRequestConfig
+  config?: AxiosRequestConfig,
 ): Promise<ApiResponse<T>> {
   try {
     const response = await api.delete<T>(url, config);
@@ -254,26 +271,26 @@ export async function del<T = any>(
 export async function getPaginated<T = any>(
   url: string,
   page: number = 1,
-  itemsPerPage: number = 10,
+  limit: number = 10,
   filters?: Record<string, any>,
-  sort?: { field: string; direction: 'asc' | 'desc' },
-  search?: string
+  sort?: { field: string; direction: "asc" | "desc" },
+  search?: string,
 ): Promise<PaginatedResponse<T>> {
   const params: RequestParams = {
     page,
-    itemsPerPage,
+    limit, // Padronizado para usar 'limit' em vez de 'itemsPerPage'
     ...filters,
   };
-  
+
   if (sort) {
     params.sortField = sort.field;
     params.sortDirection = sort.direction;
   }
-  
+
   if (search) {
     params.search = search;
   }
-  
+
   const response = await get<PaginatedResponse<T>>(url, params);
   return response.data;
 }
@@ -285,25 +302,27 @@ export async function uploadFile<T = any>(
   url: string,
   file: File,
   onProgress?: (percentage: number) => void,
-  config?: AxiosRequestConfig
+  config?: AxiosRequestConfig,
 ): Promise<ApiResponse<T>> {
   const formData = new FormData();
-  formData.append('file', file);
-  
+  formData.append("file", file);
+
   const uploadConfig: AxiosRequestConfig = {
     ...config,
     headers: {
       ...config?.headers,
-      'Content-Type': 'multipart/form-data',
+      "Content-Type": "multipart/form-data",
     },
     onUploadProgress: (progressEvent) => {
       if (onProgress && progressEvent.total) {
-        const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+        const percentCompleted = Math.round(
+          (progressEvent.loaded * 100) / progressEvent.total,
+        );
         onProgress(percentCompleted);
       }
     },
   };
-  
+
   return post<T, FormData>(url, formData, uploadConfig);
 }
 
@@ -313,30 +332,32 @@ export async function uploadFile<T = any>(
 export async function uploadFiles<T = any>(
   url: string,
   files: File[],
-  fieldName: string = 'files',
+  fieldName: string = "files",
   onProgress?: (percentage: number) => void,
-  config?: AxiosRequestConfig
+  config?: AxiosRequestConfig,
 ): Promise<ApiResponse<T>> {
   const formData = new FormData();
-  
+
   files.forEach((file, index) => {
     formData.append(`${fieldName}[${index}]`, file);
   });
-  
+
   const uploadConfig: AxiosRequestConfig = {
     ...config,
     headers: {
       ...config?.headers,
-      'Content-Type': 'multipart/form-data',
+      "Content-Type": "multipart/form-data",
     },
     onUploadProgress: (progressEvent) => {
       if (onProgress && progressEvent.total) {
-        const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+        const percentCompleted = Math.round(
+          (progressEvent.loaded * 100) / progressEvent.total,
+        );
         onProgress(percentCompleted);
       }
     },
   };
-  
+
   return post<T, FormData>(url, formData, uploadConfig);
 }
 
@@ -347,35 +368,39 @@ export async function downloadFile(
   url: string,
   filename?: string,
   params?: RequestParams,
-  config?: AxiosRequestConfig
+  config?: AxiosRequestConfig,
 ): Promise<void> {
   try {
     const response = await api.get(url, {
       ...config,
       params,
-      responseType: 'blob',
+      responseType: "blob",
     });
-    
+
     // Get the filename from the Content-Disposition header or use the provided filename
-    const contentDisposition = response.headers['content-disposition'];
+    const contentDisposition = response.headers["content-disposition"];
     let downloadFilename = filename;
-    
+
     if (!downloadFilename && contentDisposition) {
-      const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+      const filenameMatch = contentDisposition.match(
+        /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/,
+      );
       if (filenameMatch && filenameMatch[1]) {
-        downloadFilename = filenameMatch[1].replace(/['"]/g, '');
+        downloadFilename = filenameMatch[1].replace(/['"]/g, "");
       }
     }
-    
+
     // Create a download link and trigger the download
-    const blob = new Blob([response.data], { type: response.headers['content-type'] });
+    const blob = new Blob([response.data], {
+      type: response.headers["content-type"],
+    });
     const url = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = url;
-    link.setAttribute('download', downloadFilename || 'download');
+    link.setAttribute("download", downloadFilename || "download");
     document.body.appendChild(link);
     link.click();
-    
+
     // Clean up
     window.URL.revokeObjectURL(url);
     document.body.removeChild(link);
@@ -390,8 +415,8 @@ export async function downloadFile(
  * Get the auth token from storage
  */
 export function getAuthToken(): string | null {
-  if (typeof window !== 'undefined') {
-    return localStorage.getItem('auth_token');
+  if (typeof window !== "undefined") {
+    return localStorage.getItem("auth_token");
   }
   return null;
 }
@@ -400,8 +425,8 @@ export function getAuthToken(): string | null {
  * Get the refresh token from storage
  */
 export function getRefreshToken(): string | null {
-  if (typeof window !== 'undefined') {
-    return localStorage.getItem('refresh_token');
+  if (typeof window !== "undefined") {
+    return localStorage.getItem("refresh_token");
   }
   return null;
 }
@@ -410,8 +435,8 @@ export function getRefreshToken(): string | null {
  * Set the auth token in storage
  */
 export function setAuthToken(token: string): void {
-  if (typeof window !== 'undefined') {
-    localStorage.setItem('auth_token', token);
+  if (typeof window !== "undefined") {
+    localStorage.setItem("auth_token", token);
   }
 }
 
@@ -419,8 +444,8 @@ export function setAuthToken(token: string): void {
  * Set the refresh token in storage
  */
 export function setRefreshToken(token: string): void {
-  if (typeof window !== 'undefined') {
-    localStorage.setItem('refresh_token', token);
+  if (typeof window !== "undefined") {
+    localStorage.setItem("refresh_token", token);
   }
 }
 
@@ -428,9 +453,9 @@ export function setRefreshToken(token: string): void {
  * Clear auth tokens from storage
  */
 export function clearAuthTokens(): void {
-  if (typeof window !== 'undefined') {
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('refresh_token');
+  if (typeof window !== "undefined") {
+    localStorage.removeItem("auth_token");
+    localStorage.removeItem("refresh_token");
   }
 }
 
@@ -440,15 +465,15 @@ export function clearAuthTokens(): void {
 async function refreshAuthToken(refreshToken: string): Promise<string> {
   try {
     const response = await api.post<{ token: string; refresh_token: string }>(
-      '/auth/refresh',
-      { refresh_token: refreshToken }
+      "/auth/refresh",
+      { refresh_token: refreshToken },
     );
-    
+
     // Update the refresh token if a new one is provided
     if (response.data.refresh_token) {
       setRefreshToken(response.data.refresh_token);
     }
-    
+
     return response.data.token;
   } catch (error) {
     throw error;
@@ -459,123 +484,26 @@ async function refreshAuthToken(refreshToken: string): Promise<string> {
  * Redirect to login page
  */
 function redirectToLogin(): void {
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     // Save the current URL to redirect back after login
     const currentPath = window.location.pathname + window.location.search;
-    if (currentPath !== '/login' && currentPath !== '/auth/login') {
-      localStorage.setItem('auth_redirect', currentPath);
+    if (currentPath !== "/login" && currentPath !== "/auth/login") {
+      localStorage.setItem("auth_redirect", currentPath);
     }
-    
+
     // Redirect to login
-    window.location.href = '/login';
+    window.location.href = "/login";
   }
 }
 
-/**
- * Debounce function for API calls
- */
-export function debounce<T extends (...args: any[]) => any>(
-  func: T,
-  wait: number = 300
-): (...args: Parameters<T>) => void {
-  let timeout: NodeJS.Timeout | null = null;
-  
-  return function(...args: Parameters<T>): void {
-    const later = () => {
-      timeout = null;
-      func(...args);
-    };
-    
-    if (timeout !== null) {
-      clearTimeout(timeout);
-    }
-    timeout = setTimeout(later, wait);
-  };
-}
-
-/**
- * Throttle function for API calls
- */
-export function throttle<T extends (...args: any[]) => any>(
-  func: T,
-  limit: number = 300
-): (...args: Parameters<T>) => void {
-  let inThrottle: boolean = false;
-  
-  return function(...args: Parameters<T>): void {
-    if (!inThrottle) {
-      func(...args);
-      inThrottle = true;
-      setTimeout(() => {
-        inThrottle = false;
-      }, limit);
-    }
-  };
-}
-
-/**
- * Create a cancelable request
- */
-export function createCancelableRequest<T>(
-  requestFn: () => Promise<T>
-): { promise: Promise<T>; cancel: () => void } {
-  const controller = new AbortController();
-  const signal = controller.signal;
-  
-  // Create the promise
-  const promise = new Promise<T>((resolve, reject) => {
-    requestFn()
-      .then(resolve)
-      .catch(reject);
-    
-    // Listen for abort
-    signal.addEventListener('abort', () => {
-      reject(new Error('Request was canceled'));
-    });
-  });
-  
-  // Return the promise and cancel function
-  return {
-    promise,
-    cancel: () => controller.abort(),
-  };
-}
-
-/**
- * Format query parameters for URL
- */
-export function formatQueryParams(params: Record<string, any>): string {
-  return Object.entries(params)
-    .filter(([_, value]) => value !== undefined && value !== null && value !== '')
-    .map(([key, value]) => {
-      // Handle arrays
-      if (Array.isArray(value)) {
-        return value.map(v => `${encodeURIComponent(key)}[]=${encodeURIComponent(v)}`).join('&');
-      }
-      // Handle objects
-      if (typeof value === 'object') {
-        return `${encodeURIComponent(key)}=${encodeURIComponent(JSON.stringify(value))}`;
-      }
-      // Handle primitives
-      return `${encodeURIComponent(key)}=${encodeURIComponent(value)}`;
-    })
-    .join('&');
-}
-
-/**
- * Utility to handle API error messages
- */
-export function getErrorMessage(error: unknown): string {
-  if (typeof error === 'string') {
-    return error;
-  }
-  
-  if (error && typeof error === 'object' && 'message' in error && typeof error.message === 'string') {
-    return error.message;
-  }
-  
-  return 'An unexpected error occurred';
-}
+// Export debounce and throttle for convenience
+export {
+  debounce,
+  throttle,
+  formatQueryParams,
+  getErrorMessage,
+  createCancelableRequest,
+};
 
 // Export the default instance
 export default api;
