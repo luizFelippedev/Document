@@ -1,3 +1,4 @@
+// backend/src/api/middleware/security.ts - CORRIGIDO
 import { Request, Response, NextFunction } from 'express';
 import rateLimit from 'express-rate-limit';
 import slowDown from 'express-slow-down';
@@ -25,12 +26,15 @@ export const mainRateLimit = rateLimit({
   },
 });
 
-// Speed limiting para requisições pesadas
+// ✅ Speed limiting corrigido para express-slow-down v2
 export const speedLimiter = slowDown({
   windowMs: 15 * 60 * 1000, // 15 minutos
   delayAfter: 50, // após 50 requests
-  delayMs: 500, // adicionar 500ms de delay
+  delayMs: () => 500, // ✅ Função que retorna o delay (nova sintaxe)
   maxDelayMs: 20000, // máximo 20 segundos de delay
+  validate: {
+    delayMs: false, // ✅ Desabilita o warning
+  },
 });
 
 // Rate limiting para APIs sensíveis
@@ -43,7 +47,7 @@ export const strictRateLimit = rateLimit({
   },
 });
 
-// Configuração do Helmet
+// ✅ Configuração do Helmet atualizada
 export const helmetConfig = helmet({
   contentSecurityPolicy: {
     directives: {
@@ -51,7 +55,7 @@ export const helmetConfig = helmet({
       styleSrc: ["'self'", "'unsafe-inline'", "https:"],
       scriptSrc: ["'self'", "https:"],
       imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'", "https:"],
+      connectSrc: ["'self'", "https:", "ws:", "wss:"], // ✅ Adicionado WebSocket
       fontSrc: ["'self'", "https:"],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],
@@ -192,19 +196,25 @@ export const securityLogger = (req: Request, res: Response, next: NextFunction):
   next();
 };
 
-// Middleware para prevenção de CSRF
+// ✅ CSRF Protection simplificado (sem sessão complexa)
 export const csrfProtection = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   // Ignorar para métodos seguros
   if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
     return next();
   }
   
-  const token = req.headers['x-csrf-token'] as string;
-  const sessionToken = req.session?.csrfToken;
+  // Em desenvolvimento, pular CSRF
+  if (process.env.NODE_ENV === 'development') {
+    return next();
+  }
   
-  if (!token || !sessionToken || token !== sessionToken) {
-    logger.warn(`CSRF token inválido: ${req.ip} - ${req.originalUrl}`);
-    throw new ValidationError('Token CSRF inválido');
+  // Verificar origem
+  const origin = req.get('Origin') || req.get('Referer');
+  const allowedOrigins = process.env.CORS_ORIGIN?.split(',') || ['http://localhost:3000'];
+  
+  if (!origin || !allowedOrigins.some(allowed => origin.startsWith(allowed))) {
+    logger.warn(`CSRF: Origem não permitida: ${origin} - ${req.ip}`);
+    throw new ValidationError('Origem não permitida');
   }
   
   next();

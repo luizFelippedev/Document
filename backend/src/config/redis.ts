@@ -1,3 +1,4 @@
+// backend/src/config/redis.ts - VERSÃO CORRIGIDA
 import { createClient, RedisClientType } from 'redis';
 import dotenv from 'dotenv';
 import logger from './logger';
@@ -23,18 +24,16 @@ const redisClient: RedisClientWrapper = {
         return;
       }
 
-      // Build Redis URL or use individual config
+      // ✅ CONFIGURAÇÃO SIMPLIFICADA PARA REDIS LOCAL
       let redisUrl = process.env.REDIS_URL;
       
       if (!redisUrl) {
         const host = process.env.REDIS_HOST || 'localhost';
         const port = process.env.REDIS_PORT || '6379';
         const password = process.env.REDIS_PASSWORD;
-        const username = process.env.REDIS_USERNAME;
         
-        // Build URL from components
         if (password) {
-          redisUrl = `redis://${username ? `${username}:` : ''}${password}@${host}:${port}`;
+          redisUrl = `redis://:${password}@${host}:${port}`;
         } else {
           redisUrl = `redis://${host}:${port}`;
         }
@@ -48,12 +47,10 @@ const redisClient: RedisClientWrapper = {
             logger.warn(`⚠️ Redis reconnecting in ${delay}ms (attempt ${retries})`);
             return delay;
           },
-          connectTimeout: 5000,
-          lazyConnect: true,
+          connectTimeout: 10000, // ✅ Aumentado para 10s
+          lazyConnect: false, // ✅ Mudado para false
         },
-        // Retry configuration
-        commandTimeout: 5000,
-        lazyConnect: true,
+        commandTimeout: 10000, // ✅ Aumentado para 10s
       });
 
       // Set up event listeners
@@ -90,25 +87,15 @@ const redisClient: RedisClientWrapper = {
       
       logger.info('🚀 Redis connected successfully');
 
-      // Handle graceful shutdown
-      const gracefulShutdown = async (signal: string) => {
-        logger.info(`📶 Received ${signal}, closing Redis connection...`);
-        await this.disconnect();
-        process.exit(0);
-      };
-
-      process.on('SIGINT', () => gracefulShutdown('SIGINT'));
-      process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
-
     } catch (error: any) {
       logger.error(`❌ Failed to connect to Redis: ${error.message}`);
       this.isConnected = false;
       
-      // Don't exit the process in development, just log the error
-      if (process.env.NODE_ENV === 'production') {
-        throw error;
-      } else {
+      // ✅ Em desenvolvimento, continuar sem Redis
+      if (process.env.NODE_ENV === 'development') {
         logger.warn('⚠️ Continuing without Redis in development mode');
+      } else {
+        throw error;
       }
     }
   },
@@ -123,7 +110,6 @@ const redisClient: RedisClientWrapper = {
       this.client = null;
     } catch (error: any) {
       logger.error(`❌ Error disconnecting from Redis: ${error.message}`);
-      // Force disconnect
       if (this.client) {
         this.client.disconnect();
         this.client = null;
@@ -140,12 +126,11 @@ const redisClient: RedisClientWrapper = {
   },
 };
 
-// Utility functions for cache operations
-
+// ✅ FUNÇÕES DE CACHE COM FALLBACK MELHORADO
 export const cacheGet = async <T>(key: string): Promise<T | null> => {
   try {
     if (!redisClient.isConnected) {
-      logger.warn(`⚠️ Redis not connected, skipping get for key: ${key}`);
+      logger.debug(`⚠️ Redis not connected, skipping get for key: ${key}`);
       return null;
     }
     
@@ -165,7 +150,7 @@ export const cacheSet = async (
 ): Promise<boolean> => {
   try {
     if (!redisClient.isConnected) {
-      logger.warn(`⚠️ Redis not connected, skipping set for key: ${key}`);
+      logger.debug(`⚠️ Redis not connected, skipping set for key: ${key}`);
       return false;
     }
     
@@ -188,7 +173,7 @@ export const cacheSet = async (
 export const cacheDelete = async (key: string): Promise<boolean> => {
   try {
     if (!redisClient.isConnected) {
-      logger.warn(`⚠️ Redis not connected, skipping delete for key: ${key}`);
+      logger.debug(`⚠️ Redis not connected, skipping delete for key: ${key}`);
       return false;
     }
     

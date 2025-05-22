@@ -1,3 +1,4 @@
+// backend/src/index.ts - VERSÃO CORRIGIDA
 import express, { Application, Request, Response } from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
@@ -8,8 +9,6 @@ import RedisStore from 'connect-redis';
 import path from 'path';
 import swaggerUi from 'swagger-ui-express';
 import YAML from 'yamljs';
-import cluster from 'cluster';
-import os from 'os';
 
 // Carregar variáveis de ambiente primeiro
 dotenv.config();
@@ -31,25 +30,6 @@ import userRoutes from './api/routes/user.routes';
 import adminRoutes from './api/routes/admin.routes';
 import aiRoutes from './api/routes/ai.routes';
 
-// Configuração do cluster em produção
-if (process.env.NODE_ENV === 'production' && cluster.isPrimary) {
-  const numCPUs = os.cpus().length;
-  
-  logger.info(`Iniciando ${numCPUs} workers`);
-  
-  for (let i = 0; i < numCPUs; i++) {
-    cluster.fork();
-  }
-  
-  cluster.on('exit', (worker, code, signal) => {
-    logger.error(`Worker ${worker.process.pid} morreu`);
-    cluster.fork();
-  });
-} else {
-  // Worker process
-  startServer();
-}
-
 async function startServer() {
   const app: Application = express();
   
@@ -57,7 +37,7 @@ async function startServer() {
   app.set('trust proxy', 1);
   app.disable('x-powered-by');
   
-  // Middleware de segurança (aplicar primeiro)
+  // ✅ Middleware de segurança (aplicar primeiro)
   app.use(securityMiddleware.helmetConfig);
   app.use(securityMiddleware.securityLogger);
   app.use(securityMiddleware.hppProtection);
@@ -90,7 +70,7 @@ async function startServer() {
     },
   }));
   
-  // Rate limiting
+  // ✅ Rate limiting (aplicar depois do CORS)
   app.use(securityMiddleware.mainRateLimit);
   app.use(securityMiddleware.speedLimiter);
   
@@ -98,7 +78,6 @@ async function startServer() {
   app.use(express.json({ 
     limit: '10mb',
     verify: (req, res, buf) => {
-      // Verificar se JSON é válido
       try {
         JSON.parse(buf.toString());
       } catch (e) {
@@ -127,37 +106,43 @@ async function startServer() {
     // Inicializar serviços
     logger.info('Inicializando serviços...');
     
-    // 1. Conectar Redis
-    await redisClient.connect();
-    
-    // 2. Conectar MongoDB
+    // 1. Conectar MongoDB
     await connectDB();
+    
+    // 2. Conectar Redis (opcional)
+    try {
+      await redisClient.connect();
+    } catch (error) {
+      logger.warn('Redis não disponível, continuando sem cache');
+    }
     
     // 3. Criar índices em produção
     if (process.env.NODE_ENV === 'production') {
       await createIndexes();
     }
     
-    // 4. Configurar sessões com Redis
-    const redisStore = new RedisStore({
-      client: redisClient.getClient(),
-      prefix: 'sess:',
-    });
-    
-    app.use(session({
-      store: redisStore,
-      secret: process.env.SESSION_SECRET || 'default-session-secret',
-      name: 'sessionId',
-      resave: false,
-      saveUninitialized: false,
-      rolling: true,
-      cookie: {
-        secure: process.env.NODE_ENV === 'production',
-        httpOnly: true,
-        maxAge: 24 * 60 * 60 * 1000, // 24 horas
-        sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
-      },
-    }));
+    // 4. Configurar sessões (se Redis estiver disponível)
+    if (redisClient.isConnected) {
+      const redisStore = new RedisStore({
+        client: redisClient.getClient(),
+        prefix: 'sess:',
+      });
+      
+      app.use(session({
+        store: redisStore,
+        secret: process.env.SESSION_SECRET || 'default-session-secret',
+        name: 'sessionId',
+        resave: false,
+        saveUninitialized: false,
+        rolling: true,
+        cookie: {
+          secure: process.env.NODE_ENV === 'production',
+          httpOnly: true,
+          maxAge: 24 * 60 * 60 * 1000, // 24 horas
+          sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+        },
+      }));
+    }
     
     // 5. Documentação API
     try {
@@ -204,9 +189,9 @@ async function startServer() {
     app.use(errorHandler);
     
     // 7. Iniciar servidor
-    const PORT = process.env.PORT || 5000;
+    const PORT = process.env.PORT || 5001;
     const server = app.listen(PORT, () => {
-      logger.info(`🚀 Servidor rodando na porta ${PORT} - Processo ${process.pid}`);
+      logger.info(`🚀 Servidor rodando na porta ${PORT}`);
       logger.info(`📖 Documentação disponível em http://localhost:${PORT}/api-docs`);
     });
     
@@ -218,24 +203,15 @@ async function startServer() {
     // 9. WebSockets
     initializeWebSockets(server);
     
-    // 10. Background jobs
-    initializeJobs();
+    // 10. Background jobs (opcional)
+    try {
+      initializeJobs();
+    } catch (error) {
+      logger.warn(`Jobs não inicializados: ${error}`);
+    }
     
     // 11. Graceful shutdown
     gracefulShutdownHandler(server);
-    
-    // Monitoramento de performance
-    if (process.env.NODE_ENV === 'production') {
-      setInterval(() => {
-        const used = process.memoryUsage();
-        logger.info('Uso de memória:', {
-          rss: Math.round(used.rss / 1024 / 1024 * 100) / 100 + ' MB',
-          heapTotal: Math.round(used.heapTotal / 1024 / 1024 * 100) / 100 + ' MB',
-          heapUsed: Math.round(used.heapUsed / 1024 / 1024 * 100) / 100 + ' MB',
-          external: Math.round(used.external / 1024 / 1024 * 100) / 100 + ' MB',
-        });
-      }, 60000); // A cada minuto
-    }
     
     return server;
   } catch (error: any) {
@@ -244,6 +220,9 @@ async function startServer() {
     process.exit(1);
   }
 }
+
+// Iniciar servidor
+startServer();
 
 // Handlers de erro não capturado
 process.on('unhandledRejection', (err: Error) => {

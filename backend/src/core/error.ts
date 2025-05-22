@@ -1,5 +1,6 @@
+// backend/src/core/error.ts - CORRIGIDO
 import { Request, Response, NextFunction } from 'express';
-import logger from '../config/logger';
+import logger from '../config/logger'; // ✅ CORRIGIDO - era '@/config/logger'
 import { ValidationError as JoiValidationError } from 'joi';
 
 // Classes de erro customizadas
@@ -21,7 +22,6 @@ export class AppError extends Error {
     Error.captureStackTrace(this, this.constructor);
   }
 }
-
 // Fábrica de classes de erro
 const createErrorClass = (defaultCode: number, defaultMessage: string) => 
   class extends AppError {

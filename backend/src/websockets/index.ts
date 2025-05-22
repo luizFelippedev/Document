@@ -1,9 +1,12 @@
+// backend/src/websockets/index.ts - CORRIGIDO
 import { Server as HttpServer } from 'http';
 import { Server, Socket } from 'socket.io';
 import jwt from 'jsonwebtoken';
 import logger from '../config/logger';
 import { cacheGet, cacheSet } from '../config/redis';
 import User from '../api/models/user.model';
+import { setupNotificationsHandlers } from './notifications';
+import { setupChatHandlers } from './chat';
 
 // Map of user IDs to socket IDs
 const userSocketMap: Map<string, Set<string>> = new Map();
@@ -18,11 +21,13 @@ let io: Server;
 export const initializeWebSockets = (server: HttpServer): void => {
   io = new Server(server, {
     cors: {
-      origin: process.env.CORS_ORIGIN || '*',
+      origin: process.env.CORS_ORIGIN?.split(',') || ['http://localhost:3000'],
       methods: ['GET', 'POST'],
       credentials: true,
     },
     path: '/socket.io',
+    pingTimeout: 60000,
+    pingInterval: 25000,
   });
 
   // Handle socket authentication and connection
@@ -102,6 +107,10 @@ export const initializeWebSockets = (server: HttpServer): void => {
     // Join user-specific room
     socket.join(`user:${userId}`);
 
+    // ✅ Setup handlers
+    setupNotificationsHandlers(socket);
+    setupChatHandlers(socket);
+
     // Handle disconnection
     socket.on('disconnect', () => {
       // Remove socket from user map
@@ -134,6 +143,16 @@ export const initializeWebSockets = (server: HttpServer): void => {
   });
 
   logger.info('WebSocket server initialized');
+};
+
+/**
+ * Get IO instance
+ */
+export const getIo = (): Server => {
+  if (!io) {
+    throw new Error('Socket.IO not initialized');
+  }
+  return io;
 };
 
 /**
@@ -205,4 +224,5 @@ export default {
   sendProjectMessage,
   broadcastMessage,
   getConnectedUsersCount,
+  getIo,
 };

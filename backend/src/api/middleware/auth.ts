@@ -182,12 +182,14 @@ export const refreshToken = (
     
     if (timeRemaining < oneDayInMs) {
       // Generate new token
+      const payload = {
+        id: req.user._id,
+        email: req.user.email,
+        role: req.user.role
+      };
+      
       const newToken = jwt.sign(
-        {
-          id: req.user._id,
-          email: req.user.email,
-          role: req.user.role,
-        },
+        payload,
         process.env.JWT_SECRET || 'your-secret-key',
         {
           expiresIn: process.env.JWT_EXPIRATION || '7d',

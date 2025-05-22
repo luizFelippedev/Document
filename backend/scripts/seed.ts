@@ -1,3 +1,4 @@
+// backend/scripts/seed.ts - CORRIGIDO
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import fs from 'fs';
@@ -8,7 +9,7 @@ import { faker } from '@faker-js/faker';
 // Load environment variables
 dotenv.config();
 
-// Import models
+// ✅ IMPORTS CORRIGIDOS
 import User from '../src/api/models/user.model';
 import Project from '../src/api/models/project.model';
 import Certificate from '../src/api/models/certificate.model';
