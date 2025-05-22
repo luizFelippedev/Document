@@ -1,55 +1,66 @@
-// backend/src/core/error.ts - CORRIGIDO
+// 4.2 - src/core/error.ts - CORREÇÃO COMPLETA
 import { Request, Response, NextFunction } from 'express';
-import logger from '../config/logger'; // ✅ CORRIGIDO - era '@/config/logger'
-import { ValidationError as JoiValidationError } from 'joi';
+import logger from '../config/logger';
 
-// Classes de erro customizadas
 export class AppError extends Error {
-  readonly status: string;
-  readonly isOperational: boolean;
-  readonly statusCode: number;
-  
-  constructor(
-    message: string, 
-    statusCode: number, 
-    isOperational: boolean = true
-  ) {
+  public readonly statusCode: number;
+  public readonly status: string;
+  public readonly isOperational: boolean;
+
+  constructor(message: string, statusCode: number, isOperational = true) {
     super(message);
     this.statusCode = statusCode;
     this.status = statusCode >= 400 && statusCode < 500 ? 'fail' : 'error';
     this.isOperational = isOperational;
-    
     Error.captureStackTrace(this, this.constructor);
   }
 }
-// Fábrica de classes de erro
-const createErrorClass = (defaultCode: number, defaultMessage: string) => 
-  class extends AppError {
-    constructor(message: string = defaultMessage, statusCode: number = defaultCode) {
-      super(message, statusCode);
-    }
-  };
 
-export const BadRequestError = createErrorClass(400, 'Requisição inválida');
-export const UnauthorizedError = createErrorClass(401, 'Não autorizado');
-export const ForbiddenError = createErrorClass(403, 'Acesso negado');
-export const NotFoundError = createErrorClass(404, 'Recurso não encontrado');
-export const ConflictError = createErrorClass(409, 'Conflito de recursos');
-export const UnprocessableEntityError = createErrorClass(422, 'Entidade não processável');
-export const TooManyRequestsError = createErrorClass(429, 'Muitas requisições');
-export const InternalServerError = createErrorClass(500, 'Erro interno do servidor');
+export const BadRequestError = class extends AppError {
+  constructor(message = 'Bad request') {
+    super(message, 400);
+  }
+};
 
-// Erro de validação especializado
-export class ValidationError extends AppError {
+export const UnauthorizedError = class extends AppError {
+  constructor(message = 'Unauthorized') {
+    super(message, 401);
+  }
+};
+
+export const ForbiddenError = class extends AppError {
+  constructor(message = 'Forbidden') {
+    super(message, 403);
+  }
+};
+
+export const NotFoundError = class extends AppError {
+  constructor(message = 'Resource not found') {
+    super(message, 404);
+  }
+};
+
+export const ConflictError = class extends AppError {
+  constructor(message = 'Resource conflict') {
+    super(message, 409);
+  }
+};
+
+export const ValidationError = class extends AppError {
   public errors: Record<string, string>;
   
-  constructor(message: string = 'Erro de validação', errors: Record<string, string> = {}) {
+  constructor(message = 'Validation error', errors: Record<string, string> = {}) {
     super(message, 422);
     this.errors = errors;
   }
-}
+};
 
-// Handler central de erros
+export const TooManyRequestsError = class extends AppError {
+  constructor(message = 'Too many requests') {
+    super(message, 429);
+  }
+};
+
 export const errorHandler = (
   err: Error | AppError,
   req: Request,
@@ -58,36 +69,26 @@ export const errorHandler = (
 ): void => {
   let error = { ...err } as any;
   error.message = err.message;
-  
-  // Log do erro
-  const logMessage = `${req.method} ${req.originalUrl} - ${err.message} - IP: ${req.ip} - User: ${(req as any).user?.email || 'anonymous'}`;
-  
+
+  // Log error
   if (err instanceof AppError && err.statusCode < 500) {
-    logger.warn(logMessage);
+    logger.warn(`${req.method} ${req.originalUrl} - ${err.message}`);
   } else {
-    logger.error(logMessage);
-    logger.error(err.stack);
+    logger.error(`${req.method} ${req.originalUrl} - ${err.message}`);
+    if (err.stack) logger.error(err.stack);
   }
-  
-  // Resposta de erro padronizada
-  const errorResponse: {
-    status: string;
-    message: string;
-    errors?: Record<string, string>;
-    stack?: string;
-    code?: string;
-    timestamp: string;
-    path: string;
-  } = {
+
+  // Default error response
+  const errorResponse: any = {
     status: 'error',
-    message: 'Erro interno do servidor',
+    message: 'Internal server error',
     timestamp: new Date().toISOString(),
     path: req.originalUrl,
   };
-  
+
   let statusCode = 500;
-  
-  // Processar tipos específicos de erro
+
+  // Handle different error types
   if (err instanceof AppError) {
     statusCode = err.statusCode;
     errorResponse.status = err.status;
@@ -96,103 +97,102 @@ export const errorHandler = (
     if (err instanceof ValidationError) {
       errorResponse.errors = err.errors;
     }
-  } else if (err instanceof JoiValidationError) {
-    statusCode = 422;
-    errorResponse.status = 'fail';
-    errorResponse.message = 'Dados de entrada inválidos';
-    errorResponse.errors = {};
-    
-    err.details.forEach(detail => {
-      const key = detail.path.join('.');
-      errorResponse.errors![key] = detail.message;
-    });
   } else if (err.name === 'CastError') {
     statusCode = 400;
     errorResponse.status = 'fail';
-    errorResponse.message = 'Formato de dados inválido';
+    errorResponse.message = 'Invalid data format';
   } else if (err.name === 'JsonWebTokenError') {
     statusCode = 401;
     errorResponse.status = 'fail';
-    errorResponse.message = 'Token inválido';
+    errorResponse.message = 'Invalid token';
   } else if (err.name === 'TokenExpiredError') {
     statusCode = 401;
     errorResponse.status = 'fail';
-    errorResponse.message = 'Token expirado';
+    errorResponse.message = 'Token expired';
   } else if ((err as any).code === 11000) {
     statusCode = 409;
     errorResponse.status = 'fail';
-    errorResponse.message = 'Dados duplicados';
-    errorResponse.code = 'DUPLICATE_KEY';
+    errorResponse.message = 'Duplicate resource';
   }
-  
-  // Não expor stack trace em produção
+
+  // Don't expose stack trace in production
   if (process.env.NODE_ENV !== 'production') {
     errorResponse.stack = err.stack;
   }
-  
-  // Rate limiting específico para errors 500
-  if (statusCode === 500) {
-    // Implementar circuit breaker ou alertas aqui
-  }
-  
+
   res.status(statusCode).json(errorResponse);
 };
 
-// Async handler melhorado
 export const asyncHandler = (fn: Function) => 
-  (req: Request, res: Response, next: NextFunction) => {
-    Promise.resolve(fn(req, res, next)).catch((error: Error) => {
-      // Adicionar contexto do request ao erro
-      if (error instanceof AppError) {
-        error.message = `${error.message} [${req.method} ${req.originalUrl}]`;
+  (req: Request, res: Response, next: NextFunction) => 
+    Promise.resolve(fn(req, res, next)).catch(next);
+
+export const notFoundHandler = (req: Request, _res: Response, next: NextFunction) => 
+  next(new NotFoundError(`Route not found: ${req.method} ${req.originalUrl}`));
+
+// 4.3 - src/api/middleware/rateLimiter.ts - CORREÇÃO COMPLETA
+import rateLimit from 'express-rate-limit';
+import { Request } from 'express';
+import redisClient from '../../config/redis';
+import logger from '../../config/logger';
+
+class RedisStore {
+  prefix: string;
+  windowMs: number;
+
+  constructor(options: { prefix?: string; windowMs: number }) {
+    this.prefix = options.prefix || 'rate-limit:';
+    this.windowMs = options.windowMs;
+  }
+
+  async increment(key: string): Promise<{ totalHits: number; resetTime?: Date }> {
+    try {
+      if (!redisClient.isConnected) {
+        return { totalHits: 1 };
       }
-      next(error);
-    });
-  };
 
-// Handler para rotas não encontradas
-export const notFoundHandler = (req: Request, _res: Response, next: NextFunction): void => {
-  next(new NotFoundError(`Rota não encontrada: ${req.method} ${req.originalUrl}`));
-};
-
-// Handler para shutdown graceful
-export const gracefulShutdownHandler = (server: any) => {
-  const shutdown = (signal: string) => {
-    logger.info(`Recebido ${signal}. Encerrando servidor graciosamente...`);
-    
-    server.close(() => {
-      logger.info('Servidor HTTP encerrado');
+      const client = redisClient.getClient();
+      const redisKey = `${this.prefix}${key}`;
       
-      // Fechar conexões do banco de dados
-      require('../config/db').getMongoose().connection.close(() => {
-        logger.info('Conexão MongoDB encerrada');
-        process.exit(0);
-      });
-    });
-    
-    // Forçar encerramento após 30 segundos
-    setTimeout(() => {
-      logger.error('Forçando encerramento...');
-      process.exit(1);
-    }, 30000);
-  };
-  
-  process.on('SIGTERM', () => shutdown('SIGTERM'));
-  process.on('SIGINT', () => shutdown('SIGINT'));
+      const totalHits = await client.incr(redisKey);
+      
+      if (totalHits === 1) {
+        await client.expire(redisKey, Math.ceil(this.windowMs / 1000));
+      }
+      
+      const ttl = await client.ttl(redisKey);
+      const resetTime = ttl > 0 ? new Date(Date.now() + ttl * 1000) : undefined;
+      
+      return { totalHits, resetTime };
+    } catch (error: any) {
+      logger.error(`Rate limiter error: ${error.message}`);
+      return { totalHits: 1 };
+    }
+  }
+}
+
+export const createRateLimiter = (
+  windowMs = 15 * 60 * 1000,
+  max = 100,
+  message = 'Too many requests'
+) => {
+  const store = new RedisStore({ windowMs });
+
+  return rateLimit({
+    windowMs,
+    max,
+    message: { status: 'fail', message },
+    standardHeaders: true,
+    legacyHeaders: false,
+    skip: (req: Request) => {
+      return process.env.NODE_ENV === 'development' && 
+             (req.ip === '127.0.0.1' || req.ip === '::1');
+    },
+    store: {
+      increment: (key: string) => store.increment(key),
+    } as any,
+  });
 };
 
-export default {
-  AppError,
-  BadRequestError,
-  UnauthorizedError,
-  ForbiddenError,
-  NotFoundError,
-  ConflictError,
-  ValidationError,
-  TooManyRequestsError,
-  InternalServerError,
-  errorHandler,
-  asyncHandler,
-  notFoundHandler,
-  gracefulShutdownHandler,
-};
+export const authRateLimiter = createRateLimiter(15 * 60 * 1000, 5, 'Too many login attempts');
+export const apiRateLimiter = createRateLimiter();
