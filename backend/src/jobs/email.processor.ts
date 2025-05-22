@@ -144,7 +144,7 @@ export const sendWelcomeEmail = async (
  * Send a verification email
  * @param to Recipient email
  * @param firstName Recipient first name
- * @param verificationUrl Email verification URL
+ * @param verificationUrl Email verification URl
  * @returns Job ID
  */
 export const sendVerificationEmail = async (
