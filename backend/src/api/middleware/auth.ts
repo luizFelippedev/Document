@@ -40,24 +40,25 @@ export const authenticate = async (
     
     // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key') as any;
-    if (!decoded) {
+    if (!decoded || !decoded.id) {
       throw new UnauthorizedError('Invalid or expired token.');
     }
     
     // Try to get user from cache first
     const cachedUser = await cacheGet<IUser>(`user:${decoded.id}`);
-    let user;
+    let user: IUser;
     
     if (cachedUser) {
       user = cachedUser;
     } else {
       // Get user from database
-      user = await User.findById(decoded.id);
+      const dbUser = await User.findById(decoded.id);
       
-      if (!user) {
+      if (!dbUser) {
         throw new UnauthorizedError('User not found.');
       }
       
+      user = dbUser;
       // Cache user for future requests (10 minutes)
       await cacheSet(`user:${user._id}`, user, 600);
     }
@@ -168,7 +169,7 @@ export const refreshToken = (
   try {
     // Decode token to check expiration
     const decoded = jwt.decode(req.token) as any;
-    if (!decoded) {
+    if (!decoded || !decoded.exp) {
       next();
       return;
     }
@@ -181,7 +182,17 @@ export const refreshToken = (
     
     if (timeRemaining < oneDayInMs) {
       // Generate new token
-      const newToken = req.user.generateAuthToken();
+      const newToken = jwt.sign(
+        {
+          id: req.user._id,
+          email: req.user.email,
+          role: req.user.role,
+        },
+        process.env.JWT_SECRET || 'your-secret-key',
+        {
+          expiresIn: process.env.JWT_EXPIRATION || '7d',
+        }
+      );
       
       // Add header to response with new token
       res.setHeader('X-New-Token', newToken);
@@ -230,7 +241,7 @@ export const optionalAuth = async (
     
     // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key') as any;
-    if (!decoded) {
+    if (!decoded || !decoded.id) {
       // Invalid token, continue without authentication
       next();
       return;

@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import logger from '../config/logger';
+import logger from '@/config/logger';
 
 // Custom error class with status code
 export class AppError extends Error {
@@ -43,7 +43,9 @@ export class ValidationError extends AppError {
 export const errorHandler = (
   err: Error | AppError,
   req: Request,
-  res: Response): void => {
+  res: Response,
+  _next: NextFunction
+): void => {
   // Default error response with minimal information in production
   const errorResponse: {
     status: string;
@@ -66,8 +68,6 @@ export const errorHandler = (
   if (err instanceof AppError) {
     statusCode = err.statusCode;
     errorResponse.status = err.status;
-    // Use the actual error message even in production for AppError
-    // Since these are controlled application errors
     errorResponse.message = err.message;
     
     if (err instanceof ValidationError && Object.keys(err.errors).length) {
@@ -86,7 +86,6 @@ export const errorHandler = (
         statusCode = 422;
         errorResponse.status = 'fail';
         errorResponse.message = 'Validation error';
-        // Still expose validation errors in production for client-side handling
         errorResponse.errors = errorObj.errors;
         logDetails = JSON.stringify(errorObj.errors);
         break;
@@ -95,7 +94,6 @@ export const errorHandler = (
         statusCode = 400;
         errorResponse.status = 'fail';
         errorResponse.message = 'Invalid data format';
-        // Don't expose exact details in production
         if (process.env.NODE_ENV !== 'production') {
           errorResponse.details = `Invalid ${errorObj.path}: ${errorObj.value}`;
         }
@@ -120,10 +118,8 @@ export const errorHandler = (
         statusCode = 409;
         errorResponse.status = 'fail';
         errorResponse.message = 'This item already exists.';
-        // Add error code
         errorResponse.code = 'DUPLICATE_KEY';
         
-        // Only in development, show the duplicate field
         if (process.env.NODE_ENV !== 'production') {
           const field = Object.keys(errorObj.keyValue)[0];
           errorResponse.details = `${field} already exists`;
@@ -131,6 +127,12 @@ export const errorHandler = (
         
         logDetails = `Duplicate key: ${JSON.stringify(errorObj.keyValue)}`;
         break;
+      
+      default:
+        errorResponse.message = process.env.NODE_ENV === 'production' 
+          ? 'An error occurred while processing your request.' 
+          : err.message;
+        logDetails = err.message;
     }
   }
   

@@ -1,9 +1,10 @@
 import Joi from 'joi';
 import { Request, Response, NextFunction } from 'express';
-// TODO: Update the import path below to the correct location of ValidationError, or create the file if missing.
-// Define ValidationError here if not available from another module
+
+// Validation error class
 export class ValidationError extends Error {
   public errors: Record<string, string>;
+  
   constructor(message: string, errors: Record<string, string>) {
     super(message);
     this.name = 'ValidationError';
@@ -11,8 +12,6 @@ export class ValidationError extends Error {
     Object.setPrototypeOf(this, ValidationError.prototype);
   }
 }
-
-// Username pattern: alphanumeric, dash, underscore, 3-30 chars
 
 // Password pattern: min 8 chars, at least 1 uppercase, 1 lowercase, 1 number, 1 special char
 const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
@@ -57,11 +56,11 @@ export const registerSchema = Joi.object({
       'any.required': 'Please confirm your password',
     }),
     
-  company: Joi.string().trim().max(100).allow('', null),
+  company: Joi.string().trim().max(100).allow('', null).optional(),
   
-  position: Joi.string().trim().max(100).allow('', null),
+  position: Joi.string().trim().max(100).allow('', null).optional(),
   
-  bio: Joi.string().max(500).allow('', null),
+  bio: Joi.string().max(500).allow('', null).optional(),
   
   skills: Joi.array().items(Joi.string().trim()).optional(),
   
@@ -160,18 +159,22 @@ export const changePasswordSchema = Joi.object({
 
 // TOTP setup schema
 export const setupTotpSchema = Joi.object({
-  token: Joi.string().required()
+  token: Joi.string().length(6).pattern(/^\d{6}$/).required()
     .messages({
       'string.empty': 'TOTP token is required',
+      'string.length': 'TOTP token must be 6 digits',
+      'string.pattern.base': 'TOTP token must contain only digits',
       'any.required': 'TOTP token is required',
     }),
 });
 
 // TOTP verification schema
 export const verifyTotpSchema = Joi.object({
-  token: Joi.string().required()
+  token: Joi.string().length(6).pattern(/^\d{6}$/).required()
     .messages({
       'string.empty': 'TOTP token is required',
+      'string.length': 'TOTP token must be 6 digits',
+      'string.pattern.base': 'TOTP token must contain only digits',
       'any.required': 'TOTP token is required',
     }),
 });
@@ -179,21 +182,25 @@ export const verifyTotpSchema = Joi.object({
 // Validation middleware factory
 export const validate = (schema: Joi.ObjectSchema) => {
   return (req: Request, _res: Response, next: NextFunction) => {
-    const { error } = schema.validate(req.body, {
+    const { error, value } = schema.validate(req.body, {
       abortEarly: false,
       stripUnknown: true,
+      allowUnknown: false,
     });
     
     if (error) {
       const errors: Record<string, string> = {};
       
       error.details.forEach((detail) => {
-        const key = detail.path[0] as string;
+        const key = detail.path.join('.');
         errors[key] = detail.message;
       });
       
       throw new ValidationError('Validation failed', errors);
     }
+    
+    // Set the validated (and potentially transformed) data back to req.body
+    req.body = value;
     
     next();
   };
@@ -209,4 +216,5 @@ export default {
   setupTotpSchema,
   verifyTotpSchema,
   validate,
+  ValidationError,
 };
