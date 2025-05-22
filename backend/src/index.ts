@@ -1,4 +1,4 @@
-// backend/src/index.ts - VERSÃO CORRIGIDA
+// backend/src/index.ts - VERSÃO CORRIGIDA E COMPLETA
 import express, { Application, Request, Response } from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
@@ -9,6 +9,7 @@ import RedisStore from 'connect-redis';
 import path from 'path';
 import swaggerUi from 'swagger-ui-express';
 import YAML from 'yamljs';
+import morgan from 'morgan';
 
 // Carregar variáveis de ambiente primeiro
 dotenv.config();
@@ -19,8 +20,19 @@ import redisClient from './config/redis';
 import logger, { stream } from './config/logger';
 import { errorHandler, notFoundHandler, gracefulShutdownHandler } from './core/error';
 import { initializeWebSockets } from './websockets';
-import { initializeJobs } from './jobs';
-import securityMiddleware from './api/middleware/security';
+import { setupQueues } from './jobs/queue-manager';
+import { createInitialAdmin } from './utils/createInitialAdmin';
+
+// Middleware de segurança
+import { 
+  helmetConfig, 
+  mainRateLimit, 
+  speedLimiter, 
+  xssProtection, 
+  sqlInjectionProtection, 
+  securityLogger, 
+  hppProtection 
+} from './api/middleware/security';
 
 // Rotas
 import authRoutes from './api/routes/auth.routes';
@@ -38,9 +50,9 @@ async function startServer() {
   app.disable('x-powered-by');
   
   // ✅ Middleware de segurança (aplicar primeiro)
-  app.use(securityMiddleware.helmetConfig);
-  app.use(securityMiddleware.securityLogger);
-  app.use(securityMiddleware.hppProtection);
+  app.use(helmetConfig);
+  app.use(securityLogger);
+  app.use(hppProtection);
   
   // CORS configurado
   app.use(cors({
@@ -54,7 +66,7 @@ async function startServer() {
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token', 'X-Session-ID'],
     exposedHeaders: ['X-New-Token'],
   }));
   
@@ -71,8 +83,8 @@ async function startServer() {
   }));
   
   // ✅ Rate limiting (aplicar depois do CORS)
-  app.use(securityMiddleware.mainRateLimit);
-  app.use(securityMiddleware.speedLimiter);
+  app.use(mainRateLimit);
+  app.use(speedLimiter);
   
   // Parsing
   app.use(express.json({ 
@@ -86,17 +98,17 @@ async function startServer() {
     }
   }));
   app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-  app.use(cookieParser(process.env.COOKIE_SECRET));
+  app.use(cookieParser(process.env.COOKIE_SECRET || 'default-cookie-secret'));
   
   // Proteção XSS e SQL Injection
-  app.use(securityMiddleware.xssProtection);
-  app.use(securityMiddleware.sqlInjectionProtection);
+  app.use(xssProtection);
+  app.use(sqlInjectionProtection);
   
   // Logging HTTP
-  app.use(require('morgan')('combined', { stream }));
+  app.use(morgan('combined', { stream }));
   
   // Servir arquivos estáticos com cache
-  app.use('/uploads', express.static(path.join(__dirname, '../uploads'), {
+  app.use('/uploads', express.static(path.join(process.cwd(), 'uploads'), {
     maxAge: '1d',
     etag: true,
     lastModified: true,
@@ -104,7 +116,7 @@ async function startServer() {
   
   try {
     // Inicializar serviços
-    logger.info('Inicializando serviços...');
+    logger.info('🚀 Inicializando serviços...');
     
     // 1. Conectar MongoDB
     await connectDB();
@@ -112,16 +124,20 @@ async function startServer() {
     // 2. Conectar Redis (opcional)
     try {
       await redisClient.connect();
+      logger.info('✅ Redis conectado com sucesso');
     } catch (error) {
-      logger.warn('Redis não disponível, continuando sem cache');
+      logger.warn('⚠️ Redis não disponível, continuando sem cache');
     }
     
-    // 3. Criar índices em produção
+    // 3. Criar usuário admin inicial se necessário
+    await createInitialAdmin();
+    
+    // 4. Criar índices em produção
     if (process.env.NODE_ENV === 'production') {
       await createIndexes();
     }
     
-    // 4. Configurar sessões (se Redis estiver disponível)
+    // 5. Configurar sessões (se Redis estiver disponível)
     if (redisClient.isConnected) {
       const redisStore = new RedisStore({
         client: redisClient.getClient(),
@@ -144,18 +160,19 @@ async function startServer() {
       }));
     }
     
-    // 5. Documentação API
+    // 6. Documentação API
     try {
       const swaggerDocument = YAML.load(path.join(__dirname, 'docs/swagger.yaml'));
       app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, {
         customCss: '.swagger-ui .topbar { display: none }',
         customSiteTitle: 'Portfolio API Documentation',
       }));
+      logger.info('📖 Documentação Swagger carregada');
     } catch (error) {
-      logger.warn(`Não foi possível carregar documentação Swagger: ${error}`);
+      logger.warn(`⚠️ Não foi possível carregar documentação Swagger: ${error}`);
     }
     
-    // 6. Health check
+    // 7. Health check
     app.get('/health', async (req: Request, res: Response) => {
       const health = {
         status: 'healthy',
@@ -174,7 +191,7 @@ async function startServer() {
       res.status(200).json(health);
     });
     
-    // API routes
+    // 8. API routes
     app.use('/api/auth', authRoutes);
     app.use('/api/projects', projectRoutes);
     app.use('/api/certificates', certificateRoutes);
@@ -182,35 +199,41 @@ async function startServer() {
     app.use('/api/admin', adminRoutes);
     app.use('/api/ai', aiRoutes);
     
-    // 404 handler
+    // 9. 404 handler
     app.use(notFoundHandler);
     
-    // Error handler
+    // 10. Error handler
     app.use(errorHandler);
     
-    // 7. Iniciar servidor
+    // 11. Iniciar servidor
     const PORT = process.env.PORT || 5001;
     const server = app.listen(PORT, () => {
       logger.info(`🚀 Servidor rodando na porta ${PORT}`);
       logger.info(`📖 Documentação disponível em http://localhost:${PORT}/api-docs`);
+      logger.info(`💊 Health check disponível em http://localhost:${PORT}/health`);
     });
     
-    // 8. Configurar timeouts
+    // 12. Configurar timeouts
     server.timeout = 30000; // 30 segundos
     server.keepAliveTimeout = 65000; // 65 segundos
     server.headersTimeout = 66000; // 66 segundos
     
-    // 9. WebSockets
+    // 13. WebSockets
     initializeWebSockets(server);
     
-    // 10. Background jobs (opcional)
+    // 14. Background jobs (opcional)
     try {
-      initializeJobs();
+      if (redisClient.isConnected) {
+        await setupQueues();
+        logger.info('✅ Background jobs inicializados');
+      } else {
+        logger.warn('⚠️ Background jobs não inicializados (Redis não disponível)');
+      }
     } catch (error) {
-      logger.warn(`Jobs não inicializados: ${error}`);
+      logger.warn(`⚠️ Jobs não inicializados: ${error}`);
     }
     
-    // 11. Graceful shutdown
+    // 15. Graceful shutdown
     gracefulShutdownHandler(server);
     
     return server;
@@ -222,7 +245,12 @@ async function startServer() {
 }
 
 // Iniciar servidor
-startServer();
+startServer().then(() => {
+  logger.info('✅ Aplicação inicializada com sucesso');
+}).catch((error) => {
+  logger.error(`❌ Falha ao inicializar aplicação: ${error}`);
+  process.exit(1);
+});
 
 // Handlers de erro não capturado
 process.on('unhandledRejection', (err: Error) => {
