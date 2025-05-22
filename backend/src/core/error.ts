@@ -1,165 +1,185 @@
 import { Request, Response, NextFunction } from 'express';
 import logger from '../config/logger';
+import { ValidationError as JoiValidationError } from 'joi';
 
-// Custom error class with status code
+// Classes de erro customizadas
 export class AppError extends Error {
   readonly status: string;
+  readonly isOperational: boolean;
+  readonly statusCode: number;
   
   constructor(
-    readonly message: string, 
-    readonly statusCode: number, 
-    readonly isOperational: boolean = true
+    message: string, 
+    statusCode: number, 
+    isOperational: boolean = true
   ) {
     super(message);
+    this.statusCode = statusCode;
     this.status = statusCode >= 400 && statusCode < 500 ? 'fail' : 'error';
+    this.isOperational = isOperational;
+    
     Error.captureStackTrace(this, this.constructor);
   }
 }
 
-// Error factory for common error types
+// Fábrica de classes de erro
 const createErrorClass = (defaultCode: number, defaultMessage: string) => 
   class extends AppError {
-    constructor(message: string = defaultMessage) {
-      super(message, defaultCode);
+    constructor(message: string = defaultMessage, statusCode: number = defaultCode) {
+      super(message, statusCode);
     }
   };
 
-export const BadRequestError = createErrorClass(400, 'Bad request');
-export const UnauthorizedError = createErrorClass(401, 'Unauthorized');
-export const ForbiddenError = createErrorClass(403, 'Forbidden');
-export const NotFoundError = createErrorClass(404, 'Resource not found');
-export const ConflictError = createErrorClass(409, 'Resource already exists');
-export const RateLimitError = createErrorClass(429, 'Too many requests');
-export const ServerError = createErrorClass(500, 'Internal server error');
+export const BadRequestError = createErrorClass(400, 'Requisição inválida');
+export const UnauthorizedError = createErrorClass(401, 'Não autorizado');
+export const ForbiddenError = createErrorClass(403, 'Acesso negado');
+export const NotFoundError = createErrorClass(404, 'Recurso não encontrado');
+export const ConflictError = createErrorClass(409, 'Conflito de recursos');
+export const UnprocessableEntityError = createErrorClass(422, 'Entidade não processável');
+export const TooManyRequestsError = createErrorClass(429, 'Muitas requisições');
+export const InternalServerError = createErrorClass(500, 'Erro interno do servidor');
 
-// Validation error needs special handling for errors object
+// Erro de validação especializado
 export class ValidationError extends AppError {
-  constructor(message: string = 'Validation error', readonly errors: Record<string, any> = {}) {
+  public errors: Record<string, string>;
+  
+  constructor(message: string = 'Erro de validação', errors: Record<string, string> = {}) {
     super(message, 422);
+    this.errors = errors;
   }
 }
 
-// Central error handler middleware
+// Handler central de erros
 export const errorHandler = (
   err: Error | AppError,
   req: Request,
-  res: Response): void => {
-  // Default error response with minimal information in production
+  res: Response,
+  _next: NextFunction
+): void => {
+  let error = { ...err } as any;
+  error.message = err.message;
+  
+  // Log do erro
+  const logMessage = `${req.method} ${req.originalUrl} - ${err.message} - IP: ${req.ip} - User: ${(req as any).user?.email || 'anonymous'}`;
+  
+  if (err instanceof AppError && err.statusCode < 500) {
+    logger.warn(logMessage);
+  } else {
+    logger.error(logMessage);
+    logger.error(err.stack);
+  }
+  
+  // Resposta de erro padronizada
   const errorResponse: {
     status: string;
     message: string;
-    errors?: Record<string, any>;
+    errors?: Record<string, string>;
     stack?: string;
     code?: string;
-    details?: string;
+    timestamp: string;
+    path: string;
   } = {
     status: 'error',
-    message: process.env.NODE_ENV === 'production' 
-      ? 'An error occurred while processing your request.' 
-      : 'Something went wrong'
+    message: 'Erro interno do servidor',
+    timestamp: new Date().toISOString(),
+    path: req.originalUrl,
   };
   
   let statusCode = 500;
-  let logDetails = '';
   
-  // Handle AppError instances
+  // Processar tipos específicos de erro
   if (err instanceof AppError) {
     statusCode = err.statusCode;
     errorResponse.status = err.status;
-    // Use the actual error message even in production for AppError
-    // Since these are controlled application errors
     errorResponse.message = err.message;
     
-    if (err instanceof ValidationError && Object.keys(err.errors).length) {
+    if (err instanceof ValidationError) {
       errorResponse.errors = err.errors;
     }
+  } else if (err instanceof JoiValidationError) {
+    statusCode = 422;
+    errorResponse.status = 'fail';
+    errorResponse.message = 'Dados de entrada inválidos';
+    errorResponse.errors = {};
     
-    logDetails = err.message;
-  } 
-  // Handle specific error types
-  else {
-    const { name } = err;
-    const errorObj = err as any;
-    
-    switch(true) {
-      case name === 'ValidationError' && 'errors' in errorObj:
-        statusCode = 422;
-        errorResponse.status = 'fail';
-        errorResponse.message = 'Validation error';
-        // Still expose validation errors in production for client-side handling
-        errorResponse.errors = errorObj.errors;
-        logDetails = JSON.stringify(errorObj.errors);
-        break;
-        
-      case name === 'CastError':
-        statusCode = 400;
-        errorResponse.status = 'fail';
-        errorResponse.message = 'Invalid data format';
-        // Don't expose exact details in production
-        if (process.env.NODE_ENV !== 'production') {
-          errorResponse.details = `Invalid ${errorObj.path}: ${errorObj.value}`;
-        }
-        logDetails = `Invalid ${errorObj.path}: ${errorObj.value}`;
-        break;
-        
-      case name === 'JsonWebTokenError':
-        statusCode = 401;
-        errorResponse.status = 'fail';
-        errorResponse.message = 'Authentication failed. Please log in again.';
-        logDetails = 'JWT error: ' + err.message;
-        break;
-        
-      case name === 'TokenExpiredError':
-        statusCode = 401;
-        errorResponse.status = 'fail';
-        errorResponse.message = 'Your session has expired. Please log in again.';
-        logDetails = 'Token expired';
-        break;
-        
-      case errorObj.code === 11000:
-        statusCode = 409;
-        errorResponse.status = 'fail';
-        errorResponse.message = 'This item already exists.';
-        // Add error code
-        errorResponse.code = 'DUPLICATE_KEY';
-        
-        // Only in development, show the duplicate field
-        if (process.env.NODE_ENV !== 'production') {
-          const field = Object.keys(errorObj.keyValue)[0];
-          errorResponse.details = `${field} already exists`;
-        }
-        
-        logDetails = `Duplicate key: ${JSON.stringify(errorObj.keyValue)}`;
-        break;
-    }
+    err.details.forEach(detail => {
+      const key = detail.path.join('.');
+      errorResponse.errors![key] = detail.message;
+    });
+  } else if (err.name === 'CastError') {
+    statusCode = 400;
+    errorResponse.status = 'fail';
+    errorResponse.message = 'Formato de dados inválido';
+  } else if (err.name === 'JsonWebTokenError') {
+    statusCode = 401;
+    errorResponse.status = 'fail';
+    errorResponse.message = 'Token inválido';
+  } else if (err.name === 'TokenExpiredError') {
+    statusCode = 401;
+    errorResponse.status = 'fail';
+    errorResponse.message = 'Token expirado';
+  } else if ((err as any).code === 11000) {
+    statusCode = 409;
+    errorResponse.status = 'fail';
+    errorResponse.message = 'Dados duplicados';
+    errorResponse.code = 'DUPLICATE_KEY';
   }
   
-  // Add stack trace in non-production
+  // Não expor stack trace em produção
   if (process.env.NODE_ENV !== 'production') {
     errorResponse.stack = err.stack;
   }
   
-  // Log the error with appropriate level based on status code
-  const logMessage = `${statusCode} - ${logDetails || errorResponse.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`;
-  if (statusCode >= 500) {
-    logger.error(logMessage);
-    logger.error(err.stack);
-  } else {
-    logger.warn(logMessage);
+  // Rate limiting específico para errors 500
+  if (statusCode === 500) {
+    // Implementar circuit breaker ou alertas aqui
   }
   
-  // Send response
   res.status(statusCode).json(errorResponse);
 };
 
-// Async handler to avoid try/catch repetition
+// Async handler melhorado
 export const asyncHandler = (fn: Function) => 
-  (req: Request, res: Response, next: NextFunction) => 
-    Promise.resolve(fn(req, res, next)).catch(next);
+  (req: Request, res: Response, next: NextFunction) => {
+    Promise.resolve(fn(req, res, next)).catch((error: Error) => {
+      // Adicionar contexto do request ao erro
+      if (error instanceof AppError) {
+        error.message = `${error.message} [${req.method} ${req.originalUrl}]`;
+      }
+      next(error);
+    });
+  };
 
-// Not found handler
-export const notFoundHandler = (req: Request, _res: Response, next: NextFunction): void => 
-  next(new NotFoundError(`Cannot ${req.method} ${req.originalUrl}`));
+// Handler para rotas não encontradas
+export const notFoundHandler = (req: Request, _res: Response, next: NextFunction): void => {
+  next(new NotFoundError(`Rota não encontrada: ${req.method} ${req.originalUrl}`));
+};
+
+// Handler para shutdown graceful
+export const gracefulShutdownHandler = (server: any) => {
+  const shutdown = (signal: string) => {
+    logger.info(`Recebido ${signal}. Encerrando servidor graciosamente...`);
+    
+    server.close(() => {
+      logger.info('Servidor HTTP encerrado');
+      
+      // Fechar conexões do banco de dados
+      require('../config/db').getMongoose().connection.close(() => {
+        logger.info('Conexão MongoDB encerrada');
+        process.exit(0);
+      });
+    });
+    
+    // Forçar encerramento após 30 segundos
+    setTimeout(() => {
+      logger.error('Forçando encerramento...');
+      process.exit(1);
+    }, 30000);
+  };
+  
+  process.on('SIGTERM', () => shutdown('SIGTERM'));
+  process.on('SIGINT', () => shutdown('SIGINT'));
+};
 
 export default {
   AppError,
@@ -169,9 +189,10 @@ export default {
   NotFoundError,
   ConflictError,
   ValidationError,
-  RateLimitError,
-  ServerError,
+  TooManyRequestsError,
+  InternalServerError,
   errorHandler,
   asyncHandler,
   notFoundHandler,
+  gracefulShutdownHandler,
 };

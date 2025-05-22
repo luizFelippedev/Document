@@ -1,49 +1,53 @@
-# Build stage
-FROM node:20-alpine AS build
+# Multi-stage build para produção otimizada
+FROM node:18-alpine AS builder
 
-# Set working directory
+# Instalar dependências do sistema
+RUN apk add --no-cache python3 make g++ && ln -sf python3 /usr/bin/python
+
 WORKDIR /app
 
-# Copy package files
-COPY package.json package-lock.json ./
+# Copiar arquivos de dependências
+COPY package*.json ./
+COPY tsconfig.json ./
 
-# Install dependencies
-RUN npm ci
+# Instalar dependências
+RUN npm ci --only=production && npm cache clean --force
 
-# Copy source code
-COPY . .
+# Copiar código fonte
+COPY src/ ./src/
 
-# Build the application
+# Build da aplicação
 RUN npm run build
 
-# Production stage
-FROM node:20-alpine
+# Stage de produção
+FROM node:18-alpine AS production
 
-# Set environment variables
-ENV NODE_ENV=production
+# Criar usuário não-root
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nodejs -u 1001
 
-# Set working directory
+# Instalar dependências mínimas
+RUN apk add --no-cache dumb-init
+
 WORKDIR /app
 
-# Install production dependencies only
-COPY package.json package-lock.json ./
-RUN npm ci --only=production
+# Copiar arquivos necessários
+COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
+COPY --from=builder --chown=nodejs:nodejs /app/package.json ./
 
-# Copy built files from build stage
-COPY --from=build /app/dist ./dist
-COPY --from=build /app/src/templates ./src/templates
+# Criar diretórios necessários
+RUN mkdir -p uploads logs && \
+    chown -R nodejs:nodejs uploads logs
 
-# Create uploads directory
-RUN mkdir -p uploads/projects uploads/certificates/images uploads/certificates/files uploads/users logs
-
-# Set user for security
-USER node
-
-# Expose port
-EXPOSE 5000
+USER nodejs
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 CMD wget -qO- http://localhost:5000/health || exit 1
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:' + (process.env.PORT || 5000) + '/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"
 
-# Start the application
+EXPOSE 5000
+
+# Usar dumb-init para proper signal handling
+ENTRYPOINT ["dumb-init", "--"]
 CMD ["node", "dist/index.js"]
